@@ -6,10 +6,9 @@
 #include <vector>
 #include <time.h>
 #include <algorithm>
-#include <tclap/CmdLine.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <sys/types.h>
+#include <tclap/CmdLine.h>
 
 using namespace std;
 
@@ -53,11 +52,11 @@ void loadData(string path) {
 
 	if (exists(path)){
 		if(isDir(path)){
-			cout << "it is a dir" << endl;
 			if ((dir = opendir(path.c_str())) != NULL) {
-				// TODO: Check path correctness (slashes)
+				if (path[path.length()-1] != '/')
+					path = path+"/";
 				while ((ent = readdir(dir)) != NULL) {
-					string newFilePath = path+"/"+ent->d_name;
+					string newFilePath = path+ent->d_name;
 					if (!isDir(newFilePath)) {
 						files.push_back(newFilePath);
 						fileCount++;
@@ -74,11 +73,8 @@ void loadData(string path) {
 		cout << "File doesn't exists !" << endl;
 		exit(1);
 	}
-	for (int i=0; i<fileCount; i++){
-		cout << files[i] << endl;
-	}
 
-	// TODO: Check file format if obeyed
+	// NOTE: A better way to handle format inconsistency
 	for (int i=0; i<fileCount; i++){
 		fptr = fopen(files[i].c_str(), "r");
 		while((read = getline(&line, &len, fptr)) != -1){ //char **restrict lineptr
@@ -105,7 +101,8 @@ void loadData(string path) {
 					data[dataCount-1].content = (char *) malloc(read-9);
 					strcpy(data[dataCount-1].content, (line+9));
 			}else {
-					cout << "special things happened 0..0" <<endl;
+					cout << "File " +files[i]+ " did not obeyed input format" << endl;
+					break;
 			}
 		}
 		fclose(fptr);
