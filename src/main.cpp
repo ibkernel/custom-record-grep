@@ -19,8 +19,6 @@ struct record {
 };
 
 
-struct record *data = (struct record*) malloc(sizeof(struct record));
-struct record *moreData = NULL;
 
 inline bool exists(const std::string& name) {
   struct stat buffer;   
@@ -38,8 +36,8 @@ int isDir(const std::string &name) {
 }
 
 
-
-void loadData(string path) {
+// NOTE: i don't know why this work but ** didn't ...
+int loadData(string path, struct record *&data) {
 	FILE *fptr;
 	char *line = NULL;
 	char prefix[5];
@@ -49,7 +47,7 @@ void loadData(string path) {
 	DIR *dir;
 	struct dirent *ent;
 	std::vector<string> files;
-
+struct record *moreData = NULL;
 	if (exists(path)){
 		if(isDir(path)){
 			if ((dir = opendir(path.c_str())) != NULL) {
@@ -108,12 +106,7 @@ void loadData(string path) {
 		fclose(fptr);
 	}
 
-	// for(int i=0; i <dataCount; i++) {
-	// 	cout << data[i].id;
-	// 	cout << data[i].title;
-	// }
-
-	return;
+	return dataCount;
 }
 
 int main(int argc, char** argv)
@@ -148,6 +141,8 @@ int main(int argc, char** argv)
 	// Parse the argv array.
 	cmd.parse( argc, argv );
 
+struct record *data = (struct record*) malloc(sizeof(struct record));
+
 	// Get the value parsed by each arg. 
 	std::string scorePath = scorePathArg.getValue();
 	std::string query = queryArg.getValue();
@@ -157,8 +152,16 @@ int main(int argc, char** argv)
 
 	std::cout << "My score path is: " << scorePath << std::endl;
 	std::cout << "Your query is:" << query << std::endl;
+	int count;
+	count = loadData(inputPath, data);
 
-	loadData(inputPath);
+
+	for(int i=0; i <count; i++) {
+		cout << data[i].id;
+		cout << data[i].title;
+	}
+
+
 	free(data);
 
 	} catch (TCLAP::ArgException &e)  // catch any exceptions
