@@ -1,3 +1,7 @@
-data
+data/*
+!data/main.py
+!data/requirements.txt
+!data/bookFormatter.py
 *.out
 .DS_Store
+.virtualenvs

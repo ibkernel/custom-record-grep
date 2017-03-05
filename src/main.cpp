@@ -9,104 +9,15 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <tclap/CmdLine.h>
+#include "load_data.h"
+#include "search.h"
+
 
 using namespace std;
 
-struct record {
-	char *id;
-	char *title;
-	char *content;
-};
 
-
-
-inline bool exists(const std::string& name) {
-  struct stat buffer;   
-  return (stat (name.c_str(), &buffer) == 0); 
-}
-
-int isDir(const std::string &name) {
-	struct stat buffer;
-	stat(name.c_str(), &buffer);
-	if ( !S_ISDIR(buffer.st_mode) )
-	{
-		return 0;
-	}
-	return 1;
-}
-
-
-// NOTE: i don't know why this work but ** didn't ...
-int loadData(string path, struct record *&data) {
-	FILE *fptr;
-	char *line = NULL;
-	char prefix[5];
-	size_t len = 0;
-	ssize_t read;
-	int dataCount = 0, fileCount = 0;
-	DIR *dir;
-	struct dirent *ent;
-	std::vector<string> files;
-struct record *moreData = NULL;
-	if (exists(path)){
-		if(isDir(path)){
-			if ((dir = opendir(path.c_str())) != NULL) {
-				if (path[path.length()-1] != '/')
-					path = path+"/";
-				while ((ent = readdir(dir)) != NULL) {
-					string newFilePath = path+ent->d_name;
-					if (!isDir(newFilePath)) {
-						files.push_back(newFilePath);
-						fileCount++;
-					}
-				}
-				closedir(dir);
-			}
-		}
-		else {
-			files.push_back(path);
-			fileCount++;
-		}
-	}else {
-		cout << "File doesn't exists !" << endl;
-		exit(1);
-	}
-
-	// NOTE: A better way to handle format inconsistency
-	for (int i=0; i<fileCount; i++){
-		fptr = fopen(files[i].c_str(), "r");
-		while((read = getline(&line, &len, fptr)) != -1){ //char **restrict lineptr
-			memcpy( prefix, line, 4);
-			prefix[4] = '\0';
-			if(strcmp(prefix, "@id:")==0){
-					dataCount++;
-					moreData = (struct record *) realloc(data, dataCount*sizeof(struct record));
-					if (moreData != NULL){
-						data = moreData;
-						data[dataCount-1].id = (char *) malloc(read-4);
-						strcpy(data[dataCount-1].id, (line+4));
-						// cout << (line+4);
-						// printf("line: %s\n", line);
-					}else {
-						free(data);
-						puts ("Error (re)allocating memory");
-	       		exit (1);
-					}
-			}else if (strcmp(prefix, "@tit")==0){
-					data[dataCount-1].title = (char *) malloc(read-7);
-					strcpy(data[dataCount-1].title, (line+7));
-			}else if (strcmp(prefix, "@con")==0){
-					data[dataCount-1].content = (char *) malloc(read-9);
-					strcpy(data[dataCount-1].content, (line+9));
-			}else {
-					cout << "File " +files[i]+ " did not obeyed input format" << endl;
-					break;
-			}
-		}
-		fclose(fptr);
-	}
-
-	return dataCount;
+bool sortScore(struct resultFormat a, struct resultFormat b){
+	return (a.score > b.score) ? true : false;
 }
 
 int main(int argc, char** argv)
@@ -127,21 +38,11 @@ int main(int argc, char** argv)
 	TCLAP::ValueArg<std::string> scorePathArg("s","score","Path to custom score description file",false,"default","string");
 	cmd.add( scorePathArg );
 
-
-	// Define a switch and add it to the command line.
-	// A switch arg is a boolean argument and only defines a flag that
-	// indicates true or false.  In this example the SwitchArg adds itself
-	// to the CmdLine object as part of the constructor.  This eliminates
-	// the need to call the cmd.add() method.  All args have support in
-	// their constructors to add themselves directly to the CmdLine object.
-	// It doesn't matter which idiom you choose, they accomplish the same thing.
-
-	// TCLAP::SwitchArg reverseSwitch("r","reverse","Print name backwards", cmd, false);
-
 	// Parse the argv array.
 	cmd.parse( argc, argv );
 
-struct record *data = (struct record*) malloc(sizeof(struct record));
+	//struct record *data = (struct record *)malloc(sizeof(struct record));
+	struct record *data = NULL;
 
 	// Get the value parsed by each arg. 
 	std::string scorePath = scorePathArg.getValue();
@@ -152,17 +53,30 @@ struct record *data = (struct record*) malloc(sizeof(struct record));
 
 	std::cout << "My score path is: " << scorePath << std::endl;
 	std::cout << "Your query is:" << query << std::endl;
-	int count;
-	count = loadData(inputPath, data);
+	int dataCount = loadData(inputPath, data);
+	//int dataCount = loadData2(inputPath, &data);
+
+	vector<struct resultFormat> result;
+	int resultCount = search(query, data, dataCount, result);
+	sort(result.begin(), result.end(), sortScore);
+
+	/* Print all data */
+	// for(int i=0; i <dataCount; i++) {
+	// 	cout << data[i].id;
+	// 	cout << data[i].title;
+	// 	// cout << data[i].content;
+	// }
 
 
-	for(int i=0; i <count; i++) {
-		cout << data[i].id;
-		cout << data[i].title;
+	/* Print query result */
+	for (int i=0; i< resultCount; i++){
+			cout << data[result[i].id].id;
+			cout << data[result[i].id].title;
+			cout << result[i].score << endl;
 	}
 
-
 	free(data);
+	return 0;
 
 	} catch (TCLAP::ArgException &e)  // catch any exceptions
 	{ std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl; }
