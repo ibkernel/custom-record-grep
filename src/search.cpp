@@ -34,3 +34,20 @@ int search(string pattern, struct record *&data, int dataCount, vector<struct re
 	}
 	return result.size();
 }
+
+void testingLocations(string pattern, struct record *&data, int dataCount, vector<struct resultFormat> &result){
+	char *found;
+	for (int i=0; i < dataCount; i++){
+		if((found = strstr(data[i].id, pattern.c_str()))>0){
+			cout << "Found at title, location: " << found - data[i].id << endl;
+		}
+		if((found = strstr(data[i].title, pattern.c_str()))>0){
+			cout << "Found at id, location: " << found - data[i].title << endl;
+		}
+		if((found = strstr(data[i].content, pattern.c_str()))>0){
+			cout << "Found at content, location: " << found - data[i].content << endl;
+		}
+	}
+
+	return;
+}

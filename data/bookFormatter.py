@@ -89,15 +89,13 @@ Search method and ranking method:
 												-> assume result p1:28,123; p2:42,55; p3:231,42 -> has score
 																-> 
 '''
-
-
 class BookFormater:
 	path_to_formatted_dir = "./formattedData/"
 	path_to_download_dir = "./downloadedData/"
 	path_to_merged_file = "./mergedlist.txt"
 	path_to_downloaded_list = "./dwlist.txt"
 
-	non_sense = ["請記住本站域名: 黃金屋", "\"", "”","“", " "]
+	non_sense = ["請記住本站域名: 黃金屋", "\"", "”","“", " ", " "]
 
 	def __init__(self):
 		self.already_merged = []
@@ -107,7 +105,7 @@ class BookFormater:
 		to_merge_titles = self.getNotMergeBookList()
 		merged_list_file = open(BookFormater.path_to_merged_file, 'a')
 		for book_title in to_merge_titles:
-			self.merge(book_title)
+			self.mergeWithoutTags(book_title)
 			merged_list_file.write("{}\n".format(book_title))
 		merged_list_file.close()
 
@@ -129,9 +127,143 @@ class BookFormater:
 
 		return downloaded_book_title
 
-#TODO: add no-tag version of the function -> we already have locations
-	def merge(self, book_title):
-	#def format(self, text): # Just for local testing
+#NOTE: Obey clean code rule as much as possible
+	def mergeWithoutTags(self, book_title):
+		to_merge_chapters_path = self.getToMergeChaptersPath(book_title)
+		if not to_merge_chapters_path:
+			return
+		self.writeRecordHeaderToFile(book_title)
+		self.writeChapterListToFile(book_title, to_merge_chapters_path)
+
+	def writeChapterListToFile(self, book_title, to_merge_chapters_path):
+		char_count, chapter_num, title_num, paragraph_num, sentense_num = 0, 0, 0, 0, 0
+		for chapter_path in to_merge_chapters_path:
+			char_count, chapter_num, title_num, paragraph_num, sentense_num = self.writeChapterToFile(\
+				char_count, chapter_path, chapter_num, title_num, paragraph_num, sentense_num, book_title)
+		print('End merging {}'.format(book_title))
+
+
+	def writeChapterToFile(self, char_count, chapter_path, chapter_num, title_num, paragraph_num, sentense_num, book_title):
+		print('Current processing chapter: {}'.format(chapter_path))
+		chapter_file = open(chapter_path, 'r')
+		text = ""
+		for line in chapter_file:
+			text += line
+		text = self.removeNonsense(text)
+
+		destination_path = BookFormater.path_to_formatted_dir + book_title + '.txt'
+		destination_file = open(destination_path, 'a')
+		title_flag, tag_queue = True, deque()
+		tag_queue.append(("c_"+str(chapter_num), char_count))
+		for line in text.split("\n"):
+			if line:
+				if not title_flag:
+					paragraph_num += 1
+					tag_queue.append(("p_"+str(paragraph_num), char_count))
+					line , sentense_num, char_count, tag_queue = self.lineFormatterWithoutTag(line, sentense_num, char_count, tag_queue)
+					tag_queue.append(("p_"+str(paragraph_num), char_count))
+				else:
+					title_num += 1
+					tag_queue.append(("t_"+str(title_num), char_count))
+					char_count += len(line)*3
+					tag_queue.append(("t_"+str(title_num), char_count))
+					title_flag = False
+				destination_file.write(line)
+		tag_queue.append(("c_"+str(chapter_num), char_count))
+		chapter_num += 1
+
+		chapter_file.close()
+		destination_file.close()
+		self.writeTagInfoToFile2(tag_queue, book_title)
+
+		return char_count, chapter_num, title_num, paragraph_num, sentense_num
+
+	def writeTagInfoToFile2(self, tag_queue, book_title):
+		tag_info_path = BookFormater.path_to_formatted_dir + book_title + '.info'
+		tag_file = open(tag_info_path, 'a')
+
+		open_chapter_tag, open_tag_location = tag_queue.popleft()
+		close_chapter_tag, close_tag_location  = tag_queue.pop()
+		tag_file.write("{}\t{}\t{}\n".format(open_chapter_tag, open_tag_location, close_tag_location))
+		open_title_tag, open_tag_location = tag_queue.popleft()
+		close_title_tag, close_tag_location  = tag_queue.popleft()
+		tag_file.write("{}\t{}\t{}\n".format(open_title_tag, open_tag_location, close_tag_location))
+
+
+		other_tag_queue, queue_count = deque(), 0
+		for tag, tag_location in tag_queue:
+			if not other_tag_queue:
+				other_tag_queue.append((tag, tag_location))
+			elif tag in other_tag_queue[0]:
+				_ , location = other_tag_queue.popleft()
+				tag_file.write("{}\t{}\t{}\n".format(tag, location, tag_location))
+				for _ in range(len(other_tag_queue)//2):
+					open_tag, open_tag_location = other_tag_queue.popleft()
+					close_tag, close_tag_location = other_tag_queue.popleft()
+					tag_file.write("{}\t{}\t{}\n".format(open_tag, open_tag_location, close_tag_location))
+			else:
+				other_tag_queue.append((tag, tag_location))
+		tag_file.close()
+
+	def removeNonsense(self, text):
+		for nonsense in BookFormater.non_sense:
+			text = text.replace(nonsense, "")
+		return text
+
+	def lineFormatterWithoutTag(self, line_content, sentense_num, char_count, tag_queue):
+		# find ? 。 . ... !
+		pattern = re.compile('[!?。？！。]|(\.+)')
+		new_content_list = re.split(pattern, line_content)
+		refined_text = ""
+		for content in new_content_list:
+			if content:
+				sentense_num += 1
+				tag_queue.append(("s_"+str(sentense_num), char_count))
+				char_count += len(content)*3
+				tag_queue.append(("s_"+str(sentense_num), char_count))
+				refined_text += content
+
+		return refined_text, sentense_num, char_count, tag_queue
+
+
+	def writeRecordHeaderToFile(self, book_title):
+		destination_path = BookFormater.path_to_formatted_dir + book_title + '.txt'
+		destination_file = open(destination_path, 'w')
+		id_meta_content = "@id:{}\n".format(book_title)
+		title_meta_content = "@title:{}\n".format(book_title)
+		destination_file.write('{}'.format(id_meta_content))
+		destination_file.write('{}'.format(title_meta_content))
+		destination_file.write('@content:')
+
+
+	def getToMergeChaptersPath(self, book_title):
+		book_path = BookFormater.path_to_download_dir + book_title
+		return [book_path+'/'+f for f in os.listdir(book_path+'/') if os.path.isfile(book_path+'/'+f)]
+
+	''' Merge implementation with tags, No longer used
+
+	def lineFormatter(self, line_content, s_num, char_count, tag_queue):
+		# find ? 。 . ... !
+		pattern = re.compile('[!?。？！。]|(\.+)')
+		new_content_list = re.split(pattern, line_content)
+		processed_content = ""
+		for content in new_content_list:
+			if content:
+				s_num += 1
+				tag_queue.append(("s_"+str(s_num), char_count+1))
+				char_count += len("<s_"+str(s_num)+">")
+				processed_content += ("<s_"+str(s_num)+">")
+
+				char_count += len(content)
+				processed_content += content
+
+				tag_queue.append(("s_"+str(s_num), char_count+1))
+				char_count += len("</s_"+str(s_num)+">")
+				processed_content += ("</s_"+str(s_num)+">")
+
+		return processed_content, s_num, char_count, tag_queue
+
+	def mergeWithTags(self, book_title):
 		#text = u"{}".format(text.decode('utf-8'))
 		source_path = BookFormater.path_to_download_dir + book_title
 		destination_path = BookFormater.path_to_formatted_dir + book_title + '.txt'
@@ -242,32 +374,12 @@ class BookFormater:
 			else:
 				other_tag_queue.append((tag, tag_location))
 		tag_file.close()
+'''
 
-	def lineFormatter(self, line_content, s_num, char_count, tag_queue):
-		# find ? 。 . ... !
-		pattern = re.compile('[!?。？！。]|(\.+)')
-		new_content_list = re.split(pattern, line_content)
-		processed_content = ""
-		for content in new_content_list:
-			if content:
-				s_num += 1
-				tag_queue.append(("s_"+str(s_num), char_count+1))
-				char_count += len("<s_"+str(s_num)+">")
-				processed_content += ("<s_"+str(s_num)+">")
-
-				char_count += len(content)
-				processed_content += content
-
-				tag_queue.append(("s_"+str(s_num), char_count+1))
-				char_count += len("</s_"+str(s_num)+">")
-				processed_content += ("</s_"+str(s_num)+">")
-
-		return processed_content, s_num, char_count, tag_queue
-
-
-print (sys.version)
-formater = BookFormater()
-formater.mergeChaptersIntoBooks()
+if __name__ == '__main__':
+	print (sys.version)
+	formater = BookFormater()
+	formater.mergeChaptersIntoBooks()
 
 
 

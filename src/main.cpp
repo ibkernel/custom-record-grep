@@ -20,8 +20,7 @@ bool sortScore(struct resultFormat a, struct resultFormat b){
 	return (a.score > b.score) ? true : false;
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 
 	// Wrap everything in a try block.  Do this every time, 
 	// because exceptions will be thrown for problems.
@@ -74,6 +73,14 @@ int main(int argc, char** argv)
 			cout << data[result[i].id].title;
 			cout << result[i].score << endl;
 	}
+
+	while(1){
+		string searchPattern;
+		cout << "Search something, I shall return it's location if there are any, of course:) :" ;
+		cin >> searchPattern;
+		testingLocations(searchPattern, data, dataCount, result);
+	}
+
 
 	free(data);
 	return 0;

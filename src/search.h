@@ -7,5 +7,5 @@ struct resultFormat {
 };
 
 int search(std::string pattern, struct record *&data, int dataCount, std::vector<struct resultFormat> &result);
-
+void testingLocations(std::string pattern, struct record *&data, int dataCount, std::vector<struct resultFormat> &result);
 #endif
