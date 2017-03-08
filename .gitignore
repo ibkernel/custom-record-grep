@@ -2,6 +2,7 @@ data/*
 !data/main.py
 !data/requirements.txt
 !data/bookFormatter.py
-*.out
+*.out*
+.gdbinit
 .DS_Store
 .virtualenvs

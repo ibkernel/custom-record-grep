@@ -10,6 +10,7 @@ struct record {
 struct node {
 	int *left;
 	int weight;
+	int count;
 	struct node **chapterNodes;
 };
 
@@ -24,10 +25,13 @@ private:
 	int paragraph_size;
 	void buildRank();
 	void insertTag(char tagType, int lowerBound, int upperBound);
-
+	int getBelongingInterval(int *&left, int arrayLength, int foundLocation);
 public:
 	Ranking(std::string tagFilePath);
 	~Ranking();
+	void printTree();
+	// NOTE: REVISE IT AFTER TESTING
+	int getRankingScore(int foundLocation);
 };
 
 /*

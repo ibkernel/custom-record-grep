@@ -11,3 +11,6 @@ debug:
 	./a.out "書本" "../data/formattedData/test.txt"
 clean:
 	rm a.out
+
+
+# /Users/wayne/Desktop/projects/crgrep/src/load_data.cpp:61
