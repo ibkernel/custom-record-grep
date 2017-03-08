@@ -51,7 +51,7 @@ int main(int argc, char** argv){
 	std::cout << "Your query is:" << query << std::endl;
 
 	Record records(inputPath); 
-	records.printRecord();
+	// records.printRecord();
 	//Record *records = new Record(inputPath);
 	// records->printRecord();
 
