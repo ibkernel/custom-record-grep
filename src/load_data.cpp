@@ -11,6 +11,7 @@
 #include "search.h"
 
 
+/*
 using namespace std;
 
 inline bool exists(const std::string& name) {
@@ -27,6 +28,12 @@ int isDir(const std::string &name) {
 	}
 	return 1;
 }
+*/
+
+
+
+/* OLD METHOD
+
 
 int loadData(string path, struct record *&data) {
 	FILE *fptr;
@@ -181,3 +188,4 @@ int loadData2(string path, struct record **data) {
 
 	return dataCount;
 }
+*/

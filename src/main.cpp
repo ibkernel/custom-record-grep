@@ -40,9 +40,6 @@ int main(int argc, char** argv){
 	// Parse the argv array.
 	cmd.parse( argc, argv );
 
-	//struct record *data = (struct record *)malloc(sizeof(struct record));
-	struct record *data = NULL;
-
 	// Get the value parsed by each arg. 
 	std::string scorePath = scorePathArg.getValue();
 	std::string query = queryArg.getValue();
@@ -52,12 +49,15 @@ int main(int argc, char** argv){
 
 	std::cout << "My score path is: " << scorePath << std::endl;
 	std::cout << "Your query is:" << query << std::endl;
-	int dataCount = loadData(inputPath, data);
-	//int dataCount = loadData2(inputPath, &data);
 
-	vector<struct resultFormat> result;
-	int resultCount = search(query, data, dataCount, result);
-	sort(result.begin(), result.end(), sortScore);
+	Record records(inputPath); 
+	records.printRecord();
+	//Record *records = new Record(inputPath);
+	// records->printRecord();
+
+	// vector<struct resultFormat> result;
+	// int resultCount = search(query, data, dataCount, result);
+	// sort(result.begin(), result.end(), sortScore);
 
 	/* Print all data */
 	// for(int i=0; i <dataCount; i++) {
@@ -68,21 +68,19 @@ int main(int argc, char** argv){
 
 
 	/* Print query result */
-	for (int i=0; i< resultCount; i++){
-			cout << data[result[i].id].id;
-			cout << data[result[i].id].title;
-			cout << result[i].score << endl;
-	}
+	// for (int i=0; i< resultCount; i++){
+	// 		cout << data[result[i].id].id;
+	// 		cout << data[result[i].id].title;
+	// 		cout << result[i].score << endl;
+	// }
 
 	while(1){
 		string searchPattern;
 		cout << "Search something, I shall return it's location if there are any, of course:) :" ;
 		cin >> searchPattern;
-		testingLocations(searchPattern, data, dataCount, result);
+		records.search(searchPattern);
 	}
 
-
-	free(data);
 	return 0;
 
 	} catch (TCLAP::ArgException &e)  // catch any exceptions
