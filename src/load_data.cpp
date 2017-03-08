@@ -12,27 +12,6 @@
 
 using namespace std;
 
-/*
-void WeightedTreeNode::insert(char tag, int left, int right){
-	switch (tag){
-		case 'c':
-			std::cout << "You got c: " << left << "," << right << std::endl;
-			break;
-		case 't':
-			std::cout << "You got t: " << left << "," << right << std::endl;
-			break;
-		case 'p':
-			std::cout << "You got p: " << left << "," << right << std::endl;
-			break;
-		case 's':
-			std::cout << "You got s: " << left << "," << right << std::endl;
-			break;
-		default:
-			std::cout << "error tag" << std::endl;
-			break;
-	}
-};*/
-
 Ranking::~Ranking(){};
 Ranking::Ranking(std::string tagFilePath){
 		pathToTagFile = tagFilePath;
@@ -41,11 +20,6 @@ Ranking::Ranking(std::string tagFilePath){
 		paragraph_num = 1;
 		buildRank();
 };
-
-void Ranking::printTree(){
-	cout << "chapter_num:" << chapter_num << endl;
-}
-
 
 int Ranking::getRankingScore(int foundLocation){
 	int score = 0;
@@ -66,9 +40,7 @@ int Ranking::getRankingScore(int foundLocation){
 };
 
 int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLocation) {
-	// NOTE: WEIRD no need to add 1 usually...
 	int leftLength = arrayLength;
-	//cout << "lowerBound length: " << sizeof(lowerBound)/ sizeof(lowerBound[0]) << endl;
 	int mid = leftLength/2, left =0, right = leftLength - 1;
 	int minDiff = lowerBound[leftLength-1], curDiff = 0, inMid = 0;
 	if (foundLocation > lowerBound[leftLength-1])
@@ -118,7 +90,7 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 
 		switch (tagType){
 			case 'c':
-				cout << "chapter_size: " << chapter_size << endl;
+				//NOTE: WEIRD
 				//cout << "p & l count: " <<  (sizeof(root->chapterNodes[chapter_num-1]->left)/sizeof(int)) << endl;
 				chapter_size = 0;
 				moreData = (struct node **) realloc(root->chapterNodes, sizeof(struct node *)*(chapter_num+1));
@@ -194,10 +166,8 @@ void Ranking::buildRank(){
 	std::string tagName;
 	int left, right;
 	while(infile >> tagName >> left >> right){
-		// std::cout << tagName <<"\t"<<left<<"\t" << right << std::endl;
 		insertTag(tagName.at(0), left, right);
 	}
-	printTree();
 };
 
 Record::~Record(){};
@@ -295,9 +265,11 @@ void Record::checkPathAndSetFileVectors(){
 				while ((ent = readdir(dir)) != NULL) {
 					std::string newFilePath = inputPath+ent->d_name;
 					if (!isDir(newFilePath)) {
-						rawfiles.push_back(newFilePath);
-						tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"info");
-						fileCount++;
+						if (newFilePath.substr(newFilePath.length() - 4) == ".txt"){
+							rawfiles.push_back(newFilePath);
+							tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"info");
+							fileCount++;
+						}
 					}
 				}
 				closedir(dir);

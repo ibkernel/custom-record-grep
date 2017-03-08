@@ -29,7 +29,6 @@ private:
 public:
 	Ranking(std::string tagFilePath);
 	~Ranking();
-	void printTree();
 	// NOTE: REVISE IT AFTER TESTING
 	int getRankingScore(int foundLocation);
 };
