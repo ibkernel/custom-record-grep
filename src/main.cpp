@@ -50,7 +50,7 @@ int main(int argc, char** argv){
 	std::cout << "My score path is: " << scorePath << std::endl;
 	std::cout << "Your query is:" << query << std::endl;
 
-	Record records(inputPath); 
+	Record records("/Users/wayne/Desktop/projects/crgrep/data/formattedData/test.txt"); 
 	// records.printRecord();
 	//Record *records = new Record(inputPath);
 	// records->printRecord();
