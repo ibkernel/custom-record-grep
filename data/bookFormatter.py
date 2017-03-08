@@ -127,10 +127,13 @@ class BookFormater:
 
 		return downloaded_book_title
 
+#TODO: remove empty tags (p, s)
+
 #NOTE: Obey clean code rule as much as possible
 	def mergeWithoutTags(self, book_title):
 		to_merge_chapters_path = self.getToMergeChaptersPath(book_title)
 		if not to_merge_chapters_path:
+			print("No file to merge!")
 			return
 		self.writeRecordHeaderToFile(book_title)
 		self.writeChapterListToFile(book_title, to_merge_chapters_path)
@@ -154,6 +157,7 @@ class BookFormater:
 		destination_path = BookFormater.path_to_formatted_dir + book_title + '.txt'
 		destination_file = open(destination_path, 'a')
 		title_flag, tag_queue = True, deque()
+		chapter_num += 1
 		tag_queue.append(("c_"+str(chapter_num), char_count))
 		for line in text.split("\n"):
 			if line:
@@ -170,12 +174,10 @@ class BookFormater:
 					title_flag = False
 				destination_file.write(line)
 		tag_queue.append(("c_"+str(chapter_num), char_count))
-		chapter_num += 1
 
 		chapter_file.close()
 		destination_file.close()
 		self.writeTagInfoToFile2(tag_queue, book_title)
-
 		return char_count, chapter_num, title_num, paragraph_num, sentense_num
 
 	def writeTagInfoToFile2(self, tag_queue, book_title):

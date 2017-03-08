@@ -10,6 +10,7 @@
 #include "load_data.h"
 #include "search.h"
 
+
 using namespace std;
 
 inline bool exists(const std::string& name) {
@@ -37,6 +38,8 @@ int loadData(string path, struct record *&data) {
 	DIR *dir;
 	struct dirent *ent;
 	std::vector<string> files;
+	std::vector<string> tagFiles;
+
 	struct record *moreData = NULL;
 	if (exists(path)){
 		if(isDir(path)){
@@ -47,6 +50,7 @@ int loadData(string path, struct record *&data) {
 					string newFilePath = path+ent->d_name;
 					if (!isDir(newFilePath)) {
 						files.push_back(newFilePath);
+						tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"info");
 						fileCount++;
 					}
 				}
@@ -55,12 +59,14 @@ int loadData(string path, struct record *&data) {
 		}
 		else {
 			files.push_back(path);
+			tagFiles.push_back(path.substr(0, path.size()-3)+"info");
 			fileCount++;
 		}
 	}else {
 		cout << "File doesn't exists !" << endl;
 		exit(1);
 	}
+	cout << tagFiles[0] << endl;
 
 	// NOTE: A better way to handle format inconsistency
 	for (int i=0; i<fileCount; i++){
@@ -95,6 +101,10 @@ int loadData(string path, struct record *&data) {
 			}
 		}
 		fclose(fptr);
+		//Ranking recordRank(tagFiles[i]);
+		//recordRank.buildRank();
+		Ranking *recordRank  = new Ranking(tagFiles[i]);
+		recordRank->buildRank();
 	}
 
 	return dataCount;
