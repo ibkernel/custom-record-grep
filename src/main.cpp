@@ -71,39 +71,8 @@ int main(int argc, char** argv){
 				BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3]);
 			else if(paths.size() == 5)
 				BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3], paths[4]);
-			// for (int i=0;i<paths.size();i++)
-			// 	cout << paths[i] << endl;
 		}
 	}
-	// records.printRecord();
-	//Record *records = new Record(inputPath);
-	// records->printRecord();
-
-	// vector<struct resultFormat> result;
-	// int resultCount = search(query, data, dataCount, result);
-	// sort(result.begin(), result.end(), sortScore);
-
-	/* Print all data */
-	// for(int i=0; i <dataCount; i++) {
-	// 	cout << data[i].id;
-	// 	cout << data[i].title;
-	// 	// cout << data[i].content;
-	// }
-
-
-	/* Print query result */
-	// for (int i=0; i< resultCount; i++){
-	// 		cout << data[result[i].id].id;
-	// 		cout << data[result[i].id].title;
-	// 		cout << result[i].score << endl;
-	// }
-
-	// while(1){
-	// 	string searchPattern;
-	// 	cout << "Search something, I shall return it's location if there are any, of course:) :" ;
-	// 	cin >> searchPattern;
-	// 	records.search(searchPattern);
-	// }
 
 	return 0;
 
