@@ -23,18 +23,22 @@ Ranking::Ranking(std::string tagFilePath){
 
 int Ranking::getRankingScore(int foundLocation){
 	int score = 0;
-	int chapter_arrray_index = getBelongingInterval(root->left, root->count, foundLocation);
-	score += root->chapterNodes[chapter_arrray_index]->weight;
-	int paragraph_arrray_index = getBelongingInterval(root->chapterNodes[chapter_arrray_index]->left, root->chapterNodes[chapter_arrray_index]->count, foundLocation);
-	cout << root->chapterNodes[chapter_arrray_index]->chapterNodes[paragraph_arrray_index]->count << endl;
-	score += root->chapterNodes[chapter_arrray_index]->chapterNodes[paragraph_arrray_index]->weight;
-	if(paragraph_arrray_index == 0){ // title
-		cout <<cout << chapter_arrray_index << ":" << paragraph_arrray_index << endl;
+	int chapter_array_index = getBelongingInterval(root->left, root->count, foundLocation);
+	score += root->chapterNodes[chapter_array_index]->weight;
+	int paragraph_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->left, root->chapterNodes[chapter_array_index]->count, foundLocation);
+	// cout << root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count << endl;
+	score += root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->weight;
+	if(paragraph_array_index == 0){ // title
+		// cout << chapter_array_index << ":" << paragraph_array_index << endl;
 	}
 	else{
-		int sentence_array_index = getBelongingInterval(root->chapterNodes[chapter_arrray_index]->chapterNodes[paragraph_arrray_index]->left, root->chapterNodes[chapter_arrray_index]->chapterNodes[paragraph_arrray_index]->count, foundLocation);
-		cout << chapter_arrray_index << ":" << paragraph_arrray_index << ":" << sentence_array_index << endl;
-		score += root->chapterNodes[chapter_arrray_index]->chapterNodes[paragraph_arrray_index]->chapterNodes[sentence_array_index]->weight;
+		int sentence_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->left, root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count, foundLocation);
+		// cout << chapter_array_index << ":" << paragraph_array_index << ":" << sentence_array_index << endl;
+		if (sentence_array_index == -1){
+			cout << "Weird things happen at: " << chapter_array_index << ":" <<  paragraph_array_index << ":" << sentence_array_index << endl;
+			return 0;
+		}
+		score += root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->chapterNodes[sentence_array_index]->weight;
 	}
 	return score; // not found, not supposed to go here
 };
@@ -43,6 +47,8 @@ int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLo
 	int leftLength = arrayLength;
 	int mid = leftLength/2, left =0, right = leftLength - 1;
 	int minDiff = lowerBound[leftLength-1], curDiff = 0, inMid = 0;
+	if (arrayLength == 0)
+		return -1;
 	if (foundLocation > lowerBound[leftLength-1])
 		return leftLength-1;
 	if (foundLocation < lowerBound[0])
@@ -100,6 +106,7 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 					root->chapterNodes[chapter_num] = (struct node *)malloc(sizeof(struct node) * 1);
 					root->left = evenMoreData;
 					root->left[chapter_num] = lowerBound;
+					root->chapterNodes[chapter_num]->weight = 0;
 					root->count += 1;
 				}
 				chapter_num += 1;
@@ -188,20 +195,38 @@ void Record::printRecord(){
 };
 
 void Record::search(std::string pattern) {
-	char *found;
+	char *text = NULL;
+	char *found = NULL;
+
 	for (int i=0; i < fileCount; i++){
+		int foundLocation, score = 0, count_time = 0;
+		bool foundIdFlag = false, foundTitleFlag = false, foundContentFlag = false;
+		text = data[i].content;
+
 		if((found = strstr(data[i].id, pattern.c_str()))>0){
-			std::cout << "Found at title, location: " << found - data[i].id << std::endl;
+			score += 0;
+			foundIdFlag = true;
+			//std::cout << "Book :" << data[i].title;
+			//std::cout << "Found at title, location: " << found - data[i].id << std::endl;
 		}
 		if((found = strstr(data[i].title, pattern.c_str()))>0){
-			std::cout << "Found at id, location: " << found - data[i].title << std::endl;
+			score += 100;
+			foundIdFlag = false;
+			//std::cout << "Book :" << data[i].title;
+			//std::cout << "Found at id, location: " << found - data[i].title << std::endl;
 		}
-		if((found = strstr(data[i].content, pattern.c_str()))>0){
-			int foundLocation = found - data[i].content;
-			int score = rank[i].getRankingScore(foundLocation);
-			std::cout << "Found at content, location: " << foundLocation << std::endl;
+		while((found = strstr(text, pattern.c_str()))>0){
+			foundContentFlag = true;
+			foundLocation = found - data[i].content;
+			score += rank[i].getRankingScore(foundLocation);
+			text = found + pattern.length();
+			count_time ++;
+		}
+		if (foundIdFlag || foundTitleFlag || foundContentFlag){
+			std::cout << "Book :" << data[i].title << "Count time:" << count_time << std::endl;
 			std::cout << "Ranking score: " << score << std::endl;
 		}
+		text = found = NULL;
 	}
 };
 
@@ -267,7 +292,8 @@ void Record::checkPathAndSetFileVectors(){
 					if (!isDir(newFilePath)) {
 						if (newFilePath.substr(newFilePath.length() - 4) == ".txt"){
 							rawfiles.push_back(newFilePath);
-							tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"info");
+							//tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"info");
+							tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
 							fileCount++;
 						}
 					}
@@ -277,7 +303,8 @@ void Record::checkPathAndSetFileVectors(){
 		}
 		else {
 			rawfiles.push_back(inputPath);
-			tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"info");
+			//tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"info");
+			tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"tags");
 			fileCount++;
 		}
 	}else {

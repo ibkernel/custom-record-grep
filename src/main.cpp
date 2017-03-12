@@ -11,8 +11,8 @@
 #include <tclap/CmdLine.h>
 #include "load_data.h"
 #include "search.h"
-
-
+#include "load_data.h"
+#include "book_formatter.h"
 using namespace std;
 
 
@@ -37,6 +37,8 @@ int main(int argc, char** argv){
 	TCLAP::ValueArg<std::string> scorePathArg("s","score","Path to custom score description file",false,"default","string");
 	cmd.add( scorePathArg );
 
+	TCLAP::MultiArg<std::string> formatDataArg("f", "format", "Path to download dir, formatted dir, downloaded list file, merged file and stop words file.", false,"string" );
+	cmd.add( formatDataArg );
 	// Parse the argv array.
 	cmd.parse( argc, argv );
 
@@ -44,13 +46,35 @@ int main(int argc, char** argv){
 	std::string scorePath = scorePathArg.getValue();
 	std::string query = queryArg.getValue();
 	std::string inputPath = inputPathArg.getValue();
-	// bool reverseName = reverseSwitch.getValue();
+	std::vector <std::string> paths = formatDataArg.getValue();
 
 
 	std::cout << "My score path is: " << scorePath << std::endl;
 	std::cout << "Your query is:" << query << std::endl;
 
-	Record records(inputPath); 
+	//Record records(inputPath); 
+	if (paths.size() == 0){
+		Record records("../data/formattedData/一念永恒.txt");
+		//Record records(inputPath); 
+		while(1){
+			string searchPattern;
+			cout << "Search something, I shall return it's location if there are any, of course:) :" ;
+			cin >> searchPattern;
+			records.search(searchPattern);
+		}
+	}else {
+		if (paths.size() < 4){
+			cout << "We need at least 4 arguments for formatting" << endl;
+		}else{
+			// TODO: check validity of paths.
+			if (paths.size() == 4)
+				BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3]);
+			else if(paths.size() == 5)
+				BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3], paths[4]);
+			// for (int i=0;i<paths.size();i++)
+			// 	cout << paths[i] << endl;
+		}
+	}
 	// records.printRecord();
 	//Record *records = new Record(inputPath);
 	// records->printRecord();
@@ -74,12 +98,12 @@ int main(int argc, char** argv){
 	// 		cout << result[i].score << endl;
 	// }
 
-	while(1){
-		string searchPattern;
-		cout << "Search something, I shall return it's location if there are any, of course:) :" ;
-		cin >> searchPattern;
-		records.search(searchPattern);
-	}
+	// while(1){
+	// 	string searchPattern;
+	// 	cout << "Search something, I shall return it's location if there are any, of course:) :" ;
+	// 	cin >> searchPattern;
+	// 	records.search(searchPattern);
+	// }
 
 	return 0;
 
