@@ -83,7 +83,7 @@ private:
 		mergedFile.open (pathToMergedFile, std::ios::in | std::ios::out | std::ios::ate);
 		for (int i=0; i<toMergeList.size(); i++){
 			mergeChapters(toMergeList[i]);
-			mergedFile << toMergeList[i] << std::endl;
+			//mergedFile << toMergeList[i] << std::endl;
 		}
 		mergedFile.close();
 	}
@@ -103,7 +103,11 @@ private:
 
 	void writeRecordHeaderToFile(std::string bookTitle){
 		std::string formattedDestination = pathToFormattedDir + bookTitle + ".txt";
-		std::ofstream formattedFile;
+		std::string tagsDestination = pathToFormattedDir + bookTitle + ".tags";
+		std::ofstream formattedFile, tagsFile;
+		tagsFile.open(tagsDestination);
+		tagsFile << "";
+		tagsFile.close();
 		formattedFile.open(formattedDestination);
 		formattedFile << "@id:" << bookTitle << std::endl;
 		formattedFile << "@title:" << bookTitle << std::endl;
@@ -130,16 +134,16 @@ private:
 		bool titleFlag = true;
 		std::deque <std::tuple <std::string, long>> tagQueue;
 		chapter_num += 1;
-		tagQueue.push_back(getTagTuple("c_"+str(chapter_num), char_count));
+		tagQueue.push_back(getTagTuple("c_"+std::to_string(chapter_num), char_count));
 		std::stringstream stext(text);
 		int lineCOunt = 0;
 		while (std::getline(stext, line)){
 			if (!titleFlag){
 				line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 				paragraph_num += 1;
-				tagQueue.push_back(getTagTuple("p_"+str(paragraph_num), char_count));
+				tagQueue.push_back(getTagTuple("p_"+std::to_string(paragraph_num), char_count));
 				lineFormatter(line, sentense_num, char_count, tagQueue);
-				tagQueue.push_back(getTagTuple("p_"+str(paragraph_num), char_count));
+				tagQueue.push_back(getTagTuple("p_"+std::to_string(paragraph_num), char_count));
 			}else {
 				std::regex e("\\s+");
 				std::smatch m;
@@ -147,16 +151,20 @@ private:
 				//formattedFile << line;
 				line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 				title_num += 1;
-				tagQueue.push_back(getTagTuple("t_"+str(title_num), char_count));
+				tagQueue.push_back(getTagTuple("t_"+std::to_string(title_num), char_count));
 				char_count += line.length();
-				tagQueue.push_back(getTagTuple("t_"+str(title_num), char_count));
+				tagQueue.push_back(getTagTuple("t_"+std::to_string(title_num), char_count));
 				titleFlag = false;
 			}
 			formattedFile << line;
 			line = "";
 		}
-		tagQueue.push_back(getTagTuple("c_"+str(chapter_num), char_count));
+		tagQueue.push_back(getTagTuple("c_"+std::to_string(chapter_num), char_count));
 		formattedFile.close();
+		std::cout << chapter_num << std::endl;
+		std::cout << paragraph_num << std::endl;
+		std::cout << title_num << std::endl;
+		std::cout << sentense_num << std::endl;
 		writeTagInfoToFile(tagQueue, bookTitle);
 		//std::cout << line << std::endl;
 		// std::cout << text << std::endl;
@@ -165,44 +173,48 @@ private:
 	void writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &tagQueue, std::string bookTitle){
 		std::string tagInfoPath = pathToFormattedDir + bookTitle + ".tags";
 		std::ofstream tagFile;
-		std::tuple <std::string, long> tag;
+		std::tuple <std::string, long> tag, tag2;
 		tagFile.open(tagInfoPath, std::ios::in | std::ios::out | std::ios::ate);
 
 		tag = tagQueue.front();
-		tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\n";
 		tagQueue.pop_front();
+		tag2 = tagQueue.back();
 		tagQueue.pop_back();
-		
+		tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\t" << std::get<1>(tag2) << "\n";
 
 		tag = tagQueue.front();
-		tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\n";
 		tagQueue.pop_front();
+		tag2 = tagQueue.front();
 		tagQueue.pop_front();
-
+		tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\t" << std::get<1>(tag2) << "\n";
+		
 		int queue_count = 0;
 		std::deque <std::tuple <std::string, long>> otherTagQueue;
-		std::cout << tagQueue.size() << std::endl;
-		for (int i=0; i <tagQueue.size(); i++){
-			if (otherTagQueue.size()==0){
-				otherTagQueue.push_back(tagQueue.at(i));
-			} else if( std::get<0>(tagQueue.at(i)) == std::get<0>(otherTagQueue.at(0))){
+
+		for (auto t: tagQueue){
+			if (otherTagQueue.size() == 0){
+				otherTagQueue.push_back(t);
+				//std::cout << std::get<0>(t) << ":" << std::get<0>(otherTagQueue.front()) << std::endl;
+			}else if (std::get<0>(t) == std::get<0>(otherTagQueue.front())){
+				//std::cout << std::get<0>(t) << ":" << std::get<0>(otherTagQueue.front()) << std::endl;
+				//std::cout << "size: " << otherTagQueue.size() << std::endl;
 				tag = otherTagQueue.front();
 				otherTagQueue.pop_front();
-				tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\n";
-				//std::cout << std::get<0>(tag) <<"\t" << std::get<1>(tag) << std::endl;
-				for (int j=0; j <otherTagQueue.size()/2; j++){
+				tagFile << std::get<0>(t) << "\t" << std::get<1>(tag) << "\t" << std::get<1>(t) << "\n";
+				int currentSize = otherTagQueue.size();
+				for (int j=0; j< currentSize/2; j++){
 					tag = otherTagQueue.front();
 					otherTagQueue.pop_front();
+					tag2 = otherTagQueue.front();
 					otherTagQueue.pop_front();
-					tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\n";
-					//std::cout << std::get<0>(tag) <<"\t" << std::get<1>(tag) << std::endl;
+					tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\t" << std::get<1>(tag2) << "\n";
 				}
-			} else {
-				otherTagQueue.push_back(tagQueue.at(i));
+			}else {
+				//std::cout << std::get<0>(t) << ":" << std::get<0>(otherTagQueue.front()) << std::endl;
+				otherTagQueue.push_back(t);
 			}
 		}
 		tagFile.close();
-
 	};
 
 
@@ -212,17 +224,32 @@ private:
 		std::regex e("(。|！|？|!|\\?)+");
 		std::string copiedLine = line;
 		int currentP = 0;
+		sentense_num += 1;
+		bool lastLineFlag = false;
+		tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + currentP));
 		while (regex_search(copiedLine, m, e)) {
-			tagQueue.push_back(getTagTuple("s_"+str(sentense_num), char_count + m.position() + currentP));
-			tagQueue.push_back(getTagTuple("s_"+str(sentense_num), char_count + m.position() + currentP));
+			
+			//if ((m.position() + currentP + m[0].length()) == line.length())
+			//	tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + m.position() + currentP + m[0].length()));
+			if ((currentP + m.position() + m[0].length()) == line.length()){
+				tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + line.length()));
+				sentense_num += 1;
+				tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + line.length()));
+			} else {
+				tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + m.position() + currentP));
+				sentense_num += 1;
+				tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + m.position() + currentP));
+			}
 			// std::cout << m[0] << std::endl;
 			// std::cout << m.position() + currentP << std::endl;
 			currentP += (m.position()+m[0].length());
 			copiedLine = m.suffix();
 		}
 		if (currentP != line.length()){
-			tagQueue.push_back(getTagTuple("s_"+str(sentense_num), char_count + line.length()));
+			// std::cout << "Not equal length: " << char_count << std::endl;
+			tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + line.length()));
 		}else {
+			sentense_num -= 1;
 			tagQueue.pop_back();
 		}
 		char_count = char_count + line.length();
