@@ -54,7 +54,7 @@ int main(int argc, char** argv){
 
 	//Record records(inputPath); 
 	if (paths.size() == 0){
-		Record records("../data/formattedData/一念永恒.txt");
+		Record records(inputPath);
 		//Record records(inputPath); 
 		while(1){
 			string searchPattern;
@@ -67,10 +67,12 @@ int main(int argc, char** argv){
 			cout << "We need at least 4 arguments for formatting" << endl;
 		}else{
 			// TODO: check validity of paths.
+			std::clock_t c_start = std::clock();
 			if (paths.size() == 4)
 				BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3]);
 			else if(paths.size() == 5)
 				BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3], paths[4]);
+			std::cout << float( std::clock () - c_start ) /  CLOCKS_PER_SEC << std::endl;
 		}
 	}
 
