@@ -17,6 +17,7 @@ private:
 	int chapter_size;
 	int paragraph_num;
 	int paragraph_size;
+
 	void buildRank();
 	void insertTag(char tagType, int lowerBound, int upperBound);
 	int getBelongingInterval(int *&left, int arrayLength, int foundLocation);

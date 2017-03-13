@@ -52,15 +52,17 @@ int main(int argc, char** argv){
 	std::cout << "My score path is: " << scorePath << std::endl;
 	std::cout << "Your query is:" << query << std::endl;
 
-	//Record records(inputPath); 
 	if (paths.size() == 0){
 		Record records(inputPath);
-		//Record records(inputPath); 
+
 		while(1){
-			string searchPattern;
-			cout << "Search something, I shall return it's location if there are any, of course:) :" ;
-			cin >> searchPattern;
-			records.search(searchPattern);
+			string searchPatterns;
+			cout << "What would you like to search ('q' to exit):" ;
+			std::getline(cin, searchPatterns);
+			if (searchPatterns == "q" || searchPatterns == "Q")
+				break;
+			records.searchAndSortWithRank(searchPatterns);
+			std::cout << "-----------------------------" << '\n';
 		}
 	}else {
 		if (paths.size() < 4){

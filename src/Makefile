@@ -1,6 +1,8 @@
 all:
 	g++ -std=c++11 main.cpp record.cpp ranking.cpp book_formatter.cpp utils.cpp -I./
-	./a.out "書本" "../data/formattedData/全職法師.txt"
+	./a.out "書本" "../data/formattedData/"
+
+# ./a.out "書本" "../data/formattedData/全職法師.txt"
 #	./a.out "random query" "../data/dir/"
 #	./a.out "random query" "tclap"
 compile:

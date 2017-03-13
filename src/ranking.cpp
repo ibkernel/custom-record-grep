@@ -24,16 +24,19 @@ int Ranking::getRankingScore(int foundLocation){
 	int score = 0;
 	int chapter_array_index = getBelongingInterval(root->left, root->count, foundLocation);
 	score += root->chapterNodes[chapter_array_index]->weight;
-	int paragraph_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->left, root->chapterNodes[chapter_array_index]->count, foundLocation);
-	// cout << root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count << endl;
+	int paragraph_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->left,
+	 root->chapterNodes[chapter_array_index]->count, foundLocation);
 	score += root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->weight;
-	if(paragraph_array_index == 0){ // title
-		// cout << chapter_array_index << ":" << paragraph_array_index << endl;
+	if(paragraph_array_index == 0){
+		// In title no need to find 's' tag
+		return score;
 	}
 	else{
-		int sentence_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->left, root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count, foundLocation);
-		// cout << chapter_array_index << ":" << paragraph_array_index << ":" << sentence_array_index << endl;
-		if (sentence_array_index == -1){
+		int sentence_array_index = getBelongingInterval(
+			root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->left,
+			 root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count,
+			  foundLocation);
+		if (sentence_array_index == -1){ // NOTE: It should never happen, however we need more testing to verify
 			std::cout << "Weird things happen at: " << chapter_array_index << ":" <<  paragraph_array_index << ":" << sentence_array_index << std::endl;
 			return 0;
 		}
@@ -46,7 +49,7 @@ int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLo
 	int leftLength = arrayLength;
 	int mid = leftLength/2, left =0, right = leftLength - 1;
 	int minDiff = lowerBound[leftLength-1], curDiff = 0, inMid = 0;
-	if (arrayLength == 0)
+	if (arrayLength == 0) // NOTE: It should never happen, however we need more testing to verify
 		return -1;
 	if (foundLocation > lowerBound[leftLength-1])
 		return leftLength-1;

@@ -22,15 +22,6 @@ Record::Record(std::string path){
 };
 
 
-void Record::printRecord(){
-	// std::cout << "heelo\n" ;
-	for(int i=0; i< fileCount; i++){
-		// std::cout << data[i].id << std::endl;
-		// std::cout << data[i].title << std::endl;
-		std::cout << data[i].content << std::endl;
-	}
-};
-
 void Record::search(std::string pattern) {
 	char *text = NULL;
 	char *found = NULL;
@@ -43,14 +34,10 @@ void Record::search(std::string pattern) {
 		if((found = strstr(data[i].id, pattern.c_str()))>0){
 			score += 0;
 			foundIdFlag = true;
-			//std::cout << "Book :" << data[i].title;
-			//std::cout << "Found at title, location: " << found - data[i].id << std::endl;
 		}
 		if((found = strstr(data[i].title, pattern.c_str()))>0){
-			score += 100;
+			score += 100000;
 			foundIdFlag = false;
-			//std::cout << "Book :" << data[i].title;
-			//std::cout << "Found at id, location: " << found - data[i].title << std::endl;
 		}
 		while((found = strstr(text, pattern.c_str()))>0){
 			foundContentFlag = true;
@@ -66,6 +53,51 @@ void Record::search(std::string pattern) {
 		text = found = NULL;
 	}
 };
+
+std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::string pattern){
+	char *text = NULL;
+	char *found = NULL;
+	std::vector <std::tuple <std::string, int>> result;
+	cout << flush;
+	std::vector <std::string> searchPatterns = split(pattern, ' ');
+	for (int i=0; i < fileCount; i++){
+		int foundLocation, score = 0, count_time = 0;
+		bool foundIdFlag = false, foundTitleFlag = false, foundContentFlag = false;
+		for (auto searchPattern : searchPatterns){
+			text = data[i].content;
+			if((found = strstr(data[i].id, searchPattern.c_str()))>0){
+				score += 0;
+				foundIdFlag = true;
+			}
+			if((found = strstr(data[i].title, searchPattern.c_str()))>0){
+				score += 100000;
+				foundIdFlag = false;
+			}
+			while((found = strstr(text, searchPattern.c_str()))>0){
+				foundContentFlag = true;
+				foundLocation = found - data[i].content;
+				score += rank[i].getRankingScore(foundLocation);
+				text = found + searchPattern.length();
+				count_time ++;
+			}
+		}
+		if (foundIdFlag || foundTitleFlag || foundContentFlag){
+			std::string bookTitle(data[i].title);
+			result.push_back(std::make_tuple(bookTitle, score));
+		}
+		text = found = NULL;
+	}
+
+	std::sort(result.begin(), result.end(),
+		[](std::tuple<std::string, int> const &t1, tuple<std::string, int> const &t2) {
+				return std::get<1>(t1) > std::get<1>(t2);
+			}
+	);
+	for (auto x:result){
+		std::cout << "Book :" << std::get<0>(x) << "Rank score:" << std::get<1>(x) << std::endl;
+	}
+	return result;
+}
 
 void Record::buildRecord(){
 	checkPathAndSetFileVectors();
