@@ -16,6 +16,7 @@ A customizable ranking search tool.
 
 ## Roadmap
 
+- [ ] More search algorithm
 - [ ] Chinese fuzzy search
 - [ ] Customizable score ranking
 - [ ] Customizable tokenizer
