@@ -1,1 +1,26 @@
-# Customize Ranking Grep
+# CRGREP
+
+A customizable ranking search tool.
+
+*still under constructions*
+
+## Features
+
+- Multi-pattern searching
+- Default tokenizer
+- Fuzzy search
+
+## Usage
+
+
+
+## Roadmap
+
+- [ ] Chinese fuzzy search
+- [ ] Customizable score ranking
+- [ ] Customizable tokenizer
+- [ ] Support large data
+
+## License
+
+MIT
