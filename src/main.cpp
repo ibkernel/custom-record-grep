@@ -9,16 +9,16 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <tclap/CmdLine.h>
-#include "load_data.h"
-#include "search.h"
-#include "load_data.h"
+#include "record.h"
+#include "utils.h"
 #include "book_formatter.h"
+
 using namespace std;
 
 
-bool sortScore(struct resultFormat a, struct resultFormat b){
-	return (a.score > b.score) ? true : false;
-}
+// bool sortScore(struct resultFormat a, struct resultFormat b){
+// 	return (a.score > b.score) ? true : false;
+// }
 
 int main(int argc, char** argv){
 
