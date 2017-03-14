@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "search.h"
 
+using namespace std;
+
 
 
 int levenshteinDistance(char *s, const char *t){
@@ -38,7 +40,7 @@ char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTole
     unsigned int tokenLen, patternLen = strlen(pattern);
     char *tmp = (char *)malloc(sizeof(char)*(strlen(haystack)+1));
     strcpy(tmp, haystack);
-    char *token = strtok(tmp, " .,");
+    char *token = strtok(tmp, " .,()?!");
     unsigned int lenOfOffset = 0;
     const int LEN_OF_DELIM = 1;
 

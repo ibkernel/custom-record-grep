@@ -94,6 +94,8 @@ void Record::buildRecord(){
 	readFileThenSetRecordAndRank();
 };
 
+
+// TODO: remove last character:newline
 void Record::readFileThenSetRecordAndRank(){
 	FILE *fptr;
 	char *line = NULL;

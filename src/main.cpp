@@ -61,6 +61,8 @@ int main(int argc, char** argv){
 			std::getline(cin, searchPatterns);
 			if (searchPatterns == "q" || searchPatterns == "Q")
 				break;
+			// NOTE: currently not working with chinese characters.
+			//records.searchAndSortWithRank(searchPatterns, 0, 1); //fuzzy search with 1 edit distance tolerance
 			records.searchAndSortWithRank(searchPatterns);
 			std::cout << "-----------------------------" << '\n';
 		}
