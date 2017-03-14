@@ -65,14 +65,15 @@ std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::s
 		bool foundIdFlag = false, foundTitleFlag = false, foundContentFlag = false;
 		for (auto searchPattern : searchPatterns){
 			text = data[i].content;
-			if((found = strstr(data[i].id, searchPattern.c_str()))>0){
+			if((strstr(data[i].id, searchPattern.c_str()))>0){
 				score += 0;
 				foundIdFlag = true;
 			}
-			if((found = strstr(data[i].title, searchPattern.c_str()))>0){
+			if((strstr(data[i].title, searchPattern.c_str()))>0){
 				score += 100000;
-				foundIdFlag = false;
+				foundTitleFlag = true;
 			}
+			
 			while((found = strstr(text, searchPattern.c_str()))>0){
 				foundContentFlag = true;
 				foundLocation = found - data[i].content;
