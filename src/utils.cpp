@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <iterator>
@@ -22,6 +23,29 @@ void split(const std::string &s, char delim, Out result) {
 		if(!item.empty())
 			*(result++) = item;
 	}
+}
+
+// TODO: Must have (+) and Must Not have (-)
+std::vector<std::string> parseSearchQuery(std::string &searchQuery) {
+	std::size_t foundFirst = searchQuery.find("\"");
+
+	bool openFlag = false, closingFlag = false;
+	if (foundFirst!=std::string::npos){
+		//std::cout << "First Needle found at " << foundFirst << "\n";
+		openFlag = true;
+	}
+	std::size_t foundSecond = searchQuery.find("\"", foundFirst+1);
+	if (foundSecond!=std::string::npos){
+		//std::cout << "Second Needle found at " << foundSecond << "\n";
+		closingFlag = true;
+	}
+	if (openFlag && closingFlag){
+		//std::cout << "This is an exact query :" << searchQuery.substr(foundFirst+1, foundSecond-1) <<"\n";
+		std::vector <std::string> parsedQuery = {searchQuery.substr(foundFirst+1, foundSecond-1)};
+		return parsedQuery;
+	}
+	else
+		return split(searchQuery, ' ');
 }
 
 

@@ -100,12 +100,20 @@ void BookFormatter::formatThenMerge(std::string pathToRawChapter, long &char_cou
 	std::cout << "Current processing chapter: " << pathToRawChapter << std::endl; 
 	std::ifstream chapterFile(pathToRawChapter);
 	std::string line, text = "";
+
 	while (std::getline(chapterFile, line)){
-		for (int i=0; i< stopWords.size();i++)
+		for (int i=0; i< stopWords.size();i++){
 			ReplaceStringInPlace(line, stopWords[i], "");
+		}
 		if (line.length()>2)
 			text += (line + '\n');
 	}
+	std::string::iterator new_end = std::unique(text.begin(), text.end(),
+      [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' '); }
+  );
+	text.erase(new_end, text.end());
+
+
 
 	std::string formattedDestination = pathToFormattedDir + bookTitle + ".txt";
 	std::ofstream formattedFile;
@@ -125,13 +133,10 @@ void BookFormatter::formatThenMerge(std::string pathToRawChapter, long &char_cou
 			lineFormatter(line, sentense_num, char_count, tagQueue);
 			tagQueue.push_back(getTagTuple("p_"+std::to_string(paragraph_num), char_count));
 		}else {
-			std::regex e("\\s+");
-			std::smatch m;
-			std::regex_search(line, m, e);
-			//formattedFile << line;
 			//line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 			title_num += 1;
 			tagQueue.push_back(getTagTuple("t_"+std::to_string(title_num), char_count));
+			//std::cout << "Title:" << line << std::endl;
 			char_count += line.length();
 			tagQueue.push_back(getTagTuple("t_"+std::to_string(title_num), char_count));
 			titleFlag = false;
@@ -257,8 +262,7 @@ BookFormatter::BookFormatter(std::string pathSource, std::string pathDest, std::
 	while (std::getline(stopWordsFile, words)){
 		stopWords.push_back(words);
 	}
-	stopWords.push_back("\n");
-	stopWords.push_back(" ");
+	//stopWords.push_back("\n");
 	mergeWithoutTags();
 };
 

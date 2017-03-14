@@ -10,6 +10,7 @@
 #include <fstream>
 #include "record.h"
 #include "ranking.h"
+#include "search.h"
 #include "utils.h"
 
 using namespace std;
@@ -21,72 +22,59 @@ Record::Record(std::string path){
 	buildRecord();
 };
 
-
-void Record::search(std::string pattern) {
-	char *text = NULL;
-	char *found = NULL;
-
-	for (int i=0; i < fileCount; i++){
-		int foundLocation, score = 0, count_time = 0;
-		bool foundIdFlag = false, foundTitleFlag = false, foundContentFlag = false;
-		text = data[i].content;
-
-		if((found = strstr(data[i].id, pattern.c_str()))>0){
-			score += 0;
-			foundIdFlag = true;
-		}
-		if((found = strstr(data[i].title, pattern.c_str()))>0){
-			score += 100000;
-			foundIdFlag = false;
-		}
-		while((found = strstr(text, pattern.c_str()))>0){
-			foundContentFlag = true;
-			foundLocation = found - data[i].content;
-			score += rank[i].getRankingScore(foundLocation);
-			text = found + pattern.length();
-			count_time ++;
-		}
-		if (foundIdFlag || foundTitleFlag || foundContentFlag){
-			std::cout << "Book :" << data[i].title << "Count time:" << count_time << std::endl;
-			std::cout << "Ranking score: " << score << std::endl;
-		}
-		text = found = NULL;
+//TODO: caseInsensitive not implemented yet
+char * Record::searchFactory(char *text, std::string pattern, bool caseInsensitive, unsigned int editDistance) {
+	if (editDistance == 0){
+		return strstr(text, pattern.c_str());
+	}else {
+		return fuzzySearch(text, pattern.c_str(), editDistance);
 	}
-};
+}
 
-std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::string pattern){
-	char *text = NULL;
+void Record::searchId(char *id, std::string pattern, int &searchScore, int &searchMatchCount, 
+											bool caseInsensitive, unsigned int editDistance){
+	if((searchFactory(id, pattern.c_str(), caseInsensitive, editDistance))>0){
+				searchScore += 0;
+				searchMatchCount++;
+	}
+}
+
+void Record::searchTitle(char *title, std::string pattern, int &searchScore, int &searchMatchCount,
+												bool caseInsensitive, unsigned int editDistance){
+	if((searchFactory(title, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
+				searchScore += 300000;
+				searchMatchCount++;
+	}
+}
+
+void Record::searchContent(char *content, std::string pattern, int recordIndex, int &searchScore, int &searchMatchCount,
+													bool caseInsensitive, unsigned int editDistance){
+	char *text = content;
 	char *found = NULL;
+	int foundLocation;
+	while((found = searchFactory(text, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
+		foundLocation = found - content;
+		searchScore += rank[recordIndex].getRankingScore(foundLocation);
+		text = found + pattern.length();
+		searchMatchCount++;
+	}
+}
+
+std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::string pattern,bool caseInsensitive, unsigned int editDistance){
+	int searchScore, searchMatchCount;
 	std::vector <std::tuple <std::string, int>> result;
-	cout << flush;
-	std::vector <std::string> searchPatterns = split(pattern, ' ');
+	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
 	for (int i=0; i < fileCount; i++){
-		int foundLocation, score = 0, count_time = 0;
-		bool foundIdFlag = false, foundTitleFlag = false, foundContentFlag = false;
-		for (auto searchPattern : searchPatterns){
-			text = data[i].content;
-			if((strstr(data[i].id, searchPattern.c_str()))>0){
-				score += 0;
-				foundIdFlag = true;
+			searchScore = searchMatchCount = 0;
+			for (auto searchPattern: searchPatterns){
+				searchId(data[i].id, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
+				searchTitle(data[i].title, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
+				searchContent(data[i].content, searchPattern, i, searchScore, searchMatchCount, caseInsensitive, editDistance);
 			}
-			if((strstr(data[i].title, searchPattern.c_str()))>0){
-				score += 100000;
-				foundTitleFlag = true;
+			if (searchMatchCount > 0 && searchScore > 0){
+					std::string bookTitle(data[i].title);
+					result.push_back(std::make_tuple(bookTitle, searchScore));
 			}
-			
-			while((found = strstr(text, searchPattern.c_str()))>0){
-				foundContentFlag = true;
-				foundLocation = found - data[i].content;
-				score += rank[i].getRankingScore(foundLocation);
-				text = found + searchPattern.length();
-				count_time ++;
-			}
-		}
-		if (foundIdFlag || foundTitleFlag || foundContentFlag){
-			std::string bookTitle(data[i].title);
-			result.push_back(std::make_tuple(bookTitle, score));
-		}
-		text = found = NULL;
 	}
 
 	std::sort(result.begin(), result.end(),
@@ -95,7 +83,8 @@ std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::s
 			}
 	);
 	for (auto x:result){
-		std::cout << "Book :" << std::get<0>(x) << "Rank score:" << std::get<1>(x) << std::endl;
+		std::cout << "Book :" << std::get<0>(x);
+		std::cout << "Rank score:" << std::get<1>(x) << std::endl;
 	}
 	return result;
 }
@@ -142,6 +131,7 @@ void Record::readFileThenSetRecordAndRank(){
 					std::cout << "File " +rawfiles[i]+ " did not obeyed input format" << std::endl;
 					break;
 			}
+			cout << flush;
 		}
 		fclose(fptr);
 		Ranking currentRank(tagFiles[i]);

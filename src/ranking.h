@@ -26,6 +26,7 @@ public:
 	~Ranking();
 	// NOTE: REVISE IT AFTER TESTING
 	int getRankingScore(int foundLocation);
+	void printTag();
 };
 
 #endif

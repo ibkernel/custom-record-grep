@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "ranking.h"
 
+using namespace std;
+
 Ranking::~Ranking(){};
 Ranking::Ranking(std::string tagFilePath){
 		pathToTagFile = tagFilePath;
@@ -121,6 +123,7 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 				root->chapterNodes[chapter_num-1]->chapterNodes = (struct node **)malloc(sizeof(struct node*)*1);
 				root->chapterNodes[chapter_num-1]->chapterNodes[0] = (struct node *)malloc(sizeof(struct node));
 				root->chapterNodes[chapter_num-1]->chapterNodes[0]->weight = 10;
+				root->chapterNodes[chapter_num-1]->chapterNodes[0]->count = 0;
 				chapter_size += 1;
 				break;
 			case 'p':
@@ -169,6 +172,16 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 	}
 };
 
+// For testing
+void Ranking::printTag() {
+	cout << "Total chapter tags: " << root->count << endl;
+	for (int i=0; i < root->count; i++){
+		cout << "Current chapter: " << root->count << "\tTotal paragraph tags:" << root->chapterNodes[i]->count << endl;
+		for (int j=0; j < root->chapterNodes[i]->count; j++)
+			cout << "Total sentense tags:" << root->chapterNodes[i]->chapterNodes[j]->count << endl;
+	}
+}
+
 void Ranking::buildRank(){
 	// std::cout << pathToTagFile << std::endl;
 	std::ifstream infile(pathToTagFile);
@@ -177,4 +190,6 @@ void Ranking::buildRank(){
 	while(infile >> tagName >> left >> right){
 		insertTag(tagName.at(0), left, right);
 	}
+	//cout << "Current book: " << pathToTagFile << endl;
+	//printTag();
 };

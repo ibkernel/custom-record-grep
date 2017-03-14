@@ -2,7 +2,7 @@
 
 A customizable ranking search tool.
 
-*still under constructions*
+*Currently under development*
 
 ## Features
 
@@ -16,6 +16,7 @@ A customizable ranking search tool.
 
 ## Roadmap
 
+- [ ] Must have/ Must not have search
 - [ ] More search algorithm
 - [ ] Chinese fuzzy search
 - [ ] Customizable score ranking
