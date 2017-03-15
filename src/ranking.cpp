@@ -39,8 +39,11 @@ int Ranking::getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,i
 	return score;
 }
 
+// TODO: need fix overflow error
 int Ranking::getPatternScore(std::map<std::string, int> &foundMap, std::tuple<int,int,int>&singleLocation, int patternNum){
-	const int weight = 5;
+	const int chapterWeight = 3;
+	const int paragraphWeight = 4;
+	const int sentenseWeight = 5;
 	std::map<std::string, int>::iterator it;
 	std::string chapterIndex = std::to_string(std::get<0>(singleLocation));
 	std::string paragraphIndex = std::to_string(std::get<1>(singleLocation));
@@ -48,21 +51,21 @@ int Ranking::getPatternScore(std::map<std::string, int> &foundMap, std::tuple<in
 
 	it = foundMap.find(chapterIndex);
 	if (it != foundMap.end()){
-		foundMap[chapterIndex] += pow(weight, patternNum);
+		foundMap[chapterIndex] += sqrt(pow(chapterWeight, patternNum));
 	}else{
 		foundMap.insert(std::pair<std::string, int>(chapterIndex, 1));
 	}
 
 	it = foundMap.find(chapterIndex+'_'+paragraphIndex);
 	if (it != foundMap.end()){
-		foundMap[chapterIndex+'_'+paragraphIndex] += pow(weight, patternNum);
+		foundMap[chapterIndex+'_'+paragraphIndex] += sqrt(pow(paragraphWeight, patternNum));
 	}else{
 		foundMap.insert(std::pair<std::string, int>(chapterIndex+'_'+paragraphIndex, 1));
 	}
 
 	it = foundMap.find(chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex);
 	if (it != foundMap.end()){
-		foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex] += pow(weight, patternNum);
+		foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex] += sqrt(pow(sentenseWeight, patternNum));
 	}else{
 		foundMap.insert(std::pair<std::string, int>(chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex, 1));
 	}
@@ -73,32 +76,6 @@ int Ranking::getPatternScore(std::map<std::string, int> &foundMap, std::tuple<in
 	else
 		return score * 3;
 }
-
-
-int Ranking::getRankingScore(int foundLocation){
-	int score = 0;
-	int chapter_array_index = getBelongingInterval(root->left, root->count, foundLocation);
-	score += root->chapterNodes[chapter_array_index]->weight;
-	int paragraph_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->left,
-	 root->chapterNodes[chapter_array_index]->count, foundLocation);
-	score += root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->weight;
-	if(paragraph_array_index == 0){
-		// In title no need to find 's' tag
-		return score;
-	}
-	else{
-		int sentence_array_index = getBelongingInterval(
-			root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->left,
-			 root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count,
-			  foundLocation);
-		if (sentence_array_index == -1){ // NOTE: It should never happen, however we need more testing to verify
-			std::cout << "Weird things happen at: " << chapter_array_index << ":" <<  paragraph_array_index << ":" << sentence_array_index << std::endl;
-			return 0;
-		}
-		score += root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->chapterNodes[sentence_array_index]->weight;
-	}
-	return score; // not found, not supposed to go here
-};
 
 std::tuple <int, int, int> Ranking::getRankTreeTuple(int foundLocation){
 	std::tuple <int, int, int> location;
@@ -155,7 +132,6 @@ int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLo
 void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 	if (root == NULL){
 		root = (struct node*) malloc(sizeof(struct node) * 1);
-		root->weight = 0;
 		root->left = (int *) malloc(sizeof(int) * 1);
 		root->chapterNodes = (struct node **)malloc(sizeof(struct node *) * 1);
 		root->left[0] = lowerBound;
@@ -178,7 +154,6 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 					root->chapterNodes[chapter_num] = (struct node *)malloc(sizeof(struct node) * 1);
 					root->left = evenMoreData;
 					root->left[chapter_num] = lowerBound;
-					root->chapterNodes[chapter_num]->weight = 0;
 					root->count += 1;
 				}
 				chapter_num += 1;
@@ -190,7 +165,6 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 				root->chapterNodes[chapter_num-1]->left[0] = lowerBound;
 				root->chapterNodes[chapter_num-1]->chapterNodes = (struct node **)malloc(sizeof(struct node*)*1);
 				root->chapterNodes[chapter_num-1]->chapterNodes[0] = (struct node *)malloc(sizeof(struct node));
-				root->chapterNodes[chapter_num-1]->chapterNodes[0]->weight = 10;
 				root->chapterNodes[chapter_num-1]->chapterNodes[0]->count = 0;
 				chapter_size += 1;
 				break;
@@ -203,7 +177,6 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 				if(moreData != NULL && evenMoreData != NULL){
 					root->chapterNodes[chapter_num-1]->chapterNodes = moreData;
 					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size] = (struct node *)malloc(sizeof(struct node));
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size]->weight = 3;
 					root->chapterNodes[chapter_num-1]->left = evenMoreData;
 					root->chapterNodes[chapter_num-1]->left[chapter_size] = lowerBound;
 					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size]->chapterNodes = (struct node**)malloc(sizeof(struct node*) *1);
@@ -224,7 +197,6 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 				if (moreData != NULL && evenMoreData != NULL){
 					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->chapterNodes = moreData;
 					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->chapterNodes[paragraph_size-1] = (struct node*)malloc(sizeof(struct node)* 1);
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->chapterNodes[paragraph_size-1]->weight = 1;
 					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->left = evenMoreData;
 					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->left[paragraph_size-1] = lowerBound;
 				}else {

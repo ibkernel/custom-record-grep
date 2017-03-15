@@ -4,7 +4,6 @@
 
 struct node {
 	int *left;
-	int weight;
 	int count;
 	struct node **chapterNodes;
 };

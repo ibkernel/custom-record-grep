@@ -13,7 +13,9 @@ A customizable ranking search tool.
 
 ## Usage
 
+## To-do
 
+- Restrict fuzzy search on mandarin data
 
 ## Roadmap
 

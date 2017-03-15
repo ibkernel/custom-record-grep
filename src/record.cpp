@@ -61,7 +61,6 @@ void Record::searchContent(char *content, std::vector <std::string> &searchPatte
 		while((found = searchFactory(text, searchPattern.c_str(), caseInsensitive, editDistance))!=NULL){
 			foundLocation = found - content;
 			foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
-			//searchScore += rank[recordIndex].getRankingScore(foundLocation);
 			text = found + searchPattern.length();
 			searchMatchCount++;
 		}
