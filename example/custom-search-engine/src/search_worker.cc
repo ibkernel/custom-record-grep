@@ -36,31 +36,6 @@ void SearchWorker::Execute() {
 	resultCount = searchResult.size();
 }
 
-// void SearchWorker::Execute() {
-// 		struct resultFormat currentData;
-// 		int currentScore = 0;
-// 		for (int i=0; i < dataCount; i++) {
-// 			if(strstr(data[i].id, query.c_str())>0){
-// 				currentScore += 1;
-// 			}
-// 			if(strstr(data[i].title, query.c_str())>0){
-// 				currentScore += 10;
-// 			}
-// 			if(strstr(data[i].content, query.c_str())>0){
-// 				currentScore += 3;
-// 			}
-// 			//TODO: store current data into a self-managed-order data structure
-// 			if (currentScore > 0){
-// 					currentData.id = i;
-// 					currentData.score = currentScore;
-// 					searchResult.push_back(currentData);
-// 					currentScore = 0;
-// 			}
-// 		}
-// 		// TODO: Let it be customizable in the future (ascend/descend)
-// 		sort(searchResult.begin(), searchResult.end(), sortScore);
-// 		resultCount = searchResult.size();
-// }
 
 void SearchWorker::HandleOKCallback() {
 	HandleScope scope;

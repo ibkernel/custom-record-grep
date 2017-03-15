@@ -8,11 +8,14 @@ var port = 8888;
 
 app.use(bodyParser());
 app.get('/', function(req, res){
+	q = "魔法 火球  冰霜 閃電";
+	searchAsync(q, res);
 });
 
 app.post('/search', function(req, res){
 	console.log("query:",req.body.query);
-	searchAsync(req.body.query, res);
+	q = "校花 裝逼 打臉 小白臉";
+	searchAsync(q, res);
 	//res.send('ok');
 });
 

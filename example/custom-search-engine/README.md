@@ -5,8 +5,22 @@ Thanks to node.js' NAN module, it is now simplier to build a web-based search en
 
 **Currently under development**
 
+## Requirement
+
+- node-gyp
+
 ## Usage
+
+Build node native c++ addon
+```
+node-gyp rebuild
+```
+Run server
+```
+npm start
+```
 
 ## Roadmap
 
-- [x] update to-date
+- [x] update crgrep to-date
+- [ ] Web page

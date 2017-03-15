@@ -6,3 +6,4 @@ data/*
 .gdbinit
 .DS_Store
 .virtualenvs
+*.log

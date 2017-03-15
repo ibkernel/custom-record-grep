@@ -11,7 +11,19 @@ A customizable ranking search tool.
 - Fuzzy search
 - Ranking by analyzing contextual sequence
 
-## Usage
+## Basic Usage
+
+**Must compile with `-std=c++11` option**
+
+compile
+```
+g++ -std=c++11 main.cpp record.cpp ranking.cpp book_formatter.cpp utils.cpp search.cpp result.cpp -I./
+```
+
+run crgrep
+```
+./a.out "query" "path_to_file_or_dir"
+```
 
 ## To-do
 
@@ -22,9 +34,9 @@ A customizable ranking search tool.
 ## Roadmap
 
 - [x] Ranking tree traversal
-- [ ] Must have/ Must not have search (advanced query parser)
 - [ ] Customizable score ranking
 - [ ] Customizable tokenizer
+- [ ] Must have/ Must not have search (advanced query parser)
 - [ ] More search algorithm
 - [ ] Chinese fuzzy search
 - [ ] Support large data
