@@ -28,7 +28,6 @@ private:
 public:
 	Record(std::string path);
 	~Record();
-	
 	int getFileCount();
 	std::vector <std::tuple <std::string, int>> searchAndSortWithRank(std:: string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
 

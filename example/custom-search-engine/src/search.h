@@ -1,33 +1,10 @@
 #ifndef CRGREP_SEARCH_H_
 #define CRGREP_SEARCH_H_
 
-#include <nan.h>
+#define MIN_3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
-struct resultFormat {
-	int id;
-	int score;
-};
-
-//int search(std::string pattern, struct record *&data, int dataCount, std::vector<struct resultFormat> &result);
-bool sortScore(struct resultFormat a, struct resultFormat b);
-
-class SearchWorker : public Nan::AsyncWorker {
-	public:
-		SearchWorker(Nan::Callback *callback, std::string query, int dataCount, struct record *&data);
-		~SearchWorker() {}
-
-		void Execute();
-		void HandleOKCallback();
-
-	private:
-		int dataCount;
-		std::string query;
-		std::vector <struct resultFormat> searchResult;
-		int resultCount;
-		struct record *data;
-};
-
+int levenshteinDistance(char *s, const char *t);
+char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTolerance);
 
 
 #endif
-
