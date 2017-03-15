@@ -2,7 +2,7 @@
 
 A customizable ranking search tool.
 
-*Currently under development*
+**Currently under development**
 
 ## Features
 
