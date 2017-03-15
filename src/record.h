@@ -19,7 +19,7 @@ private:
 
 	void searchId(char *id, std::string pattern, int &searchScore, int &searchMatchCount,bool caseInsensitive = 0, unsigned int editDistance = 0);
 	void searchTitle(char *title, std::string pattern, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
-	void searchContent(char *content, std::string pattern, int recordIndex, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchContent(char *content, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
 	char * searchFactory(char *text, std::string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
 	void buildRecord();
 	void readFileThenSetRecordAndRank();

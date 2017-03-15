@@ -18,7 +18,6 @@ int levenshteinDistance(char *s, const char *t){
     if (t_len == 0)    return s_len;
     if (s_len == 0)    return t_len;
 
-
     int *v0 = (int *) calloc(t_len+1, sizeof(int));
     int *v1 = (int *) calloc(t_len+1, sizeof(int));
 
@@ -55,7 +54,7 @@ char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTole
             return (haystack + lenOfOffset);
         }
         lenOfOffset += (tokenLen + LEN_OF_DELIM);
-        token = strtok(NULL, " .,");
+        token = strtok(NULL, " .,()?!");
     }
     free(tmp);
     return NULL;

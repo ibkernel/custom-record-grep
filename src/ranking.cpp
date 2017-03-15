@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fstream>
+#include <map>
+#include <cmath>
 #include "utils.h"
 #include "ranking.h"
 
@@ -21,6 +23,57 @@ Ranking::Ranking(std::string tagFilePath){
 		paragraph_num = 1;
 		buildRank();
 };
+
+// TODO: change score to double?
+// For multi-pattern searching
+int Ranking::getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuples){
+	int score = 0, patternNum = 0;
+	std::map<std::string, int> foundMap;
+	for (auto patternLocations: patternLocationTuples){
+		for (auto singleLocation: patternLocations){
+				score += getPatternScore(foundMap, singleLocation,patternNum);
+		}
+		patternNum += 1;
+	}
+	foundMap.clear();
+	return score;
+}
+
+int Ranking::getPatternScore(std::map<std::string, int> &foundMap, std::tuple<int,int,int>&singleLocation, int patternNum){
+	const int weight = 5;
+	std::map<std::string, int>::iterator it;
+	std::string chapterIndex = std::to_string(std::get<0>(singleLocation));
+	std::string paragraphIndex = std::to_string(std::get<1>(singleLocation));
+	std::string sentenseIndex = std::to_string(std::get<2>(singleLocation));
+
+	it = foundMap.find(chapterIndex);
+	if (it != foundMap.end()){
+		foundMap[chapterIndex] += pow(weight, patternNum);
+	}else{
+		foundMap.insert(std::pair<std::string, int>(chapterIndex, 1));
+	}
+
+	it = foundMap.find(chapterIndex+'_'+paragraphIndex);
+	if (it != foundMap.end()){
+		foundMap[chapterIndex+'_'+paragraphIndex] += pow(weight, patternNum);
+	}else{
+		foundMap.insert(std::pair<std::string, int>(chapterIndex+'_'+paragraphIndex, 1));
+	}
+
+	it = foundMap.find(chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex);
+	if (it != foundMap.end()){
+		foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex] += pow(weight, patternNum);
+	}else{
+		foundMap.insert(std::pair<std::string, int>(chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex, 1));
+	}
+	int score = foundMap[chapterIndex]*foundMap[chapterIndex+'_'+paragraphIndex]*foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex];
+
+	if (paragraphIndex == "0") // title
+		return score * 10;
+	else
+		return score * 3;
+}
+
 
 int Ranking::getRankingScore(int foundLocation){
 	int score = 0;
@@ -46,6 +99,21 @@ int Ranking::getRankingScore(int foundLocation){
 	}
 	return score; // not found, not supposed to go here
 };
+
+std::tuple <int, int, int> Ranking::getRankTreeTuple(int foundLocation){
+	std::tuple <int, int, int> location;
+	int chapter_array_index = getBelongingInterval(root->left, root->count, foundLocation);
+	int paragraph_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->left,
+	 root->chapterNodes[chapter_array_index]->count, foundLocation);
+	if (paragraph_array_index == 0){
+		return std::make_tuple(chapter_array_index, paragraph_array_index, 0);
+	}
+	int sentence_array_index = getBelongingInterval(
+			root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->left,
+			 root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count,
+			  foundLocation);
+	return std::make_tuple(chapter_array_index, paragraph_array_index, sentence_array_index);
+}
 
 int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLocation) {
 	int leftLength = arrayLength;

@@ -9,6 +9,7 @@ A customizable ranking search tool.
 - Multi-pattern searching
 - Default tokenizer
 - Fuzzy search
+- Ranking by analyzing contextual sequence
 
 ## Usage
 
@@ -16,11 +17,12 @@ A customizable ranking search tool.
 
 ## Roadmap
 
-- [ ] Must have/ Must not have search
-- [ ] More search algorithm
-- [ ] Chinese fuzzy search
+- [x] Ranking tree traversal
+- [ ] Must have/ Must not have search (advanced query parser)
 - [ ] Customizable score ranking
 - [ ] Customizable tokenizer
+- [ ] More search algorithm
+- [ ] Chinese fuzzy search
 - [ ] Support large data
 
 ## License

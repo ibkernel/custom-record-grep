@@ -47,17 +47,30 @@ void Record::searchTitle(char *title, std::string pattern, int &searchScore, int
 	}
 }
 
-void Record::searchContent(char *content, std::string pattern, int recordIndex, int &searchScore, int &searchMatchCount,
+void Record::searchContent(char *content, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount,
 													bool caseInsensitive, unsigned int editDistance){
-	char *text = content;
-	char *found = NULL;
+	char *text, *found;
 	int foundLocation;
-	while((found = searchFactory(text, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
-		foundLocation = found - content;
-		searchScore += rank[recordIndex].getRankingScore(foundLocation);
-		text = found + pattern.length();
-		searchMatchCount++;
+	// NOTE: array of size searchPatterns.size();
+	std::vector <std::tuple <int, int, int>> foundTuple;
+	std::vector <std::vector <std::tuple <int,int,int>>> patternLocationTuples;
+
+	for (auto searchPattern: searchPatterns){
+		text = content;
+		found = NULL;
+		while((found = searchFactory(text, searchPattern.c_str(), caseInsensitive, editDistance))!=NULL){
+			foundLocation = found - content;
+			foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
+			//searchScore += rank[recordIndex].getRankingScore(foundLocation);
+			text = found + searchPattern.length();
+			searchMatchCount++;
+		}
+		patternLocationTuples.push_back(foundTuple);
+		foundTuple.clear();
 	}
+	
+	searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+
 }
 
 std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::string pattern,bool caseInsensitive, unsigned int editDistance){
@@ -69,23 +82,20 @@ std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::s
 			for (auto searchPattern: searchPatterns){
 				searchId(data[i].id, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
 				searchTitle(data[i].title, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
-				searchContent(data[i].content, searchPattern, i, searchScore, searchMatchCount, caseInsensitive, editDistance);
 			}
+			searchContent(data[i].content, searchPatterns, i, searchScore, searchMatchCount, caseInsensitive, editDistance);
+
 			if (searchMatchCount > 0 && searchScore > 0){
 					std::string bookTitle(data[i].title);
 					result.push_back(std::make_tuple(bookTitle, searchScore));
 			}
 	}
-
 	std::sort(result.begin(), result.end(),
 		[](std::tuple<std::string, int> const &t1, tuple<std::string, int> const &t2) {
 				return std::get<1>(t1) > std::get<1>(t2);
 			}
 	);
-	for (auto x:result){
-		std::cout << "Book :" << std::get<0>(x);
-		std::cout << "Rank score:" << std::get<1>(x) << std::endl;
-	}
+
 	return result;
 }
 

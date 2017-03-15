@@ -1,6 +1,6 @@
 #ifndef CRGREP_RANKING_H_
 #define CRGREP_RANKING_H_
-
+#include <map>
 
 struct node {
 	int *left;
@@ -21,7 +21,10 @@ private:
 	void buildRank();
 	void insertTag(char tagType, int lowerBound, int upperBound);
 	int getBelongingInterval(int *&left, int arrayLength, int foundLocation);
+	int getPatternScore(std::map<std::string, int> &foundMap, std::tuple<int,int,int> &singleLocation, int patternNum);
 public:
+	std::tuple <int, int, int> getRankTreeTuple(int foundLocation);
+	int getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuple);
 	Ranking(std::string tagFilePath);
 	~Ranking();
 	// NOTE: REVISE IT AFTER TESTING
