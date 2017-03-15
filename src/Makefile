@@ -1,5 +1,5 @@
 all:
-	g++ -std=c++11 main.cpp record.cpp ranking.cpp book_formatter.cpp utils.cpp search.cpp -I./
+	g++ -std=c++11 main.cpp record.cpp ranking.cpp book_formatter.cpp utils.cpp search.cpp result.cpp -I./
 	./a.out "書本" "../data/formattedData/"
 
 one:

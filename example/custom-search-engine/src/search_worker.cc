@@ -13,6 +13,7 @@
 
 using namespace std;
 
+using v8::String;
 using v8::Function;
 using v8::Local;
 using v8::Number;
@@ -26,16 +27,13 @@ using Nan::Null;
 using Nan::To;
 
 
-
-bool sortScore(struct resultFormat a, struct resultFormat b){
-	return (a.score > b.score) ? true : false;
-}
-
-SearchWorker::SearchWorker(Callback *callback, string query, int dataCount, Record *&data)
-	: AsyncWorker(callback), query(query), searchResult(vector<struct resultFormat>()), dataCount(dataCount), resultCount(0), data(data){}
+SearchWorker::SearchWorker(Callback *callback, string query, Record *&data)
+	: AsyncWorker(callback), query(query), searchResult(std::vector <std::tuple <std::string, int>>()),
+	 resultCount(0), data(data){}
 
 void SearchWorker::Execute() {
-	data->searchAndSortWithRank(query);
+	searchResult = data->searchAndSortWithRank(query);
+	resultCount = searchResult.size();
 }
 
 // void SearchWorker::Execute() {
@@ -66,16 +64,17 @@ void SearchWorker::Execute() {
 
 void SearchWorker::HandleOKCallback() {
 	HandleScope scope;
-
 	int outputCount = ((resultCount < 10) ? resultCount : 10);
 	v8::Local<v8::Array> returnArr = Nan::New<v8::Array>(outputCount+1);
 	v8::Local<v8::Object> resultObj = Nan::New<v8::Object>();
 	Nan::Set(resultObj, Nan::New("resultCount").ToLocalChecked(), Nan::New(outputCount));
 	Nan::Set(returnArr, 0, resultObj);
+	std::string title;
 	for(int i=0; i<outputCount; i++){
 		v8::Local<v8::Object> vobj = Nan::New<v8::Object>();
-		Nan::Set(vobj, Nan::New("id").ToLocalChecked(), Nan::New(searchResult[i].id));
-		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(searchResult[i].score));
+		title = std::get<0>(searchResult[i]);
+		Nan::Set(vobj, Nan::New("title").ToLocalChecked(), Nan::New(title.c_str()).ToLocalChecked());
+		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(std::get<1>(searchResult[i])));
 		Nan::Set(returnArr, i+1, vobj);
 	}
 

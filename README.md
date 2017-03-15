@@ -16,6 +16,8 @@ A customizable ranking search tool.
 ## To-do
 
 - Restrict fuzzy search on mandarin data
+- Finish Class: result
+- Rewrite loading record (remove newline & improve record format support)
 
 ## Roadmap
 

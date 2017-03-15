@@ -13,7 +13,7 @@
         }],
       ],
       "sources": [ "src/crgrep.cc", "src/ranking.cc", "src/search.cc", "src/record.cc"
-      ,"src/search_worker.cc", "src/utils.cc"],
+      ,"src/search_worker.cc", "src/utils.cc", "src/result.cc"],
       "include_dirs": ["<!(node -e \"require('nan')\")"]
     }
   ]

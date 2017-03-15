@@ -24,8 +24,7 @@ NAN_METHOD(Search) {
 	Nan::Utf8String q(info[0]);
 	std::string str(*q);
 	Callback *callback = new Callback(info[1].As<Function>());
-	int dataCount = 0;
-	AsyncQueueWorker(new SearchWorker(callback, str, dataCount, records));
+	AsyncQueueWorker(new SearchWorker(callback, str, records));
 }
 
 

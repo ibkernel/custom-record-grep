@@ -12,6 +12,8 @@
 #include "ranking.h"
 #include "search.h"
 #include "utils.h"
+#include "result.h"
+
 
 using namespace std;
 
@@ -69,13 +71,13 @@ void Record::searchContent(char *content, std::vector <std::string> &searchPatte
 	}
 	
 	searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
-
 }
 
 std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::string pattern,bool caseInsensitive, unsigned int editDistance){
 	int searchScore, searchMatchCount;
 	std::vector <std::tuple <std::string, int>> result;
 	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
+	
 	for (int i=0; i < fileCount; i++){
 			searchScore = searchMatchCount = 0;
 			for (auto searchPattern: searchPatterns){

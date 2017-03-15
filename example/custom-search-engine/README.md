@@ -8,3 +8,5 @@ Thanks to node.js' NAN module, it is now simplier to build a web-based search en
 ## Usage
 
 ## Roadmap
+
+- [x] update to-date
