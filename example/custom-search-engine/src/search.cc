@@ -9,6 +9,38 @@
 
 using namespace std;
 
+// NOTE: Cannot search exact multi-string with spaces.
+
+char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTolerance) {
+    unsigned int tokenLen, patternLen = strlen(pattern);
+    char *tofree = strdup(haystack);
+    char *tmp = tofree, *token;
+    strcpy(tmp, haystack);
+    unsigned int lenOfOffset = 0;
+    const int LEN_OF_DELIM = 1;
+    char  delim[] = " .,()?!:";
+    bool foundFlag = false;
+    
+    
+    for(token=strsep(&tmp, delim); token!=NULL; token=strsep(&tmp, delim)){
+      int tokenLen = strlen(token);
+      //cout << "token len:" << tokenLen << " token:" << token << endl;
+      if((tokenLen>(patternLen + distanceTolerance)) || (tokenLen < (patternLen - distanceTolerance))){
+            lenOfOffset += (tokenLen + LEN_OF_DELIM);
+            continue;
+        } else if(levenshteinDistance(token, pattern) <= distanceTolerance){
+            foundFlag = true;
+            break;
+        }
+        lenOfOffset += (tokenLen + LEN_OF_DELIM);
+    }
+    
+    free(tofree);
+    if (foundFlag)
+      return (haystack + lenOfOffset);
+    else
+      return NULL;
+}
 
 
 int levenshteinDistance(char *s, const char *t){
@@ -34,30 +66,3 @@ int levenshteinDistance(char *s, const char *t){
     }
     return v1[t_len];
 }
-
-char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTolerance) {
-    unsigned int tokenLen, patternLen = strlen(pattern);
-    char *tmp = (char *)malloc(sizeof(char)*(strlen(haystack)+1));
-    strcpy(tmp, haystack);
-    char *token = strtok(tmp, " .,()?!");
-    unsigned int lenOfOffset = 0;
-    const int LEN_OF_DELIM = 1;
-
-    while(token) {
-        tokenLen = strlen(token);
-        if((tokenLen>(patternLen + distanceTolerance)) || (tokenLen < (patternLen - distanceTolerance))){
-            token = strtok(NULL, " ");
-            continue;
-        } else if(levenshteinDistance(token, pattern) <= distanceTolerance){
-            free(tmp);
-            // pointer to found location
-            return (haystack + lenOfOffset);
-        }
-        lenOfOffset += (tokenLen + LEN_OF_DELIM);
-        token = strtok(NULL, " .,()?!");
-    }
-    free(tmp);
-    return NULL;
-}
-
-

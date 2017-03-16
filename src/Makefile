@@ -1,4 +1,4 @@
-CRGREP_SOURCES=main.cpp record.cpp ranking.cpp book_formatter.cpp utils.cpp search.cpp result.cpp
+CRGREP_SOURCES=main.cpp record.cpp ranking.cpp utils.cpp search.cpp result.cpp formatter.cpp
 
 CLD_LIB_CFLAGS=-DCLD_WINDOWS -I./cld -L. -lcld -lstdc++
 
@@ -62,7 +62,25 @@ clean:
 	rm *.o
 	rm libcld.a
 
-# build library for cld (compact language detector)
+EXAMPLE_SRC_PATH=../example/custom-search-engine/src/
+
+update-example-src:
+	cp ranking.cpp $(EXAMPLE_SRC_PATH)ranking.cc
+	cp ranking.h $(EXAMPLE_SRC_PATH)ranking.h
+
+	cp result.cpp $(EXAMPLE_SRC_PATH)result.cc
+	cp result.h $(EXAMPLE_SRC_PATH)result.h
+
+	cp search.cpp $(EXAMPLE_SRC_PATH)search.cc
+	cp search.h $(EXAMPLE_SRC_PATH)search.h
+
+	cp utils.cpp $(EXAMPLE_SRC_PATH)utils.cc
+	cp utils.h $(EXAMPLE_SRC_PATH)utils.h
+
+	cp record.cpp $(EXAMPLE_SRC_PATH)record.cc
+	cp record.h $(EXAMPLE_SRC_PATH)record.h
+
+# build library cld (compact language detector)
 
 
 build-libcld:

@@ -16,6 +16,7 @@ A customizable ranking search tool.
 ### Input file format
 #### Data file
 In each file, every record must have 3 prefix `@id:`, `@title:`, `@content:` following with the coresponding data, and with an ending newline indicating end of such data
+
 *DATA MUST NOT CONTAIN OTHER NEWLINE INSIDE, OR IT WILL SKIP THAT RECORD*
 ```
 @id:[your data id]\n

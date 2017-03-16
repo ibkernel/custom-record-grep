@@ -22,6 +22,10 @@ public:
 	Result();
 	~Result();
 
+	int getResultCount();
+	std::string getResultTitle(int i );
+	int getResultScore(int i);
+
 	void insertResult(std::string title, int searchScore, int searchMatchCount);
 	void sort(bool order=false);
 	void printResult(bool order=false);

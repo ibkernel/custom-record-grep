@@ -25,6 +25,18 @@ void Result::insertResult(std::string title, int searchScore, int searchMatchCou
 
 }
 
+int Result::getResultCount(){
+	return searchResult.size();
+};
+
+int Result::getResultScore(int i){
+	return searchResult[i].recordScore;
+};
+
+std::string Result::getResultTitle(int i ){
+	return searchResult[i].recordTitle;
+};
+
 void Result::printResult(bool order) {
 	sort(order);
 	for (auto r: searchResult) {

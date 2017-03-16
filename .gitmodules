@@ -1,3 +1,6 @@
 [submodule "src/cld"]
 	path = src/cld
 	url = https://github.com/mzsanford/cld
+[submodule "example/custom-search-engine/src/cld"]
+	path = example/custom-search-engine/src/cld
+	url = https://github.com/mzsanford/cld

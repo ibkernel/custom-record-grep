@@ -11,6 +11,11 @@ Thanks to node.js' NAN module, it is now simplier to build a web-based search en
 
 ## Usage
 
+build cld library
+```
+make build-libcld:
+```
+
 Build node native c++ addon
 ```
 node-gyp rebuild

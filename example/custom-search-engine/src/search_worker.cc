@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <nan.h>
 #include "record.h"
+#include "result.h"
 #include "utils.h"
 #include "search_worker.h"
 
@@ -28,12 +29,12 @@ using Nan::To;
 
 
 SearchWorker::SearchWorker(Callback *callback, string query, Record *&data)
-	: AsyncWorker(callback), query(query), searchResult(std::vector <std::tuple <std::string, int>>()),
+	: AsyncWorker(callback), query(query), searchResult(),
 	 resultCount(0), data(data){}
 
 void SearchWorker::Execute() {
-	searchResult = data->searchAndSortWithRank(query);
-	resultCount = searchResult.size();
+	data->searchAndSortWithRank(query, searchResult,0,0);
+	resultCount = searchResult.getResultCount();
 }
 
 
@@ -47,9 +48,9 @@ void SearchWorker::HandleOKCallback() {
 	std::string title;
 	for(int i=0; i<outputCount; i++){
 		v8::Local<v8::Object> vobj = Nan::New<v8::Object>();
-		title = std::get<0>(searchResult[i]);
+		title = searchResult.getResultTitle(i);
 		Nan::Set(vobj, Nan::New("title").ToLocalChecked(), Nan::New(title.c_str()).ToLocalChecked());
-		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(std::get<1>(searchResult[i])));
+		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(searchResult.getResultScore(i)));
 		Nan::Set(returnArr, i+1, vobj);
 	}
 

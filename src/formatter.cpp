@@ -10,19 +10,15 @@
 #include <regex>
 #include <sstream>
 #include <ctime>
-#include "utils.h"
+
+#include <vector>
+#include <set>
+#include <stack>
+#include <queue>
+#include <deque>
+#include <tuple>
 #include "formatter.h"
-
-
-
-void ReplaceStringInPlace(std::string& subject, const std::string& search,
-                          const std::string& replace) {
-    size_t pos = 0;
-    while ((pos = subject.find(search, pos)) != std::string::npos) {
-         subject.replace(pos, search.length(), replace);
-         pos += replace.length();
-    }
-};
+#include "utils.h"
 
 std::tuple<std::string, int> getTagTuple(std::string tagType, long tagLocation) 
 {
@@ -30,75 +26,54 @@ std::tuple<std::string, int> getTagTuple(std::string tagType, long tagLocation)
 };
 
 
-std::vector <std::string> Formatter::getNotMergedBookList(){
-	// if(exists(pathToDownloadedList))
-	// 	std::cout << "exists" << std::endl;
-	// if(exists(pathToDownloadDir))
-	// 	std::cout << "exists" << std::endl;
-	// if(exists(pathToMergedFile))
-	// 	std::cout << "exists" << std::endl;
-	// if(exists(pathToFormattedDir))
-	// 	std::cout << "exists" << std::endl;
-
-	std::ifstream mergedFile(pathToMergedFile);
-	std::string bookTitle;
-	while(mergedFile >> bookTitle) {
-		alreadyMerged.insert(bookTitle);
+void Formatter::processFile(bool concatFlag) {
+	if (!concatFlag){
+		for (auto path: singleFilePaths) {
+			int chapter_num = 0, title_num = 0, paragraph_num = 0, sentense_num =0;
+			long char_count = 0;
+			std::string dataTitle = removePrefixPath(path);
+			writeRecordHeaderToFile(dataTitle);
+			formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
+		}
+	}else {
+		for (auto path: concatFilePaths) {
+			int chapter_num = 0, title_num = 0, paragraph_num = 0, sentense_num =0;
+			long char_count = 0;
+			std::string dataTitle = removePrefixPath(path);
+			writeRecordHeaderToFile(dataTitle);
+			processConcatFile(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
+		}
 	}
 
-	std::vector <std::string> toMergeList;
-	std::ifstream downloadedFile(pathToDownloadedList);
-	std::string bookUrl;
-	while(downloadedFile >> bookTitle >> bookUrl){
-		if(alreadyMerged.find(bookTitle) == alreadyMerged.end())
-			toMergeList.push_back(bookTitle);
+};
+
+void Formatter::processConcatFile(std::string pathToDir, long &char_count, int &chapter_num, int &title_num, int &paragraph_num, int &sentense_num, std::string dataTitle){
+	std::vector <std::string> toProcessFilePaths;
+	insertFilesPathInDirIntoVector(pathToDir, toProcessFilePaths);
+	for (auto path: toProcessFilePaths) {
+		//std::cout << path << std::endl;
+		formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
 	}
-	return toMergeList;
+	toProcessFilePaths.clear();
 };
 
-void Formatter::mergeWithoutTags(){
-	std::vector <std::string> toMergeList;
-	toMergeList = getNotMergedBookList();
-	std::ofstream mergedFile;
-	mergedFile.open (pathToMergedFile, std::ios::in | std::ios::out | std::ios::ate);
-	for (int i=0; i<toMergeList.size(); i++){
-		mergeChapters(toMergeList[i]);
-		mergedFile << toMergeList[i] << std::endl;
-	}
-	mergedFile.close();
-};
-
-void Formatter::mergeChapters(std::string bookTitle) {
-	// NOTE: check if slash exist
-	std::vector <std::string> pathToRawChapters = getToMergeChaptersPath(bookTitle);
-	writeRecordHeaderToFile(bookTitle);
-	long char_count = 0; 
-	int chapter_num = 0, title_num = 0, paragraph_num = 0, sentense_num =0;
-	for (int i=0; i< pathToRawChapters.size(); i++)
-		formatThenMerge(pathToRawChapters[i], 
-			char_count, chapter_num, title_num, 
-			paragraph_num, sentense_num, bookTitle);
-};
-
-void Formatter::writeRecordHeaderToFile(std::string bookTitle){
-	std::string formattedDestination = pathToFormattedDir + bookTitle + ".txt";
-	std::string tagsDestination = pathToFormattedDir + bookTitle + ".tags";
+void Formatter::writeRecordHeaderToFile(std::string dataTitle){
+	std::string formattedDestination = pathToFormattedDir + dataTitle + ".txt";
+	std::string indexDestination = pathToFormattedDir + dataTitle + ".tags";
 	std::ofstream formattedFile, tagsFile;
-	tagsFile.open(tagsDestination);
+	tagsFile.open(indexDestination);
 	tagsFile << "";
 	tagsFile.close();
 	formattedFile.open(formattedDestination);
-	formattedFile << "@id:" << bookTitle << std::endl;
-	formattedFile << "@title:" << bookTitle << std::endl;
+	formattedFile << "@id:" << dataTitle << std::endl;
+	formattedFile << "@title:" << dataTitle << std::endl;
 	formattedFile << "@content:";
 	formattedFile.close();
 };
 
-
-void Formatter::formatThenMerge(std::string pathToRawChapter, long &char_count, int &chapter_num, 
-			int &title_num, int &paragraph_num, int &sentense_num, std::string bookTitle){
-	std::cout << "Current processing chapter: " << pathToRawChapter << std::endl; 
-	std::ifstream chapterFile(pathToRawChapter);
+void Formatter::formatThenMerge(std::string pathToSingleFile, long &char_count, int &chapter_num, int &title_num, int &paragraph_num, int &sentense_num, std::string dataTitle){
+	std::cout << "Current processing file: " << pathToSingleFile << std::endl; 
+	std::ifstream chapterFile(pathToSingleFile);
 	std::string line, text = "";
 
 	while (std::getline(chapterFile, line)){
@@ -108,17 +83,15 @@ void Formatter::formatThenMerge(std::string pathToRawChapter, long &char_count, 
 		if (line.length()>2)
 			text += (line + '\n');
 	}
+	//TODO: ??????
 	std::string::iterator new_end = std::unique(text.begin(), text.end(),
       [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' '); }
   );
 	text.erase(new_end, text.end());
 
-
-
-	std::string formattedDestination = pathToFormattedDir + bookTitle + ".txt";
+	std::string formattedDestination = pathToFormattedDir + dataTitle + ".txt";
 	std::ofstream formattedFile;
 	formattedFile.open(formattedDestination, std::ios::in | std::ios::out | std::ios::ate);
-
 	bool titleFlag = true;
 	std::deque <std::tuple <std::string, long>> tagQueue;
 	chapter_num += 1;
@@ -146,12 +119,11 @@ void Formatter::formatThenMerge(std::string pathToRawChapter, long &char_count, 
 	}
 	tagQueue.push_back(getTagTuple("c_"+std::to_string(chapter_num), char_count));
 	formattedFile.close();
-	writeTagInfoToFile(tagQueue, bookTitle);
+	writeTagInfoToFile(tagQueue, dataTitle);
 };
 
-
-void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &tagQueue, std::string bookTitle){
-	std::string tagInfoPath = pathToFormattedDir + bookTitle + ".tags";
+void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &tagQueue, std::string dataTitle){
+	std::string tagInfoPath = pathToFormattedDir + dataTitle + ".tags";
 	std::ofstream tagFile;
 	std::tuple <std::string, long> tag, tag2;
 	tagFile.open(tagInfoPath, std::ios::in | std::ios::out | std::ios::ate);
@@ -162,15 +134,25 @@ void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &
 	tagQueue.pop_back();
 	tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\t" << std::get<1>(tag2) << "\n";
 
+	if(tagQueue.size() == 0){
+		tagFile.close();
+		return;
+	}
+
 	tag = tagQueue.front();
 	tagQueue.pop_front();
 	tag2 = tagQueue.front();
 	tagQueue.pop_front();
 	tagFile << std::get<0>(tag) << "\t" << std::get<1>(tag) << "\t" << std::get<1>(tag2) << "\n";
-	
+
+	if(tagQueue.size() == 0){
+		tagFile.close();
+		return;
+	}
+
+
 	int queue_count = 0;
 	std::deque <std::tuple <std::string, long>> otherTagQueue;
-
 	for (auto t: tagQueue){
 		if (otherTagQueue.size() == 0){
 			otherTagQueue.push_back(t);
@@ -225,35 +207,69 @@ void Formatter::lineFormatter(std::string &line,int &sentense_num, long &char_co
 	char_count = char_count + line.length();
 }
 
-std::vector <std::string> Formatter::getToMergeChaptersPath(std::string bookTitle){
-	std::string pathToRawBookDir = pathToDownloadDir + bookTitle;
-	std::vector <std::string> pathToRawChapters;
+void Formatter::insertFilesPathInDirIntoVector(std::string path, std::vector <std::string> &paths){
 	DIR *dir;
 	struct dirent *ent;
-	if ((dir = opendir(pathToRawBookDir.c_str())) != NULL) {
+	if ((dir = opendir(path.c_str())) != NULL) {
 		while ((ent = readdir(dir)) != NULL){
-			std::string chapterPath = pathToRawBookDir+'/'+ent->d_name;
-			if(!isDir(chapterPath)){
-				pathToRawChapters.push_back(chapterPath);
+			std::string pathToSingleFile;
+			char end = path.back();
+			if (end == '/' || end == '\\') {
+				pathToSingleFile = path+ent->d_name;
+			}else {
+				pathToSingleFile = path+'/'+ent->d_name;
+			}
+			if(!isDir(pathToSingleFile)){
+				if (strcmp(ent->d_name, ".DS_Store")!=0){
+					paths.push_back(pathToSingleFile);
+				}
 			}
 		}
+
+	}else {
+		std::cout << "error: getAllFilesPathInDir" << std::endl;
 	}
-	return pathToRawChapters;
 }
 
-Formatter::	Formatter(std::string pathSource, std::string pathDest){
+void Formatter::updateDirPathInRawDir() {
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir(pathToRawData.c_str())) != NULL) {
+		while ((ent = readdir(dir)) != NULL){
+			std::string pathToChildDir;
+			char end = pathToRawData.back();
+			if (end == '/' || end == '\\') {
+				pathToChildDir = pathToRawData+ent->d_name;
+			}else {
+				pathToChildDir = pathToRawData+'/'+ent->d_name;
+			}
+			if(isDir(pathToChildDir)){
+				if (strcmp(ent->d_name, ".")!=0 && strcmp(ent->d_name, "..")!=0){
+					concatFilePaths.push_back(pathToChildDir);
+				}
+			}
+		}
+	}else {
+		std::cout << "error: updateDirPathInRawDir" << std::endl;
+	}
+}
+
+Formatter::Formatter(std::string pathSource, std::string pathDest){
 	pathToFormattedDir = pathDest;
 	pathToRawData = pathSource;
 	pathToStopWords = "none";
+	bool isConcatFile = true;
 	if (isDir(pathSource)){
-		getAllDirPathInRawDir();
-		getAllFilesPathInDir();
+		insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
+		processFile();
+		updateDirPathInRawDir();
+		processFile(isConcatFile);
 	}else {
-		getAllFilesPathInDir();
+		singleFilePaths.push_back(pathSource);
+		processFile();
 	}
-	
-
 };
+
 
 Formatter::Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords){
 	pathToFormattedDir = pathDest;
@@ -262,10 +278,18 @@ Formatter::Formatter(std::string pathSource, std::string pathDest, std::string p
 	std::ifstream stopWordsFile(pathToStopWords);
 	std::string words;
 	std::cout << "Your stop words:" << std::endl;
+	bool isConcatFile = true;
+
 	while (std::getline(stopWordsFile, words)){
 		stopWords.push_back(words);
 	}
-	mergeWithoutTags();
+	if (isDir(pathSource)){
+		insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
+		processFile();
+		updateDirPathInRawDir();
+		processFile(isConcatFile);
+	}else {
+		singleFilePaths.push_back(pathSource);
+		processFile();
+	}
 };
-
-
