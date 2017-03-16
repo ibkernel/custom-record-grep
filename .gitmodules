@@ -1,0 +1,3 @@
+[submodule "src/cld"]
+	path = src/cld
+	url = https://github.com/mzsanford/cld

@@ -17,7 +17,7 @@ A customizable ranking search tool.
 
 compile
 ```
-g++ -std=c++11 main.cpp record.cpp ranking.cpp book_formatter.cpp utils.cpp search.cpp result.cpp -I./
+make
 ```
 
 run crgrep
