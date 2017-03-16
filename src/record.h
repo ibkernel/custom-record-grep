@@ -3,6 +3,7 @@
 #include "ranking.h"
 
 struct record {
+	char *language;
 	char *id;
 	char *title;
 	char *content;
@@ -17,20 +18,21 @@ private:
 	std::vector<std::string> rawfiles;
 	std::vector<std::string> tagFiles;
 
-	void searchId(char *id, std::string pattern, int &searchScore, int &searchMatchCount,bool caseInsensitive = 0, unsigned int editDistance = 0);
-	void searchTitle(char *title, std::string pattern, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
-	void searchContent(char *content, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
-	char * searchFactory(char *text, std::string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchId(char *id, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount,bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchTitle(char *title, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchContent(char *content, char *recordLanguage, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	char * searchFactory(char *text, char *recordLanguage, std::string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
 	void buildRecord();
 	void readFileThenSetRecordAndRank();
 	void checkPathAndSetFileVectors();
+	void detectLanguage(const char* src, char *&recordLanguage);
 
 public:
 	Record(std::string path);
 	~Record();
 	
 	int getFileCount();
-	std::vector <std::tuple <std::string, int>> searchAndSortWithRank(std:: string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	std::vector <std::tuple <std::string, int, int>> searchAndSortWithRank(std:: string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
 
 };
 

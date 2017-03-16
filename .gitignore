@@ -7,3 +7,5 @@ data/*
 .DS_Store
 .virtualenvs
 *.log
+*.o
+libcld.a

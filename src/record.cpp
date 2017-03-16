@@ -14,6 +14,11 @@
 #include "utils.h"
 #include "result.h"
 
+#include "./cld/encodings/compact_lang_det/compact_lang_det.h"
+#include "./cld/encodings/compact_lang_det/ext_lang_enc.h"
+#include "./cld/encodings/compact_lang_det/unittest_data.h"
+#include "./cld/encodings/proto/encodings.pb.h"
+
 
 using namespace std;
 
@@ -25,31 +30,31 @@ Record::Record(std::string path){
 };
 
 //TODO: caseInsensitive not implemented yet
-char * Record::searchFactory(char *text, std::string pattern, bool caseInsensitive, unsigned int editDistance) {
-	if (editDistance == 0){
+char * Record::searchFactory(char *text, char *recordLanguage, std::string pattern, bool caseInsensitive, unsigned int editDistance) {
+	if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0){
 		return strstr(text, pattern.c_str());
 	}else {
 		return fuzzySearch(text, pattern.c_str(), editDistance);
 	}
 }
 
-void Record::searchId(char *id, std::string pattern, int &searchScore, int &searchMatchCount, 
+void Record::searchId(char *id, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount, 
 											bool caseInsensitive, unsigned int editDistance){
-	if((searchFactory(id, pattern.c_str(), caseInsensitive, editDistance))>0){
+	if((searchFactory(id, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))>0){
 				searchScore += 0;
 				searchMatchCount++;
 	}
 }
 
-void Record::searchTitle(char *title, std::string pattern, int &searchScore, int &searchMatchCount,
+void Record::searchTitle(char *title, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount,
 												bool caseInsensitive, unsigned int editDistance){
-	if((searchFactory(title, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
+	if((searchFactory(title, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
 				searchScore += 300000;
 				searchMatchCount++;
 	}
 }
 
-void Record::searchContent(char *content, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount,
+void Record::searchContent(char *content, char *recordLanguage, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount,
 													bool caseInsensitive, unsigned int editDistance){
 	char *text, *found;
 	int foundLocation;
@@ -60,7 +65,7 @@ void Record::searchContent(char *content, std::vector <std::string> &searchPatte
 	for (auto searchPattern: searchPatterns){
 		text = content;
 		found = NULL;
-		while((found = searchFactory(text, searchPattern.c_str(), caseInsensitive, editDistance))!=NULL){
+		while((found = searchFactory(text, recordLanguage, searchPattern.c_str(), caseInsensitive, editDistance))!=NULL){
 			foundLocation = found - content;
 			foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
 			text = found + searchPattern.length();
@@ -73,26 +78,28 @@ void Record::searchContent(char *content, std::vector <std::string> &searchPatte
 	searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
 }
 
-std::vector <std::tuple <std::string, int>> Record::searchAndSortWithRank(std::string pattern,bool caseInsensitive, unsigned int editDistance){
+std::vector <std::tuple <std::string, int, int>> Record::searchAndSortWithRank(std::string pattern,
+																																					bool caseInsensitive,
+																																					unsigned int editDistance){
 	int searchScore, searchMatchCount;
-	std::vector <std::tuple <std::string, int>> result;
+	std::vector <std::tuple <std::string, int, int>> result;
 	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
 	
 	for (int i=0; i < fileCount; i++){
 			searchScore = searchMatchCount = 0;
 			for (auto searchPattern: searchPatterns){
-				searchId(data[i].id, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
-				searchTitle(data[i].title, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
+				searchId(data[i].id, data[i].language, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
+				searchTitle(data[i].title, data[i].language, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
 			}
-			searchContent(data[i].content, searchPatterns, i, searchScore, searchMatchCount, caseInsensitive, editDistance);
+			searchContent(data[i].content, data[i].language, searchPatterns, i, searchScore, searchMatchCount, caseInsensitive, editDistance);
 
 			if (searchMatchCount > 0 && searchScore > 0){
 					std::string bookTitle(data[i].title);
-					result.push_back(std::make_tuple(bookTitle, searchScore));
+					result.push_back(std::make_tuple(bookTitle, searchScore, searchMatchCount));
 			}
 	}
 	std::sort(result.begin(), result.end(),
-		[](std::tuple<std::string, int> const &t1, tuple<std::string, int> const &t2) {
+		[](std::tuple<std::string, int, int> const &t1, tuple<std::string, int, int> const &t2) {
 				return std::get<1>(t1) > std::get<1>(t2);
 			}
 	);
@@ -140,6 +147,8 @@ void Record::readFileThenSetRecordAndRank(){
 			}else if (strcmp(prefix, "@con")==0){
 					data[dataCount-1].content = (char *) malloc(read-9);
 					strcpy(data[dataCount-1].content, (line+9));
+					detectLanguage(line, data[dataCount-1].language);
+					//strncpy(data[dataCount-1].language,language, sizeof(language));
 			}else {
 					std::cout << "File " +rawfiles[i]+ " did not obeyed input format" << std::endl;
 					break;
@@ -150,6 +159,43 @@ void Record::readFileThenSetRecordAndRank(){
 		Ranking currentRank(tagFiles[i]);
 		rank.push_back(currentRank);
 	}
+}
+
+void Record::detectLanguage(const char* src, char *&recordLanguage){ 
+		bool is_plain_text = true;
+		bool do_allow_extended_languages = true;
+		bool do_pick_summary_language = false;
+		bool do_remove_weak_matches = false;
+		bool is_reliable;
+		Language plus_one = UNKNOWN_LANGUAGE;
+		const char* tld_hint = NULL;
+		int encoding_hint = UNKNOWN_ENCODING;
+		Language language_hint = UNKNOWN_LANGUAGE;
+
+		double normalized_score3[3];
+		Language language3[3];
+		int percent3[3];
+		int text_bytes;
+
+		Language lang;
+		lang = CompactLangDet::DetectLanguage(0,
+		                                      src, strlen(src),
+		                                      is_plain_text,
+		                                      do_allow_extended_languages,
+		                                      do_pick_summary_language,
+		                                      do_remove_weak_matches,
+		                                      tld_hint,
+		                                      encoding_hint,
+		                                      language_hint,
+		                                      language3,
+		                                      percent3,
+		                                      normalized_score3,
+		                                      &text_bytes,
+		                                      &is_reliable);
+
+		recordLanguage = (char*) malloc(sizeof(char)*strlen(LanguageName(lang)));
+		strcpy(recordLanguage, LanguageName(lang));
+		//printf("----[ Text (detected: %s) ]----\n", recordLanguage);
 }
 
 void Record::checkPathAndSetFileVectors(){

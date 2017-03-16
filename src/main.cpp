@@ -54,7 +54,7 @@ int main(int argc, char** argv){
 
 	if (paths.size() == 0){
 		Record records(inputPath);
-		std::vector <std::tuple <std::string, int>> result;
+		std::vector <std::tuple <std::string, int, int>> result;
 
 		while(1){
 			string searchPatterns;
@@ -63,13 +63,22 @@ int main(int argc, char** argv){
 			if (searchPatterns == "q" || searchPatterns == "Q")
 				break;
 			// NOTE: currently not working with chinese characters.
-			//records.searchAndSortWithRank(searchPatterns, 0, 1); //fuzzy search with 1 edit distance tolerance
+			std::cout << "-------------Fuzzy search----------------" << '\n';
+			result = records.searchAndSortWithRank(searchPatterns, 0, 1); //fuzzy search with 1 edit distance tolerance
+			for (auto x:result){
+				std::cout << "Book :" << std::get<0>(x);
+				std::cout << "Match count:" << std::get<2>(x) << std::endl;
+			}
+			result.clear();
+			std::cout << "-------------Normal search----------------" << '\n';
 			result = records.searchAndSortWithRank(searchPatterns);
 			for (auto x:result){
 				std::cout << "Book :" << std::get<0>(x);
 				std::cout << "Rank score:" << std::get<1>(x) << std::endl;
+				std::cout << "Match count:" << std::get<2>(x) << std::endl;
 			}
 			result.clear();
+			
 			std::cout << "-----------------------------" << '\n';
 		}
 	}else {

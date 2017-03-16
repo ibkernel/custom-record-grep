@@ -25,9 +25,14 @@ run crgrep
 ./a.out "query" "path_to_file_or_dir"
 ```
 
+## Used library
+
+- tclap
+- cld 
+
 ## To-do
 
-- Restrict fuzzy search on mandarin data
+- Fix fuzzy search bug
 - Finish Class: result
 - Rewrite loading record (remove newline & improve record format support)
 
