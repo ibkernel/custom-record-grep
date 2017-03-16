@@ -9,30 +9,7 @@
 
 using namespace std;
 
-
-int levenshteinDistance(char *s, const char *t){
-    int costOfInsert = 1 , costOfDelete = 1, costOfReplace;
-    int s_len = strlen(s), t_len = strlen(t);
-    if (strcmp(s, t) == 0) return 0;
-    if (t_len == 0)    return s_len;
-    if (s_len == 0)    return t_len;
-
-    int *v0 = (int *) calloc(t_len+1, sizeof(int));
-    int *v1 = (int *) calloc(t_len+1, sizeof(int));
-
-    for (int i=0; i < t_len+1; i++)
-        v0[i] = i;
-    for (int i=0; i < s_len; i++){
-        v1[0] = i + 1;
-        for (int j=0; j< t_len; j++){
-            costOfReplace = ((s[i] == t[j]) ? 0 : 1 );
-            v1[j+1] = MIN_3(v1[j]+costOfInsert,v0[j+1]+costOfDelete,v0[j]+costOfReplace);
-        }
-        for (int j=0; j < t_len+1; j++)
-            v0[j] = v1[j];
-    }
-    return v1[t_len];
-}
+// NOTE: Cannot search exact multi-string with spaces.
 
 char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTolerance) {
     unsigned int tokenLen, patternLen = strlen(pattern);
@@ -65,3 +42,27 @@ char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTole
       return NULL;
 }
 
+
+int levenshteinDistance(char *s, const char *t){
+    int costOfInsert = 1 , costOfDelete = 1, costOfReplace;
+    int s_len = strlen(s), t_len = strlen(t);
+    if (strcmp(s, t) == 0) return 0;
+    if (t_len == 0)    return s_len;
+    if (s_len == 0)    return t_len;
+
+    int *v0 = (int *) calloc(t_len+1, sizeof(int));
+    int *v1 = (int *) calloc(t_len+1, sizeof(int));
+
+    for (int i=0; i < t_len+1; i++)
+        v0[i] = i;
+    for (int i=0; i < s_len; i++){
+        v1[0] = i + 1;
+        for (int j=0; j< t_len; j++){
+            costOfReplace = ((s[i] == t[j]) ? 0 : 1 );
+            v1[j+1] = MIN_3(v1[j]+costOfInsert,v0[j+1]+costOfDelete,v0[j]+costOfReplace);
+        }
+        for (int j=0; j < t_len+1; j++)
+            v0[j] = v1[j];
+    }
+    return v1[t_len];
+}

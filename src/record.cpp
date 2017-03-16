@@ -78,11 +78,15 @@ void Record::searchContent(char *content, char *recordLanguage, std::vector <std
 	searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
 }
 
-std::vector <std::tuple <std::string, int, int>> Record::searchAndSortWithRank(std::string pattern,
-																																					bool caseInsensitive,
-																																					unsigned int editDistance){
+void Record::searchAndSortWithRank(std::string pattern,
+																	Result &searchResult,
+																	bool caseInsensitive,
+																	unsigned int editDistance
+																	){
 	int searchScore, searchMatchCount;
-	std::vector <std::tuple <std::string, int, int>> result;
+	//std::vector <std::tuple <std::string, int, int>> result;
+
+
 	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
 	
 	for (int i=0; i < fileCount; i++){
@@ -95,16 +99,11 @@ std::vector <std::tuple <std::string, int, int>> Record::searchAndSortWithRank(s
 
 			if (searchMatchCount > 0 && searchScore > 0){
 					std::string bookTitle(data[i].title);
-					result.push_back(std::make_tuple(bookTitle, searchScore, searchMatchCount));
+					//result.push_back(std::make_tuple(bookTitle, searchScore, searchMatchCount));
+					searchResult.insertResult(bookTitle, searchScore, searchMatchCount);
 			}
 	}
-	std::sort(result.begin(), result.end(),
-		[](std::tuple<std::string, int, int> const &t1, tuple<std::string, int, int> const &t2) {
-				return std::get<1>(t1) > std::get<1>(t2);
-			}
-	);
 
-	return result;
 }
 
 void Record::buildRecord(){

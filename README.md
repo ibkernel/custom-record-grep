@@ -32,8 +32,6 @@ run crgrep
 
 ## To-do
 
-- Fix fuzzy search bug
-- Finish Class: result
 - Rewrite loading record (remove newline & improve record format support)
 
 ## Roadmap

@@ -1,6 +1,7 @@
 #ifndef CRGREP_RECORD_H_
 #define CRGREP_RECORD_H_
 #include "ranking.h"
+#include "result.h"
 
 struct record {
 	char *language;
@@ -32,7 +33,7 @@ public:
 	~Record();
 	
 	int getFileCount();
-	std::vector <std::tuple <std::string, int, int>> searchAndSortWithRank(std:: string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchAndSortWithRank(std:: string pattern, Result &searchResult, bool caseInsensitive = 0, unsigned int editDistance = 0);
 
 };
 
