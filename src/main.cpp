@@ -67,6 +67,7 @@ int main(int argc, char** argv){
 			result = records.searchAndSortWithRank(searchPatterns, 0, 1); //fuzzy search with 1 edit distance tolerance
 			for (auto x:result){
 				std::cout << "Book :" << std::get<0>(x);
+				std::cout << "Rank score:" << std::get<1>(x) << std::endl;
 				std::cout << "Match count:" << std::get<2>(x) << std::endl;
 			}
 			result.clear();

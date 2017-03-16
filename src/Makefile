@@ -29,7 +29,7 @@ all:
 	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out "書本" "../data/formattedData/"
 
-run: build-libcld
+run-all: build-libcld
 	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out "書本" "../data/formattedData/"
 
@@ -53,6 +53,8 @@ debug:
 	gdb ./a.out
 clean:
 	rm a.out
+	rm *.o
+	rm libcld.a
 
 # build library for cld (compact language detector)
 
