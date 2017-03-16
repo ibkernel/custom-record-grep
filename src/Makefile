@@ -50,7 +50,9 @@ compile:
 
 format:
 	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -q "書本" -p "../data/formattedData/" -f "../data/downloadedData/" -f  "../data/formattedData/" -f "../data/dwlist.txt" -f "../data/mergedlist.txt" -f "../data/StopWords/stop-golden.txt"
+#	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/天域蒼穹/1612-第一百五十六章_黑風手.txt -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
+	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/ -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
+#	./a.out -q "書本" -p "../data/formattedData/" -f "../data/downloadedData/" -f  "../data/formattedData/" -f "../data/dwlist.txt" -f "../data/mergedlist.txt" -f "../data/StopWords/stop-golden.txt"
 
 debug:
 	g++ -g -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)

@@ -8,6 +8,19 @@
 #include "utils.h"
 
 
+bool replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+std::string removePrefixPath(const std::string& str) {
+	size_t found = str.find_last_of("/\\");
+	return str.substr(found+1);
+}
+
 std::vector<std::string> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
 	split(s, delim, std::back_inserter(elems));
