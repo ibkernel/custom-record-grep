@@ -50,8 +50,8 @@ compile:
 
 test:
 	g++ -std=c++11 -I./ -O3 $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-#	./a.out -f ../data/downloadedData/test/ -f ../data/formattedData/
-	./a.out -q "書本" -p ../data/formattedData/ -i
+#	./a.out -f ../data/downloadedData/ -f ../data/formattedData/
+	./a.out -q "書本" -p ../data/formattedData/testing.txt -i
 
 format:
 	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)

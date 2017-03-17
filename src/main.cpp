@@ -61,6 +61,7 @@ int main(int argc, char** argv){
 		cout << "---------Debug info---------" << endl;
 		cout << "Record Count: " << records.getRecordCount() << endl;
 		cout << "File Count: " << records.getFileCount() << endl;
+		//records.dubugPrintAllRecords();
 		cout << "----------info End----------" << endl;
 
 

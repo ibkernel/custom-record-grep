@@ -32,13 +32,12 @@ Record::Record(std::string path){
 
 //TODO: caseInsensitive not implemented yet
 char * Record::searchFactory(char *text, char *recordLanguage, std::string pattern, bool caseInsensitive, unsigned int editDistance) {
-	if (strcmp(text, "FORMAT_ERROR")==0){
+	if (strcmp(text, "FORMAT_ERROR")==0)
 		return NULL;
-	} else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0){
+	else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0)
 		return strstr(text, pattern.c_str());
-	}else {
+	else
 		return fuzzySearch(text, pattern.c_str(), editDistance);
-	}
 }
 
 void Record::searchId(char *id, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount, 
@@ -70,18 +69,18 @@ void Record::searchContent(char *content, char *recordLanguage, std::vector <std
 		found = NULL;
 		while((found = searchFactory(text, recordLanguage, searchPattern.c_str(), caseInsensitive, editDistance))!=NULL){
 			foundLocation = found - content;
-			foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
+			if (!rank[recordIndex].isDefaultRanking())
+				foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
 			text = found + searchPattern.length();
 			searchMatchCount++;
 		}
 		patternLocationTuples.push_back(foundTuple);
 		foundTuple.clear();
 	}
-	if (rank[recordIndex].isDefaultRanking()){
+	if (rank[recordIndex].isDefaultRanking())
 		searchScore += searchMatchCount * 3;
-	}else {
+	else
 		searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
-	}
 }
 
 void Record::searchAndSortWithRank(std::string pattern,
@@ -120,48 +119,118 @@ void Record::readFileThenSetRecordAndRank(){
 	char *line = NULL;
 	char prefix[5];
 	size_t len = 0;
-	ssize_t read;
+	size_t read;
 	struct record *moreData = NULL;
 	data = (struct record*) malloc(sizeof(struct record));
+	bool isNewRecord = true;
 
 	for (int i=0; i<fileCount; i++){
 		fptr = fopen(rawfiles[i].c_str(), "r");
+		int dataCountForCurrentFile = 0;
 		while((read = getline(&line, &len, fptr)) != -1){
-			memcpy( prefix, line, 4);
-			prefix[4] = '\0';
-			if(strcmp(prefix, "@id:")==0){
-					dataCount++;
-					moreData = (struct record *) realloc(data, dataCount*sizeof(struct record));
-					if (moreData != NULL){
-						data = moreData;
-						data[dataCount-1].id = (char *) malloc(read-4);
-						strcpy(data[dataCount-1].id, (line+4));
-					}else {
-						free(data);
-						puts ("Error (re)allocating memory");
-	       		exit (1);
-					}
-			}else if (strcmp(prefix, "@tit")==0){
-					data[dataCount-1].title = (char *) malloc(read-7);
-					strcpy(data[dataCount-1].title, (line+7));
-			}else if (strcmp(prefix, "@con")==0){
-					data[dataCount-1].content = (char *) malloc(read-9);
-					strcpy(data[dataCount-1].content, (line+9));
-					detectLanguage(line, data[dataCount-1].language);
-			}else {
-					dataCount++;
-					std::cout << "File " +rawfiles[i]+ " did not obeyed input format" << std::endl;
-					data[dataCount-1].id = strdup("FORMAT_ERROR");
-					data[dataCount-1].title = strdup("FORMAT_ERROR");
-					data[dataCount-1].content = strdup("FORMAT_ERROR");
-					data[dataCount-1].language = strdup("FORMAT_ERROR");
+			switch (line[0]) {
+				case '@':
+					handlePrefixCases(dataCountForCurrentFile, read, line, isNewRecord);
+					break;
+				default:
+					handleMalformedCases("Error: No prefix before data!", dataCountForCurrentFile, isNewRecord);
 					break;
 			}
-			cout << flush;
 		}
 		fclose(fptr);
-		Ranking currentRank(tagFiles[i]);
-		rank.push_back(currentRank);
+		insertAllRanksForCurrentFile(tagFiles[i], dataCountForCurrentFile);
+	}
+}
+
+void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord) {
+	bool isPrefixToolong = false;
+	std::string prefix = "@";
+	int offset = setPrefixAndReturnOffset(prefix, isPrefixToolong, line);
+
+	if(isPrefixToolong){
+		handleMalformedCases("Error: Prefix too long!", dataCountForCurrentFile, isNewRecord);
+	}else {
+		
+		if (prefix == "@id") {
+			incrementLocalFileDataCountAndDataCount(dataCountForCurrentFile);
+			createAndAssignDefaultStructData();
+			createMemoryThenInsert(data[dataCount-1].id, line, offset, read);
+			isNewRecord = false;
+		}else if (prefix == "@title" && !isNewRecord){
+			createMemoryThenInsert(data[dataCount-1].title, line ,offset, read);
+		}else if (prefix == "@content" && !isNewRecord){
+			createMemoryThenInsert(data[dataCount-1].content, line, offset, read);
+			detectLanguage((line+offset), data[dataCount-1].language);
+			isNewRecord = true;
+		}else {
+			// NOTE: allow custom prefix in the future
+			handleMalformedCases("Error: Unknown prefix!", dataCountForCurrentFile, isNewRecord);
+		}
+	}
+}
+
+
+void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount) {
+	dataCount += 1;
+	currentFileDataCount += 1;
+}
+
+
+void Record::handleMalformedCases(std::string errorName, int &dataCountForCurrentFile, bool &isNewRecord){
+	incrementLocalFileDataCountAndDataCount(dataCountForCurrentFile);
+	createAndAssignDefaultStructData();
+	cout << errorName << endl;
+	isNewRecord = true;	
+}
+
+// TODO: malloc error handling
+void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size) {
+	target= (char *) malloc(size-offset); // +1
+	if (target == NULL){
+		//throw std::bad_alloc("Memory not enough");
+	}
+	strcpy(target, (source+offset));
+	target[size-offset-1] = '\0';
+}
+
+int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,char *&line){
+	int offset=1;
+	while(line[offset]!=':'){
+		prefix += line[offset];
+		offset++;
+		if (offset == 30) {
+			isPrefixToolong = true;
+			break;
+		}
+	}
+	offset += 1; // skip ':'
+	return offset;
+}
+// TODO: malloc error handling
+void Record::createAndAssignDefaultStructData(){
+	struct record *moreData = NULL;
+	moreData = (struct record *) realloc(data, dataCount*sizeof(struct record));
+	if (moreData == NULL){
+		//throw std::bad_alloc("Memory not enough");
+	}
+	else {
+		data = moreData;
+		data[dataCount-1].id = strdup("FORMAT_ERROR");
+		data[dataCount-1].title = strdup("FORMAT_ERROR");
+		data[dataCount-1].content = strdup("FORMAT_ERROR");
+		data[dataCount-1].language = strdup("FORMAT_ERROR");
+	}
+}
+
+void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile) {
+	// NOTE: Rule: if there is more than one record in the file
+	// The index-file (.tags) must be assigned to the first record
+
+	Ranking newRank(tagPath);
+	rank.push_back(newRank);
+	for (int i=0; i < dataCountForCurrentFile-1; i++) {
+		Ranking newRank("NO-INDEX_FILE");
+		rank.push_back(newRank);
 	}
 }
 
