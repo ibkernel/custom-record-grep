@@ -9,6 +9,18 @@ A customizable ranking search tool.
 - Fuzzy search
 - Ranking by analyzing contextual sequence
 
+## Ranking Method
+
+### Default ranking
+
+Score by counting the matches of the keyword.
+
+### Advanced ranking
+
+*Much more accurate on multi-pattern searching compare to the default one*
+
+Determine the score not only by match count, but also with the relations between the match locations. E.g. When two keyword are both matched on the same sentence, they must have strong relationship.
+
 ## Input file format
 
 #### Data file
@@ -30,7 +42,7 @@ When crgrep is loading the data, it will search the corresponding indexing file 
 
 #### The `.tags` file
 
-In the `.tags` file, each line has three special variable: `tag_name` `open_location`  `close_location`. Having all of these tags' starting and ending locations, crgrep will then build a 4-level tree. After setting the data all up, we can seek out the enclosing tags of the found location rapidly, therefor, calculating the result score more accurately than the default way: scoring by the appearance time.
+In the `.tags` file, each line has three special variable: `tag_name` `open_location`  `close_location`. Having all of these tags' starting and ending locations, crgrep will then build a tree. After setting the data all up, we can seek out the enclosing tags of the found location rapidly. Therefor, with multiple found location, it is easy to figure the relationships between each of them.
 
 An example of the preprocessed index file:
 
