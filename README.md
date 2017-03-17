@@ -57,62 +57,46 @@ p_3	177	1281
 s_3	177	1281
 ```
 
-TODO TREE SIMULATION IMAGE
+[TODO TREE SIMULATION IMAGE]
 
 Although, crgrep works only if the input data were all well formatted, crgrep can took care all of the preprocessing stuff for us. All crgrep need is just some arguments . See instruction below.
 
 ## Usage
 
-### Step 0:
-
-naviagate to ./src
-
-### Step 1:
-
-build the cld library
+### Compile crgrep:
+*Read the makefile for compiler details*
 
 ```
+cd ./src
 make build-libcld
-```
-
-### Step 2:
-
-compile crgrep
-
-```
 make compile
 ```
 
-*Read the makefile for compiler details*
+### Preprocess raw data:
+```
+[TODO]
+```
 
 ### Commands:
 
 ```
 ./crgrep -q "search pattern" -p -i -d -f
 ```
-
-TODO
+[TODO]
 
 ## Used library
 
 - [tclap](http://tclap.sourceforge.net/ "clap")
 - [cld](https://github.com/mzsanford/cld 'CLD')
 
-## To-do
-
-- [ ] Customizable score ranking
-- [ ] Customizable tokenizer
-- [ ] Rewrite loading record (remove newline & improve record format support)
-
 ## Roadmap
 
-- [ ] Ranking tree traversal
-- [ ] Customizable score ranking
-- [ ] Customizable tokenizer
+- [x] Customizable score ranking
+- [x] Customizable tokenizer
 - [ ] Must have/ Must not have search (advanced query parser)
 - [ ] More search algorithm
 - [ ] Chinese fuzzy search
-- [ ] Support large data
+- [ ] Support large data (in file search)
 
 ## License
 
