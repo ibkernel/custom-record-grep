@@ -19,6 +19,7 @@ Ranking::~Ranking(){};
 Ranking::Ranking(std::string tagFilePath){
 		pathToTagFile = tagFilePath;
 		root = NULL;
+		isDefaultRankingBool = true;
 		chapter_num = chapter_size  = paragraph_size = 0;
 		paragraph_num = 1;
 		buildRank();
@@ -212,6 +213,25 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 	}
 };
 
+void Ranking::buildRank(){
+	// std::cout << pathToTagFile << std::endl;
+	if(exists(pathToTagFile)) {
+		std::ifstream infile(pathToTagFile);
+		std::string tagName;
+		int left, right;
+		while(infile >> tagName >> left >> right){
+			insertTag(tagName.at(0), left, right);
+		}
+		isDefaultRankingBool = false;
+	} else {
+		std::cout << "index file doesn't exist! Using default ranking" << std::endl;
+	}
+};
+
+bool Ranking::isDefaultRanking() {
+	return isDefaultRankingBool;
+}
+
 // For testing
 void Ranking::printTag() {
 	cout << "Total chapter tags: " << root->count << endl;
@@ -221,15 +241,3 @@ void Ranking::printTag() {
 			cout << "Total sentense tags:" << root->chapterNodes[i]->chapterNodes[j]->count << endl;
 	}
 }
-
-void Ranking::buildRank(){
-	// std::cout << pathToTagFile << std::endl;
-	std::ifstream infile(pathToTagFile);
-	std::string tagName;
-	int left, right;
-	while(infile >> tagName >> left >> right){
-		insertTag(tagName.at(0), left, right);
-	}
-	//cout << "Current book: " << pathToTagFile << endl;
-	//printTag();
-};

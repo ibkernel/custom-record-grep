@@ -15,6 +15,7 @@ private:
 	struct record* data;
 	std::vector<Ranking> rank;
 	int fileCount;
+	int dataCount;
 	std::string inputPath;
 	std::vector<std::string> rawfiles;
 	std::vector<std::string> tagFiles;
@@ -27,11 +28,29 @@ private:
 	void readFileThenSetRecordAndRank();
 	void checkPathAndSetFileVectors();
 	void detectLanguage(const char* src, char *&recordLanguage);
+	void insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile);
+	void createAndAssignDefaultStructData();
+	int setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong, char* &line);
+	void createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size);
+	void incrementLocalFileDataCountAndDataCount(int &currentFileDataCount);
+	void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
+	void handleMalformedCases(std::string errorName, int &dataCountForCurrentFile, bool &isNewRecord);
 
 public:
 	Record(std::string path);
 	~Record();
 	
+	void dubugPrintAllRecords() {
+		for (int i=0; i < dataCount; i++){
+			std::cout << "ID: " << data[i].id << std::endl;
+			std::cout << "Title: " << data[i].title << std::endl;
+			std::cout << "Content: " << data[i].content << std::endl;
+			std::cout << "Language: " << data[i].language << std::endl;
+			std::cout << "--------------" << std::endl;
+		}
+	};
+
+	int getRecordCount();
 	int getFileCount();
 	void searchAndSortWithRank(std:: string pattern, Result &searchResult, bool caseInsensitive = 0, unsigned int editDistance = 0);
 

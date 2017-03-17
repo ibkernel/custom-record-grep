@@ -4,6 +4,7 @@
 
 bool replace(std::string& str, const std::string& from, const std::string& to);
 std::string removePrefixPath(const std::string& str);
+//std::string removeDotTxt(const std::string& str);
 
 void ReplaceStringInPlace(std::string& subject, const std::string& search,
                           const std::string& replace);

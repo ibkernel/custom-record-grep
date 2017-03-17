@@ -34,7 +34,7 @@ private:
 	void createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size);
 	void incrementLocalFileDataCountAndDataCount(int &currentFileDataCount);
 	void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
-	void handleMalformedCases(std::string errorName, int &dataCountForCurrentFile, bool &isNewRecord);
+	void handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord);
 
 public:
 	Record(std::string path);

@@ -7,7 +7,7 @@
 #include <iterator>
 #include "utils.h"
 
-
+// replace all
 void ReplaceStringInPlace(std::string& subject, const std::string& search,
                           const std::string& replace) {
     size_t pos = 0;
@@ -29,6 +29,7 @@ std::string removePrefixPath(const std::string& str) {
 	size_t found = str.find_last_of("/\\");
 	return str.substr(found+1);
 }
+
 
 std::vector<std::string> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;

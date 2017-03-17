@@ -26,11 +26,11 @@ CLD_SOURCES=./cld/encodings/compact_lang_det/cldutil.cc \
         ./cld/languages/internal/languages.cc
 
 all:
-	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -q 書本 -p ../data/formattedData/
 
 interactive:
-	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -p ../data/formattedData/ -i
 
 # run-all: build-libcld
@@ -46,7 +46,7 @@ fuzzy:
 	./a.out -d 3 -p "../data/formattedData/" -i
 
 compile:
-	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -o crgrepe -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 test:
 	g++ -std=c++11 -I./ -O3 $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)

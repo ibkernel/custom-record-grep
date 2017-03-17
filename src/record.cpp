@@ -83,11 +83,7 @@ void Record::searchContent(char *content, char *recordLanguage, std::vector <std
 		searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
 }
 
-void Record::searchAndSortWithRank(std::string pattern,
-																	Result &searchResult,
-																	bool caseInsensitive,
-																	unsigned int editDistance
-																	){
+void Record::searchAndSortWithRank(std::string pattern, Result &searchResult, bool caseInsensitive, unsigned int editDistance ){
 	int searchScore, searchMatchCount;
 	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
 
@@ -118,9 +114,7 @@ void Record::readFileThenSetRecordAndRank(){
 	FILE *fptr;
 	char *line = NULL;
 	char prefix[5];
-	size_t len = 0;
-	size_t read;
-	struct record *moreData = NULL;
+	size_t len = 0, read;
 	data = (struct record*) malloc(sizeof(struct record));
 	bool isNewRecord = true;
 
@@ -176,10 +170,10 @@ void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount) 
 }
 
 
-void Record::handleMalformedCases(std::string errorName, int &dataCountForCurrentFile, bool &isNewRecord){
+void Record::handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord){
 	incrementLocalFileDataCountAndDataCount(dataCountForCurrentFile);
 	createAndAssignDefaultStructData();
-	cout << errorName << endl;
+	cout << malformType << endl;
 	isNewRecord = true;	
 }
 
@@ -206,6 +200,7 @@ int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,
 	offset += 1; // skip ':'
 	return offset;
 }
+
 // TODO: malloc error handling
 void Record::createAndAssignDefaultStructData(){
 	struct record *moreData = NULL;

@@ -40,7 +40,7 @@ std::string Result::getResultTitle(int i ){
 void Result::printResult(bool order) {
 	sort(order);
 	for (auto r: searchResult) {
-		std::cout << "Book :" << r.recordTitle;
+		std::cout << "Book :" << r.recordTitle << std::endl;
 		std::cout << "Rank score:" << r.recordScore << std::endl;
 		std::cout << "Match count:" << r.recordMatchCount << std::endl;
 	}

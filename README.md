@@ -2,32 +2,38 @@
 
 A customizable ranking search tool.
 
-**Currently under development**
-
 ## Features
 
 - Multi-pattern searching
-- Default tokenizer (Will create an index file)
+- Customizable tokenizer 
 - Fuzzy search
 - Ranking by analyzing contextual sequence
 
-## Usage
+## Input file format
 
-### Input file format
 #### Data file
-In each file, every record must have 3 prefix `@id:`, `@title:`, `@content:` following with the coresponding data, and with an ending newline indicating end of such data
 
-*DATA MUST NOT CONTAIN OTHER NEWLINE INSIDE, OR IT WILL SKIP THAT RECORD*
+In each file, every record must have 3 prefix `@id:`, `@title:`, `@content:` following with the coresponding data, and with a ending newline indicating end of such data.
+
+*DATA MUST NOT CONTAIN OTHER NEWLINE '/n' INSIDE, OR IT WILL TREAT IT AS ANOTHER RECORD*
+
 ```
 @id:[your data id]\n
 @title:[your data title]\n
 @content:[your data content]\n
 ...
 ```
-#### Index file
-When crgrep found the location of the search pattern, it needs an processed index of the data to calculate the ranking score. 
 
-Consider this an example of the format of the indexed file.
+When crgrep is loading the data, it will search the corresponding indexing file alongside ( same file name, but with the extension 'tags' ). If no indexing file is found, the default scoring mechanism will be used.
+
+**If there are more than one record in a single file, the indexing file is consider corresponding only to the first record, the rest remains default**
+
+#### The `.tags` file
+
+In the `.tags` file, each line has three special variable: `tag_name` `open_location`  `close_location`. Having all of these tags' starting and ending locations, crgrep will then build a 4-level tree. After setting the data all up, we can seek out the enclosing tags of the found location rapidly, therefor, calculating the result score more accurately than the default way: scoring by the appearance time.
+
+An example of the preprocessed index file:
+
 ```
 c_1	0	1281
 t_1	0	94
@@ -39,25 +45,46 @@ p_3	177	1281
 s_3	177	1281
 ```
 
-Thankfully, crgrep can do the indexing and the formatting for us, all crgrep need is just two path `path_to_raw_dir` and `path_to_processed_dir`. See instruction below.
+TODO TREE SIMULATION IMAGE
 
+Although, crgrep works only if the input data were all well formatted, crgrep can took care all of the preprocessing stuff for us. All crgrep need is just some arguments . See instruction below.
 
-**must compile with `-std=c++11` option**
+## Usage
 
-compile
+### Step 0:
+
+naviagate to ./src
+
+### Step 1:
+
+build the cld library
+
 ```
-make
+make build-libcld
 ```
 
-run crgrep
+### Step 2:
+
+compile crgrep
+
 ```
-./a.out "query" "path_to_file_or_dir"
+make compile
 ```
+
+*Read the makefile for compiler details*
+
+### Commands:
+
+```
+./crgrep -q "search pattern" -p -i -d -f
+```
+
+TODO
 
 ## Used library
 
-- tclap
-- cld 
+- [tclap](http://tclap.sourceforge.net/ "clap")
+- [cld](https://github.com/mzsanford/cld 'CLD')
 
 ## To-do
 
@@ -67,7 +94,7 @@ run crgrep
 
 ## Roadmap
 
-- [x] Ranking tree traversal
+- [ ] Ranking tree traversal
 - [ ] Customizable score ranking
 - [ ] Customizable tokenizer
 - [ ] Must have/ Must not have search (advanced query parser)
