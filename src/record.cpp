@@ -26,12 +26,15 @@ Record::~Record(){};
 Record::Record(std::string path){
 	inputPath = path;
 	fileCount = 0;
+	dataCount = 0;
 	buildRecord();
 };
 
 //TODO: caseInsensitive not implemented yet
 char * Record::searchFactory(char *text, char *recordLanguage, std::string pattern, bool caseInsensitive, unsigned int editDistance) {
-	if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0){
+	if (strcmp(text, "FORMAT_ERROR")==0){
+		return NULL;
+	} else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0){
 		return strstr(text, pattern.c_str());
 	}else {
 		return fuzzySearch(text, pattern.c_str(), editDistance);
@@ -49,8 +52,8 @@ void Record::searchId(char *id, char *recordLanguage, std::string pattern, int &
 void Record::searchTitle(char *title, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount,
 												bool caseInsensitive, unsigned int editDistance){
 	if((searchFactory(title, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
-				searchScore += 300000;
-				searchMatchCount++;
+		searchScore += 300000;
+		searchMatchCount++;
 	}
 }
 
@@ -74,8 +77,11 @@ void Record::searchContent(char *content, char *recordLanguage, std::vector <std
 		patternLocationTuples.push_back(foundTuple);
 		foundTuple.clear();
 	}
-	
-	searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+	if (rank[recordIndex].isDefaultRanking()){
+		searchScore += searchMatchCount * 3;
+	}else {
+		searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+	}
 }
 
 void Record::searchAndSortWithRank(std::string pattern,
@@ -84,12 +90,9 @@ void Record::searchAndSortWithRank(std::string pattern,
 																	unsigned int editDistance
 																	){
 	int searchScore, searchMatchCount;
-	//std::vector <std::tuple <std::string, int, int>> result;
-
-
 	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
-	
-	for (int i=0; i < fileCount; i++){
+
+	for (int i=0; i < dataCount; i++){
 			searchScore = searchMatchCount = 0;
 			for (auto searchPattern: searchPatterns){
 				searchId(data[i].id, data[i].language, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
@@ -99,7 +102,6 @@ void Record::searchAndSortWithRank(std::string pattern,
 
 			if (searchMatchCount > 0 && searchScore > 0){
 					std::string bookTitle(data[i].title);
-					//result.push_back(std::make_tuple(bookTitle, searchScore, searchMatchCount));
 					searchResult.insertResult(bookTitle, searchScore, searchMatchCount);
 			}
 	}
@@ -119,13 +121,12 @@ void Record::readFileThenSetRecordAndRank(){
 	char prefix[5];
 	size_t len = 0;
 	ssize_t read;
-	int dataCount = 0;
 	struct record *moreData = NULL;
 	data = (struct record*) malloc(sizeof(struct record));
 
 	for (int i=0; i<fileCount; i++){
 		fptr = fopen(rawfiles[i].c_str(), "r");
-		while((read = getline(&line, &len, fptr)) != -1){ //char **restrict lineptr
+		while((read = getline(&line, &len, fptr)) != -1){
 			memcpy( prefix, line, 4);
 			prefix[4] = '\0';
 			if(strcmp(prefix, "@id:")==0){
@@ -147,9 +148,13 @@ void Record::readFileThenSetRecordAndRank(){
 					data[dataCount-1].content = (char *) malloc(read-9);
 					strcpy(data[dataCount-1].content, (line+9));
 					detectLanguage(line, data[dataCount-1].language);
-					//strncpy(data[dataCount-1].language,language, sizeof(language));
 			}else {
+					dataCount++;
 					std::cout << "File " +rawfiles[i]+ " did not obeyed input format" << std::endl;
+					data[dataCount-1].id = strdup("FORMAT_ERROR");
+					data[dataCount-1].title = strdup("FORMAT_ERROR");
+					data[dataCount-1].content = strdup("FORMAT_ERROR");
+					data[dataCount-1].language = strdup("FORMAT_ERROR");
 					break;
 			}
 			cout << flush;
@@ -210,7 +215,6 @@ void Record::checkPathAndSetFileVectors(){
 					if (!isDir(newFilePath)) {
 						if (newFilePath.substr(newFilePath.length() - 4) == ".txt"){
 							rawfiles.push_back(newFilePath);
-							//tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"info");
 							tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
 							fileCount++;
 						}
@@ -221,7 +225,6 @@ void Record::checkPathAndSetFileVectors(){
 		}
 		else {
 			rawfiles.push_back(inputPath);
-			//tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"info");
 			tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"tags");
 			fileCount++;
 		}
@@ -235,4 +238,7 @@ int Record::getFileCount(){
 	return fileCount;
 }
 
+int Record::getRecordCount() {
+	return dataCount;
+};
 

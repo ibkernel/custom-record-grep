@@ -15,6 +15,7 @@ private:
 	struct record* data;
 	std::vector<Ranking> rank;
 	int fileCount;
+	int dataCount;
 	std::string inputPath;
 	std::vector<std::string> rawfiles;
 	std::vector<std::string> tagFiles;
@@ -32,6 +33,7 @@ public:
 	Record(std::string path);
 	~Record();
 	
+	int getRecordCount();
 	int getFileCount();
 	void searchAndSortWithRank(std:: string pattern, Result &searchResult, bool caseInsensitive = 0, unsigned int editDistance = 0);
 

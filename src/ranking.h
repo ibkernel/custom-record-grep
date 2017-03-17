@@ -16,6 +16,7 @@ private:
 	int chapter_size;
 	int paragraph_num;
 	int paragraph_size;
+	bool isDefaultRankingBool;
 
 	void buildRank();
 	void insertTag(char tagType, int lowerBound, int upperBound);
@@ -26,6 +27,8 @@ public:
 	int getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuple);
 	Ranking(std::string tagFilePath);
 	~Ranking();
+	bool isDefaultRanking();
+
 	// NOTE: REVISE IT AFTER TESTING
 	int getRankingScore(int foundLocation);
 	void printTag();

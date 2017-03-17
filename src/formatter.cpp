@@ -32,6 +32,8 @@ void Formatter::processFile(bool concatFlag) {
 			int chapter_num = 0, title_num = 0, paragraph_num = 0, sentense_num =0;
 			long char_count = 0;
 			std::string dataTitle = removePrefixPath(path);
+			ReplaceStringInPlace(dataTitle, ".txt", "");
+
 			writeRecordHeaderToFile(dataTitle);
 			formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
 		}
@@ -83,7 +85,7 @@ void Formatter::formatThenMerge(std::string pathToSingleFile, long &char_count, 
 		if (line.length()>2)
 			text += (line + '\n');
 	}
-	//TODO: ??????
+	//Remove duplicated space to one only.
 	std::string::iterator new_end = std::unique(text.begin(), text.end(),
       [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' '); }
   );
@@ -259,6 +261,7 @@ Formatter::Formatter(std::string pathSource, std::string pathDest){
 	pathToRawData = pathSource;
 	pathToStopWords = "none";
 	bool isConcatFile = true;
+	stopWords.push_back("\r");
 	if (isDir(pathSource)){
 		insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
 		processFile();
@@ -283,6 +286,7 @@ Formatter::Formatter(std::string pathSource, std::string pathDest, std::string p
 	while (std::getline(stopWordsFile, words)){
 		stopWords.push_back(words);
 	}
+	stopWords.push_back("\r");
 	if (isDir(pathSource)){
 		insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
 		processFile();

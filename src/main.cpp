@@ -57,11 +57,19 @@ int main(int argc, char** argv){
 	if (paths.size() == 0){
 		Record records(inputPath);
 		Result searchResult;
+
+		cout << "---------Debug info---------" << endl;
+		cout << "Record Count: " << records.getRecordCount() << endl;
+		cout << "File Count: " << records.getFileCount() << endl;
+		cout << "----------info End----------" << endl;
+
+
 		cout << "---------Data loaded---------" << endl;
 		if (query != "default query"){
 			cout << "Searching for: " << query << endl;
 			records.searchAndSortWithRank(query,searchResult, 0, distance);
 			searchResult.printResult(isAscending);
+			searchResult.reset();
 		}
 
 		if (isInteractive){
