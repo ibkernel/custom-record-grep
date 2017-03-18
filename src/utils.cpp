@@ -6,6 +6,31 @@
 #include <vector>
 #include <iterator>
 #include "utils.h"
+#include <cctype>
+
+int countWords(const char* str){
+   if (str == NULL)
+      return 0;  
+
+   bool inSpaces = true;
+   int numWords = 0;
+   while (*str != '\0')
+   {
+      if (std::isspace(*str))
+      {
+         inSpaces = true;
+      }
+      else if (inSpaces)
+      {
+         numWords++;
+         inSpaces = false;
+      }
+
+      ++str;
+   }
+
+   return numWords;
+}
 
 // replace all
 void ReplaceStringInPlace(std::string& subject, const std::string& search,

@@ -22,5 +22,6 @@ inline bool exists(const std::string& name) {
 int isDir(const std::string &name);
 
 
+int countWords(const char* str);
 
 #endif

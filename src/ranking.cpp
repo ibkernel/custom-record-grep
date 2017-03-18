@@ -13,6 +13,8 @@
 #include "utils.h"
 #include "ranking.h"
 
+
+
 using namespace std;
 
 Ranking::~Ranking(){};
@@ -42,9 +44,6 @@ int Ranking::getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,i
 
 // TODO: need fix overflow error
 int Ranking::getPatternScore(std::map<std::string, int> &foundMap, std::tuple<int,int,int>&singleLocation, int patternNum){
-	const int chapterWeight = 3;
-	const int paragraphWeight = 4;
-	const int sentenseWeight = 5;
 	std::map<std::string, int>::iterator it;
 	std::string chapterIndex = std::to_string(std::get<0>(singleLocation));
 	std::string paragraphIndex = std::to_string(std::get<1>(singleLocation));
@@ -52,55 +51,54 @@ int Ranking::getPatternScore(std::map<std::string, int> &foundMap, std::tuple<in
 
 	it = foundMap.find(chapterIndex);
 	if (it != foundMap.end()){
-		foundMap[chapterIndex] += sqrt(pow(chapterWeight, patternNum));
+		foundMap[chapterIndex] += sqrt(pow(chapterTagWeight, patternNum));
 	}else{
 		foundMap.insert(std::pair<std::string, int>(chapterIndex, 1));
 	}
 
 	it = foundMap.find(chapterIndex+'_'+paragraphIndex);
 	if (it != foundMap.end()){
-		foundMap[chapterIndex+'_'+paragraphIndex] += sqrt(pow(paragraphWeight, patternNum));
+		foundMap[chapterIndex+'_'+paragraphIndex] += sqrt(pow(paragraphTagWeight, patternNum));
 	}else{
 		foundMap.insert(std::pair<std::string, int>(chapterIndex+'_'+paragraphIndex, 1));
 	}
 
 	it = foundMap.find(chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex);
 	if (it != foundMap.end()){
-		foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex] += sqrt(pow(sentenseWeight, patternNum));
+		foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex] += sqrt(pow(sentenseTagWeight, patternNum));
 	}else{
 		foundMap.insert(std::pair<std::string, int>(chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex, 1));
 	}
 	int score = foundMap[chapterIndex]*foundMap[chapterIndex+'_'+paragraphIndex]*foundMap[chapterIndex+'_'+paragraphIndex+'_'+sentenseIndex];
 
 	if (paragraphIndex == "0") // title
-		return score * 10;
+		return score * titleTagWeight;
 	else
-		return score * 3;
+		return score * paragraphTagWeight;
 }
 
 std::tuple <int, int, int> Ranking::getRankTreeTuple(int foundLocation){
 	std::tuple <int, int, int> location;
-	int chapter_array_index = getBelongingInterval(root->left, root->count, foundLocation);
-	int paragraph_array_index = getBelongingInterval(root->chapterNodes[chapter_array_index]->left,
-	 root->chapterNodes[chapter_array_index]->count, foundLocation);
+	int chapter_array_index = getBelongingNodeIndexWithFoundLocation(root->lowerBoundLocationOfChildTags, root->childTagCount, foundLocation);
+	int paragraph_array_index = getBelongingNodeIndexWithFoundLocation(root->tagNodes[chapter_array_index]->lowerBoundLocationOfChildTags,
+	 root->tagNodes[chapter_array_index]->childTagCount, foundLocation);
 	if (paragraph_array_index == 0){
 		return std::make_tuple(chapter_array_index, paragraph_array_index, 0);
 	}
-	int sentence_array_index = getBelongingInterval(
-			root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->left,
-			 root->chapterNodes[chapter_array_index]->chapterNodes[paragraph_array_index]->count,
+	int sentence_array_index = getBelongingNodeIndexWithFoundLocation(
+			root->tagNodes[chapter_array_index]->tagNodes[paragraph_array_index]->lowerBoundLocationOfChildTags,
+			 root->tagNodes[chapter_array_index]->tagNodes[paragraph_array_index]->childTagCount,
 			  foundLocation);
 	return std::make_tuple(chapter_array_index, paragraph_array_index, sentence_array_index);
 }
 
-int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLocation) {
-	int leftLength = arrayLength;
-	int mid = leftLength/2, left =0, right = leftLength - 1;
-	int minDiff = lowerBound[leftLength-1], curDiff = 0, inMid = 0;
+int Ranking::getBelongingNodeIndexWithFoundLocation(int *&lowerBound, int arrayLength, int foundLocation) {
 	if (arrayLength == 0) // NOTE: It should never happen, however we need more testing to verify
 		return -1;
-	if (foundLocation > lowerBound[leftLength-1])
-		return leftLength-1;
+	int mid = arrayLength/2, left =0, right = arrayLength - 1;
+	int minDiff = lowerBound[arrayLength-1], curDiff = 0, inMid = 0;
+	if (foundLocation > lowerBound[arrayLength-1])
+		return arrayLength-1;
 	if (foundLocation < lowerBound[0])
 		return 0;
 
@@ -133,11 +131,11 @@ int Ranking::getBelongingInterval(int *&lowerBound, int arrayLength, int foundLo
 void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 	if (root == NULL){
 		root = (struct rankTreeNode*) malloc(sizeof(struct rankTreeNode) * 1);
-		root->left = (int *) malloc(sizeof(int) * 1);
-		root->chapterNodes = (struct rankTreeNode **)malloc(sizeof(struct rankTreeNode *) * 1);
-		root->left[0] = lowerBound;
-		root->chapterNodes[0] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
-		root->count = 1;
+		root->lowerBoundLocationOfChildTags = (int *) malloc(sizeof(int) * 1);
+		root->tagNodes = (struct rankTreeNode **)malloc(sizeof(struct rankTreeNode *) * 1);
+		root->lowerBoundLocationOfChildTags[0] = lowerBound;
+		root->tagNodes[0] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
+		root->childTagCount = 1;
 		chapter_num += 1;
 	}else {
 		struct rankTreeNode **moreData = NULL;
@@ -146,43 +144,42 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 		switch (tagType){
 			case 'c':
 				//NOTE: WEIRD
-				//cout << "p & l count: " <<  (sizeof(root->chapterNodes[chapter_num-1]->left)/sizeof(int)) << endl;
 				chapter_size = 0;
-				moreData = (struct rankTreeNode **) realloc(root->chapterNodes, sizeof(struct rankTreeNode *)*(chapter_num+1));
-				evenMoreData = (int *) realloc(root->left, sizeof(int)*(chapter_num+1));
+				moreData = (struct rankTreeNode **) realloc(root->tagNodes, sizeof(struct rankTreeNode *)*(chapter_num+1));
+				evenMoreData = (int *) realloc(root->lowerBoundLocationOfChildTags, sizeof(int)*(chapter_num+1));
 				if (moreData!= NULL && evenMoreData != NULL){
-					root->chapterNodes = moreData;
-					root->chapterNodes[chapter_num] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode) * 1);
-					root->left = evenMoreData;
-					root->left[chapter_num] = lowerBound;
-					root->count += 1;
+					root->tagNodes = moreData;
+					root->tagNodes[chapter_num] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode) * 1);
+					root->lowerBoundLocationOfChildTags = evenMoreData;
+					root->lowerBoundLocationOfChildTags[chapter_num] = lowerBound;
+					root->childTagCount += 1;
 				}
 				chapter_num += 1;
 				break;
 			case 't':
-				root->chapterNodes[chapter_num-1]->count = 0;
-				root->chapterNodes[chapter_num-1]->count += 1;
-				root->chapterNodes[chapter_num-1]->left = (int *)malloc(sizeof(int)*1);
-				root->chapterNodes[chapter_num-1]->left[0] = lowerBound;
-				root->chapterNodes[chapter_num-1]->chapterNodes = (struct rankTreeNode **)malloc(sizeof(struct rankTreeNode*)*1);
-				root->chapterNodes[chapter_num-1]->chapterNodes[0] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
-				root->chapterNodes[chapter_num-1]->chapterNodes[0]->count = 0;
+				root->tagNodes[chapter_num-1]->childTagCount = 0;
+				root->tagNodes[chapter_num-1]->childTagCount += 1;
+				root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags = (int *)malloc(sizeof(int)*1);
+				root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags[0] = lowerBound;
+				root->tagNodes[chapter_num-1]->tagNodes = (struct rankTreeNode **)malloc(sizeof(struct rankTreeNode*)*1);
+				root->tagNodes[chapter_num-1]->tagNodes[0] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
+				root->tagNodes[chapter_num-1]->tagNodes[0]->childTagCount = 0;
 				chapter_size += 1;
 				break;
 			case 'p':
-				if(!root->chapterNodes[chapter_num-1]->count)
-					root->chapterNodes[chapter_num-1]->count = 1;
-				root->chapterNodes[chapter_num-1]->count += 1;
-				moreData = (struct rankTreeNode **) realloc(root->chapterNodes[chapter_num-1]->chapterNodes, sizeof(struct rankTreeNode *)*(chapter_size+1));
-				evenMoreData = (int *)realloc(root->chapterNodes[chapter_num-1]->left, sizeof(int)*(chapter_size+1));
+				if(!root->tagNodes[chapter_num-1]->childTagCount)
+					root->tagNodes[chapter_num-1]->childTagCount = 1;
+				root->tagNodes[chapter_num-1]->childTagCount += 1;
+				moreData = (struct rankTreeNode **) realloc(root->tagNodes[chapter_num-1]->tagNodes, sizeof(struct rankTreeNode *)*(chapter_size+1));
+				evenMoreData = (int *)realloc(root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags, sizeof(int)*(chapter_size+1));
 				if(moreData != NULL && evenMoreData != NULL){
-					root->chapterNodes[chapter_num-1]->chapterNodes = moreData;
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
-					root->chapterNodes[chapter_num-1]->left = evenMoreData;
-					root->chapterNodes[chapter_num-1]->left[chapter_size] = lowerBound;
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size]->chapterNodes = (struct rankTreeNode**)malloc(sizeof(struct rankTreeNode*) *1);
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size]->left = (int *)malloc(sizeof(int)*1);
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size]->count = 0;
+					root->tagNodes[chapter_num-1]->tagNodes = moreData;
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
+					root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags = evenMoreData;
+					root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags[chapter_size] = lowerBound;
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size]->tagNodes = (struct rankTreeNode**)malloc(sizeof(struct rankTreeNode*) *1);
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size]->lowerBoundLocationOfChildTags = (int *)malloc(sizeof(int)*1);
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size]->childTagCount = 0;
 				}else {
 					puts("Error reallocating memory");
 					exit(1);
@@ -192,14 +189,14 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 				paragraph_size = 1;
 				break;
 			case 's':
-				root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->count += 1;
-				moreData = (struct rankTreeNode **) realloc(root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->chapterNodes, sizeof(struct rankTreeNode *)*(paragraph_size));
-				evenMoreData = (int *) realloc(root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->left, sizeof(int)*(paragraph_size));
+				root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->childTagCount += 1;
+				moreData = (struct rankTreeNode **) realloc(root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes, sizeof(struct rankTreeNode *)*(paragraph_size));
+				evenMoreData = (int *) realloc(root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags, sizeof(int)*(paragraph_size));
 				if (moreData != NULL && evenMoreData != NULL){
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->chapterNodes = moreData;
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->chapterNodes[paragraph_size-1] = (struct rankTreeNode*)malloc(sizeof(struct rankTreeNode)* 1);
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->left = evenMoreData;
-					root->chapterNodes[chapter_num-1]->chapterNodes[chapter_size-1]->left[paragraph_size-1] = lowerBound;
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes = moreData;
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = (struct rankTreeNode*)malloc(sizeof(struct rankTreeNode)* 1);
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags = evenMoreData;
+					root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags[paragraph_size-1] = lowerBound;
 				}else {
 					puts("Error reallocating memory");
 					exit(1);
@@ -214,13 +211,12 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound){
 };
 
 void Ranking::buildRank(){
-	// std::cout << pathToTagFile << std::endl;
 	if(exists(pathToTagFile)) {
 		std::ifstream infile(pathToTagFile);
 		std::string tagName;
-		int left, right;
-		while(infile >> tagName >> left >> right){
-			insertTag(tagName.at(0), left, right);
+		int lowerBoundLocation, upperBoundLocation;
+		while(infile >> tagName >> lowerBoundLocation >> upperBoundLocation){
+			insertTag(tagName.at(0), lowerBoundLocation, upperBoundLocation);
 		}
 		isDefaultRankingBool = false;
 	} else {
@@ -234,10 +230,10 @@ bool Ranking::isDefaultRanking() {
 
 // For testing
 void Ranking::printTag() {
-	cout << "Total chapter tags: " << root->count << endl;
-	for (int i=0; i < root->count; i++){
-		cout << "Current chapter: " << root->count << "\tTotal paragraph tags:" << root->chapterNodes[i]->count << endl;
-		for (int j=0; j < root->chapterNodes[i]->count; j++)
-			cout << "Total sentense tags:" << root->chapterNodes[i]->chapterNodes[j]->count << endl;
+	cout << "Total chapter tags: " << root->childTagCount << endl;
+	for (int i=0; i < root->childTagCount; i++){
+		cout << "Current chapter: " << root->childTagCount << "\tTotal paragraph tags:" << root->tagNodes[i]->childTagCount << endl;
+		for (int j=0; j < root->tagNodes[i]->childTagCount; j++)
+			cout << "Total sentense tags:" << root->tagNodes[i]->tagNodes[j]->childTagCount << endl;
 	}
 }

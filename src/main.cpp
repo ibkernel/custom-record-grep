@@ -55,20 +55,21 @@ int main(int argc, char** argv){
 	std::cout << "My score path is: " << scorePath << std::endl;
 
 	if (paths.size() == 0){
-		Record records(inputPath);
+		Record *records = new Record(inputPath);
 		Result searchResult;
 
-		cout << "---------Debug info---------" << endl;
-		cout << "Record Count: " << records.getRecordCount() << endl;
-		cout << "File Count: " << records.getFileCount() << endl;
-		//records.dubugPrintAllRecords();
-		cout << "----------info End----------" << endl;
+		cout << "---------Debug info---------" << endl << endl;
+		cout << "Record Count: " << records->getRecordCount() << endl;
+		cout << "File Count: " << records->getFileCount() << endl;
+		// records.dubugPrintAllRecords();
+		cout << endl;
+		cout << "----------info End----------" << endl << endl;
 
 
 		cout << "---------Data loaded---------" << endl;
 		if (query != "default query"){
 			cout << "Searching for: " << query << endl;
-			records.searchAndSortWithRank(query,searchResult, 0, distance);
+			records->searchAndSortWithRank(query,searchResult, 0, distance);
 			searchResult.printResult(isAscending);
 			searchResult.reset();
 		}
@@ -83,11 +84,23 @@ int main(int argc, char** argv){
 					break;
 				// NOTE: currently not working with chinese characters.
 				std::cout << "-------------Fuzzy search with distance of " << distance << "----------------" << '\n';
-				records.searchAndSortWithRank(searchPatterns,searchResult, 0, distance); //fuzzy search with 1 edit distance tolerance
+				records->searchAndSortWithRank(searchPatterns,searchResult, 0, distance); //fuzzy search with 1 edit distance tolerance
 				searchResult.printResult(isAscending);
 				searchResult.reset();
 			}
 		}
+		
+		// TESTING STABILITY
+		// int count = 100;
+		// int i = 0;
+		// while (count--) {
+		// 	i++;
+		// 	cout << "--Starting "<< i << "th round--" << endl;
+		// 	//Record records(inputPath);
+		// 	Record *records = new Record(inputPath);
+		// 	cout << "---LOADED "<< i << "th round-_-" << endl;
+		// 	delete records;
+		// }
 
 	}else {
 		if (paths.size() < 2){

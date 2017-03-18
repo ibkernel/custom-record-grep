@@ -61,7 +61,7 @@ format:
 
 debug:
 	g++ -g -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	gdb ./a.out
+	./a.out -p ../data/formattedData/
 clean:
 	rm a.out
 	rm *.o

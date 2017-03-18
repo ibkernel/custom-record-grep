@@ -8,6 +8,7 @@ struct record {
 	char *id;
 	char *title;
 	char *content;
+	int approxCharactersCount;
 };
 
 class Record {
@@ -35,6 +36,7 @@ private:
 	void incrementLocalFileDataCountAndDataCount(int &currentFileDataCount);
 	void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
 	void handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord);
+	int getRecordCharactersCount(size_t lineCharCount, int prefixCount, char *& line, char *language);
 
 public:
 	Record(std::string path);
@@ -44,8 +46,9 @@ public:
 		for (int i=0; i < dataCount; i++){
 			std::cout << "ID: " << data[i].id << std::endl;
 			std::cout << "Title: " << data[i].title << std::endl;
-			std::cout << "Content: " << data[i].content << std::endl;
+			//std::cout << "Content: " << data[i].content << std::endl;
 			std::cout << "Language: " << data[i].language << std::endl;
+			std::cout << "Char count: " << data[i].approxCharactersCount << std::endl;
 			std::cout << "--------------" << std::endl;
 		}
 	};

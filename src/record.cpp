@@ -43,7 +43,7 @@ char * Record::searchFactory(char *text, char *recordLanguage, std::string patte
 void Record::searchId(char *id, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount, 
 											bool caseInsensitive, unsigned int editDistance){
 	if((searchFactory(id, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))>0){
-				searchScore += 0;
+				searchScore += idWeight;
 				searchMatchCount++;
 	}
 }
@@ -51,7 +51,7 @@ void Record::searchId(char *id, char *recordLanguage, std::string pattern, int &
 void Record::searchTitle(char *title, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount,
 												bool caseInsensitive, unsigned int editDistance){
 	if((searchFactory(title, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
-		searchScore += 300000;
+		searchScore += titleWeight;
 		searchMatchCount++;
 	}
 }
@@ -60,6 +60,7 @@ void Record::searchContent(char *content, char *recordLanguage, std::vector <std
 													bool caseInsensitive, unsigned int editDistance){
 	char *text, *found;
 	int foundLocation;
+	double tmpScore;
 	// NOTE: array of size searchPatterns.size();
 	std::vector <std::tuple <int, int, int>> foundTuple;
 	std::vector <std::vector <std::tuple <int,int,int>>> patternLocationTuples;
@@ -78,9 +79,17 @@ void Record::searchContent(char *content, char *recordLanguage, std::vector <std
 		foundTuple.clear();
 	}
 	if (rank[recordIndex].isDefaultRanking())
-		searchScore += searchMatchCount * 3;
+		tmpScore= searchMatchCount * contentWeight;
 	else
-		searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+		tmpScore= rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+
+	// TODO: Adjust tmpScore according to the % of the pattern in the content
+
+	// NOT ACCURATE AT ALL, it will ignore little match count
+	//tmpScore = double(titleWeight * searchMatchCount / data[recordIndex].approxCharactersCount);
+	//std::cout << searchMatchCount << std::endl;
+	//std::cout << data[recordIndex].approxCharactersCount << std::endl;
+	searchScore += tmpScore;
 }
 
 void Record::searchAndSortWithRank(std::string pattern, Result &searchResult, bool caseInsensitive, unsigned int editDistance ){
@@ -155,6 +164,7 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char 
 		}else if (prefix == "@content" && !isNewRecord){
 			createMemoryThenInsert(data[dataCount-1].content, line, offset, read);
 			detectLanguage((line+offset), data[dataCount-1].language);
+			data[dataCount-1].approxCharactersCount = getRecordCharactersCount(read, offset, line, data[dataCount-1].language);
 			isNewRecord = true;
 		}else {
 			// NOTE: allow custom prefix in the future
@@ -163,6 +173,13 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char 
 	}
 }
 
+
+int Record::getRecordCharactersCount(size_t lineCharCount, int prefixCount, char *& line, char *language) {
+	if (strcmp(language, "ChineseT") == 0)
+		return (lineCharCount - prefixCount)/3; // assume all chinese characters
+	else
+		return  countWords(line); // will count the prefix as a redundant word
+}
 
 void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount) {
 	dataCount += 1;
@@ -173,7 +190,7 @@ void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount) 
 void Record::handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord){
 	incrementLocalFileDataCountAndDataCount(dataCountForCurrentFile);
 	createAndAssignDefaultStructData();
-	cout << malformType << endl;
+	std::cout << malformType << std::endl;
 	isNewRecord = true;	
 }
 
@@ -183,8 +200,12 @@ void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  s
 	if (target == NULL){
 		//throw std::bad_alloc("Memory not enough");
 	}
-	strcpy(target, (source+offset));
-	target[size-offset-1] = '\0';
+	if (size == offset) { // empty source
+		target[0] = '\0';
+	}else {
+		strcpy(target, (source+offset));
+		target[size-offset-1] = '\0';
+	}
 }
 
 int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,char *&line){

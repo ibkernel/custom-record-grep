@@ -29,7 +29,7 @@ int Result::getResultCount(){
 	return searchResult.size();
 };
 
-int Result::getResultScore(int i){
+double Result::getResultScore(int i){
 	return searchResult[i].recordScore;
 };
 

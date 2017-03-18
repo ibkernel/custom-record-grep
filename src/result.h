@@ -3,7 +3,7 @@
 
 struct result {
 	std::string recordTitle;
-	int recordScore;
+	double recordScore;
 	int recordMatchCount;
 };
 
@@ -24,7 +24,7 @@ public:
 
 	int getResultCount();
 	std::string getResultTitle(int i );
-	int getResultScore(int i);
+	double getResultScore(int i);
 
 	void insertResult(std::string title, int searchScore, int searchMatchCount);
 	void sort(bool order=false);

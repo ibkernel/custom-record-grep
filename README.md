@@ -1,33 +1,20 @@
-# CRGREP
+# CRGREP: A ranking search tool based on contextual relationship analysis.
 
-A customizable ranking search tool.
+Since the invention of www, data have growned so immensely that even one night of crawling, the amount of data would be tremendous and hard to classify. Determining the priority of the search result has become an important task. This project provides a tool to help users search keywords with ranking by match location analysis.
+
 
 ## Features
 
-- Multi-pattern searching
-- Customizable tokenizer 
-- Fuzzy search
-- Ranking by analyzing contextual sequence
+- Multi-pattern searching 
+- Fuzzy search (western language only)
+- Ranking by analyzing contextual relationship.
+- Customizable data preprocessor
 
-## Ranking Method
 
-### Default ranking
+## Data Format Introduction
 
-Score by counting the matches of the keyword.
-
-### Advanced ranking
-
-*Much more accurate on multi-pattern searching compare to the default one*
-
-Determine the score not only by match count, but also with the relations between the match locations. E.g. When two keyword are both matched on the same sentence, they must have strong relationship.
-
-## Input file format
-
-#### Data file
-
-In each file, every record must have 3 prefix `@id:`, `@title:`, `@content:` following with the coresponding data, and with a ending newline indicating end of such data.
-
-*DATA MUST NOT CONTAIN OTHER NEWLINE '/n' INSIDE, OR IT WILL TREAT IT AS ANOTHER RECORD*
+### Format of the data
+Data must follow the format bellow to make crgrep recognizable.
 
 ```
 @id:[your data id]\n
@@ -35,16 +22,11 @@ In each file, every record must have 3 prefix `@id:`, `@title:`, `@content:` fol
 @content:[your data content]\n
 ...
 ```
+**DATA MUST NOT CONTAIN OTHER NEWLINE '/n' INSIDE, OR IT WILL TREAT IT AS ANOTHER RECORD**
 
 When crgrep is loading the data, it will search the corresponding indexing file alongside ( same file name, but with the extension 'tags' ). If no indexing file is found, the default scoring mechanism will be used.
 
-**If there are more than one record in a single file, the indexing file is consider corresponding only to the first record, the rest remains default**
-
-#### The `.tags` file
-
-In the `.tags` file, each line has three special variable: `tag_name` `open_location`  `close_location`. Having all of these tags' starting and ending locations, crgrep will then build a tree. After setting the data all up, we can seek out the enclosing tags of the found location rapidly. Therefor, with multiple found location, it is easy to figure the relationships between each of them.
-
-An example of the preprocessed index file:
+### An example of a preprocessed index file
 
 ```
 c_1	0	1281
@@ -56,8 +38,7 @@ s_2	151	177
 p_3	177	1281
 s_3	177	1281
 ```
-
-[TODO TREE SIMULATION IMAGE]
+**If there is more than one record in a single file, the indexing file is consider corresponding only to the first record, the rest remains default**
 
 Although, crgrep works only if the input data were all well formatted, crgrep can took care all of the preprocessing stuff for us. All crgrep need is just some arguments . See instruction below.
 
@@ -72,10 +53,16 @@ make build-libcld
 make compile
 ```
 
-### Preprocess raw data:
+### Preprocess data
+
+Generate index file for ranking and create the formatted data
+
 ```
-[TODO]
+./crgrep -f [path_to_source_dir_or_file] -f [path_to_formatted_dir] -f [path_to_stop_word_file]
 ```
+**The `path_to_stop_word_file` is a file containing stop words you wish to remove from the raw data when formatting.**
+*Stop Word File Format: a stop word per line*
+
 
 ### Commands:
 
@@ -83,6 +70,11 @@ make compile
 ./crgrep -q "search pattern" -p -i -d -f
 ```
 [TODO]
+
+## Implement details
+
+Go check out my [blog](https://cwayne.github.io "blog") for implementation details.
+
 
 ## Used library
 
