@@ -75,6 +75,9 @@ int main(int argc, char** argv){
 		}
 
 		if (isInteractive){
+
+			// TODO: need to rewrite -q -> cannot support multi pattern matching from cmd
+
 			cout << "---------interactive mode---------" << endl;
 			while(1){
 				string searchPatterns;
