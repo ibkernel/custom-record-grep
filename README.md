@@ -1,6 +1,6 @@
 # CRGREP: A ranking search tool based on contextual relationship analysis
 
-Since the invention of www, data have growned so immensely that even one night of crawling, the amount of data would be tremendous and hard to classify. As a curious programmer who want to search huge data, determining the priority of the search result has become an important and challenging task. This project provides a simple tool to help us search keywords with ranking priority by match location analysis.
+Since the invention of www, data have grown so immensely that even one night of crawling, the amount of data would be tremendous and hard to classify. As a curious programmer who want to search huge data, determining the priority of the search result has become an important and challenging task. This project provides a simple tool to help us search keywords with ranking priority by match location analysis.
 
 ## Features
 
