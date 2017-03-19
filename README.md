@@ -37,7 +37,7 @@ s_2	151	177
 p_3	177	1281
 s_3	177	1281
 ```
-**If there is more than one record in a single file, the indexing file is consider corresponding only to the first record, the rest remains default**
+**If there is more than one record in a single file, the indexing file is consider corresponding to the first record only, the rest remains default**
 
 Although, crgrep works only if the input data were all well formatted, **crgrep can took care all of the preprocessing stuff for us**. All crgrep need is just some arguments, see instruction below.
 
@@ -87,7 +87,7 @@ Go check out my [blog](https://cwayne.github.io "blog") for implementation detai
 - [ ] Must have/ Must not have search (advanced query parser)
 - [ ] More search algorithm
 - [ ] Chinese fuzzy search
-- [ ] Support large data (in file search)
+- [ ] Support large data (in-file search)
 
 ## License
 
