@@ -19,6 +19,7 @@ class SearchWorker : public Nan::AsyncWorker {
 
 	private:
 		Result searchResult;
+		std::vector <std::string> queries;
 		std::string query;
 		//std::vector <std::tuple <std::string, int>> searchResult;
 		int resultCount;

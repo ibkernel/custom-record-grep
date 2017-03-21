@@ -8,6 +8,7 @@ struct record {
 	char *id;
 	char *title;
 	char *content;
+	int approxCharactersCount;
 };
 
 class Record {
@@ -20,9 +21,9 @@ private:
 	std::vector<std::string> rawfiles;
 	std::vector<std::string> tagFiles;
 
-	void searchId(char *id, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount,bool caseInsensitive = 0, unsigned int editDistance = 0);
-	void searchTitle(char *title, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
-	void searchContent(char *content, char *recordLanguage, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchId(char *id, char *recordLanguage, std::vector <std::tuple<std::string, bool, bool>> &patterns, int &searchScore, int &searchMatchCount, bool &isComplianceToMustAndMustNotHave,bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchTitle(char *title, char *recordLanguage, std::vector <std::tuple<std::string, bool, bool>> &patterns, int &searchScore, int &searchMatchCount, bool &isComplianceToMustAndMustNotHave, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchContent(char *content, char *recordLanguage, std::vector <std::tuple<std::string, bool, bool>> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount, bool &isComplianceToMustAndMustNotHave, bool caseInsensitive = 0, unsigned int editDistance = 0);
 	char * searchFactory(char *text, char *recordLanguage, std::string pattern, bool caseInsensitive = 0, unsigned int editDistance = 0);
 	void buildRecord();
 	void readFileThenSetRecordAndRank();
@@ -34,7 +35,10 @@ private:
 	void createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size);
 	void incrementLocalFileDataCountAndDataCount(int &currentFileDataCount);
 	void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
-	void handleMalformedCases(std::string errorName, int &dataCountForCurrentFile, bool &isNewRecord);
+	void handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord);
+	int getRecordCharactersCount(size_t lineCharCount, int prefixCount, char *& line, char *language);
+	void scoring(bool &isComplianceToMustAndMustNotHave,bool found, bool mustHave, bool mustNotHave);
+
 
 public:
 	Record(std::string path);
@@ -44,15 +48,16 @@ public:
 		for (int i=0; i < dataCount; i++){
 			std::cout << "ID: " << data[i].id << std::endl;
 			std::cout << "Title: " << data[i].title << std::endl;
-			std::cout << "Content: " << data[i].content << std::endl;
+			//std::cout << "Content: " << data[i].content << std::endl;
 			std::cout << "Language: " << data[i].language << std::endl;
+			std::cout << "Char count: " << data[i].approxCharactersCount << std::endl;
 			std::cout << "--------------" << std::endl;
 		}
 	};
 
 	int getRecordCount();
 	int getFileCount();
-	void searchAndSortWithRank(std:: string pattern, Result &searchResult, bool caseInsensitive = 0, unsigned int editDistance = 0);
+	void searchAndSortWithRank(std::vector <std::string> queries, Result &searchResult, bool caseInsensitive = 0, unsigned int editDistance = 0);
 
 };
 

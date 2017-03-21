@@ -33,8 +33,10 @@ SearchWorker::SearchWorker(Callback *callback, string query, Record *&data)
 	 resultCount(0), data(data){}
 
 void SearchWorker::Execute() {
-	data->searchAndSortWithRank(query, searchResult,0,0);
+	queries.push_back(query);
+	data->searchAndSortWithRank(queries, searchResult,0,0);
 	resultCount = searchResult.getResultCount();
+	queries.clear();
 }
 
 
@@ -47,6 +49,7 @@ void SearchWorker::HandleOKCallback() {
 	Nan::Set(returnArr, 0, resultObj);
 	std::string title;
 	for(int i=0; i<outputCount; i++){
+		
 		v8::Local<v8::Object> vobj = Nan::New<v8::Object>();
 		title = searchResult.getResultTitle(i);
 		Nan::Set(vobj, Nan::New("title").ToLocalChecked(), Nan::New(title.c_str()).ToLocalChecked());

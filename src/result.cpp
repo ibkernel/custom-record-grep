@@ -17,18 +17,19 @@ Result::~Result() {
 
 void Result::insertResult(std::string title, int searchScore, int searchMatchCount, bool isComplianceToMustAndMustNotHave) {
 	struct result foundResult;
-	foundResult.recordTitle = title;
-	foundResult.recordScore = searchScore;
-	foundResult.recordMatchCount = searchMatchCount;
-	foundResult.isValid = isComplianceToMustAndMustNotHave;
-	searchResult.push_back(foundResult);
-
+	if(isComplianceToMustAndMustNotHave){
+		foundResult.recordTitle = title;
+		foundResult.recordScore = searchScore;
+		foundResult.recordMatchCount = searchMatchCount;
+		foundResult.isValid = isComplianceToMustAndMustNotHave;
+		searchResult.push_back(foundResult);
+	}
 }
+
 
 int Result::getResultCount(){
 	int compliantCount = 0;
 	for (int i=0; i<searchResult.size(); i++)
-		if(searchResult[i].isValid)
 			compliantCount++;
 	return compliantCount;
 };

@@ -15,21 +15,26 @@ Result::~Result() {
 	searchResult.clear();
 }
 
-void Result::insertResult(std::string title, int searchScore, int searchMatchCount) {
+void Result::insertResult(std::string title, int searchScore, int searchMatchCount, bool isComplianceToMustAndMustNotHave) {
 	struct result foundResult;
-	foundResult.recordTitle = title;
-	foundResult.recordScore = searchScore;
-	foundResult.recordMatchCount = searchMatchCount;
-
-	searchResult.push_back(foundResult);
-
+	if(isComplianceToMustAndMustNotHave){
+		foundResult.recordTitle = title;
+		foundResult.recordScore = searchScore;
+		foundResult.recordMatchCount = searchMatchCount;
+		foundResult.isValid = isComplianceToMustAndMustNotHave;
+		searchResult.push_back(foundResult);
+	}
 }
 
+
 int Result::getResultCount(){
-	return searchResult.size();
+	int compliantCount = 0;
+	for (int i=0; i<searchResult.size(); i++)
+			compliantCount++;
+	return compliantCount;
 };
 
-int Result::getResultScore(int i){
+double Result::getResultScore(int i){
 	return searchResult[i].recordScore;
 };
 
@@ -40,9 +45,11 @@ std::string Result::getResultTitle(int i ){
 void Result::printResult(bool order) {
 	sort(order);
 	for (auto r: searchResult) {
-		std::cout << "Book :" << r.recordTitle << std::endl;
-		std::cout << "Rank score:" << r.recordScore << std::endl;
-		std::cout << "Match count:" << r.recordMatchCount << std::endl;
+		if (r.isValid){
+			std::cout << "Book :" << r.recordTitle << std::endl;
+			std::cout << "Rank score:" << r.recordScore << std::endl;
+			std::cout << "Match count:" << r.recordMatchCount << std::endl;
+		}
 	}
 }
 

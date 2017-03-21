@@ -6,6 +6,31 @@
 #include <vector>
 #include <iterator>
 #include "utils.h"
+#include <cctype>
+
+int countWords(const char* str){
+   if (str == NULL)
+      return 0;  
+
+   bool inSpaces = true;
+   int numWords = 0;
+   while (*str != '\0')
+   {
+      if (std::isspace(*str))
+      {
+         inSpaces = true;
+      }
+      else if (inSpaces)
+      {
+         numWords++;
+         inSpaces = false;
+      }
+
+      ++str;
+   }
+
+   return numWords;
+}
 
 // replace all
 void ReplaceStringInPlace(std::string& subject, const std::string& search,
@@ -48,8 +73,18 @@ void split(const std::string &s, char delim, Out result) {
 	}
 }
 
-// TODO: Must have (+) and Must Not have (-)
-std::vector<std::string> parseSearchQuery(std::string &searchQuery) {
+int isDir(const std::string &name) {
+	struct stat buffer;
+	stat(name.c_str(), &buffer);
+	if ( !S_ISDIR(buffer.st_mode) )
+	{
+		return 0;
+	}
+	return 1;
+}
+
+// TODO: separte "" exact query and others
+std::vector<std::string> parseInteractiveSearchQuery(std::string &searchQuery) {
 	std::size_t foundFirst = searchQuery.find("\"");
 
 	bool openFlag = false, closingFlag = false;
@@ -71,14 +106,36 @@ std::vector<std::string> parseSearchQuery(std::string &searchQuery) {
 		return split(searchQuery, ' ');
 }
 
+std::vector<std::tuple<std::string, bool, bool>>parseSearchQuery(std::vector <std::string> &searchQueries) {
+	std::vector <std::tuple <std::string, bool, bool>>searchPatterns;
+	for (auto q: searchQueries){
+		std::size_t foundObligation = q.find("+");
+		std::size_t foundNeglate = q.find("-");
 
-
-int isDir(const std::string &name) {
-	struct stat buffer;
-	stat(name.c_str(), &buffer);
-	if ( !S_ISDIR(buffer.st_mode) )
-	{
-		return 0;
+		if (foundNeglate == std::string::npos && foundObligation == std::string::npos){
+			std::cout << "Casual exact match: " << q << std::endl;
+			searchPatterns.push_back(q);
+		}else {
+			for (auto slicedQuery : split(q, ' ')){
+				// Handle Special queries : +, -
+				bool isMustHave = false, isMustNotHave = false;
+				switch (slicedQuery.at(0)){
+					case '+':
+						slicedQuery.erase(0,1);
+						isMustHave = true;
+						searchPatterns.push_back(std::make_tuple(slicedQuery, isMustHave, isMustNotHave));
+						break;
+					case '-':
+						slicedQuery.erase(0,1);
+						isMustNotHave = true;
+						searchPatterns.push_back(std::make_tuple(slicedQuery, isMustHave, isMustNotHave));
+						break;
+					default:
+						searchPatterns.push_back(std::make_tuple(slicedQuery, isMustHave, isMustNotHave));
+						break;
+				}
+			}
+		}
 	}
-	return 1;
+	return searchPatterns;
 }

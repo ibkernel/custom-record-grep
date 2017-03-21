@@ -37,71 +37,123 @@ char * Record::searchFactory(char *text, char *recordLanguage, std::string patte
 	else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0)
 		return strstr(text, pattern.c_str());
 	else
-		return fuzzySearch(text, pattern.c_str(), editDistance);
+		return toleranceSearch(text, pattern.c_str(), editDistance);
 }
 
-void Record::searchId(char *id, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount, 
-											bool caseInsensitive, unsigned int editDistance){
-	if((searchFactory(id, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))>0){
-				searchScore += 0;
-				searchMatchCount++;
+void Record::scoring(bool &isComplianceToMustAndMustNotHave,bool found, bool mustHave, bool mustNotHave)
+{
+	if (mustHave){
+		if(!found)
+			isComplianceToMustAndMustNotHave = false;
+	}else if (mustNotHave){
+		if(found)
+			isComplianceToMustAndMustNotHave = false;
 	}
 }
 
-void Record::searchTitle(char *title, char *recordLanguage, std::string pattern, int &searchScore, int &searchMatchCount,
-												bool caseInsensitive, unsigned int editDistance){
-	if((searchFactory(title, recordLanguage, pattern.c_str(), caseInsensitive, editDistance))!=NULL){
-		searchScore += 300000;
-		searchMatchCount++;
+// NOTE: must / must not have is not implemented at id/title
+
+void Record::searchId(char *id,
+											char *recordLanguage,
+											std::vector<std::tuple<std::string, bool, bool>> &searchPatterns,
+											int &searchScore,
+											int &searchMatchCount,
+											bool &isComplianceToMustAndMustNotHave,
+											bool caseInsensitive,
+											unsigned int editDistance)
+{
+	for (auto pattern: searchPatterns)
+		if((searchFactory(id, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))>0){
+			//scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
+			searchScore += idWeight;
+			searchMatchCount++;
+		}else {
+			//scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
+		}
+}
+
+void Record::searchTitle(char *title,
+												 char *recordLanguage,
+												 std::vector<std::tuple<std::string, bool, bool>> &searchPatterns,
+												 int &searchScore,
+												 int &searchMatchCount,
+												 bool &isComplianceToMustAndMustNotHave,
+												 bool caseInsensitive,
+												 unsigned int editDistance)
+{
+	for (auto pattern: searchPatterns){
+		if((searchFactory(title, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))!=NULL){
+			//scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
+			searchScore += titleWeight;
+			searchMatchCount++;
+		}else {
+			//scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
+		}
 	}
 }
 
-void Record::searchContent(char *content, char *recordLanguage, std::vector <std::string> &searchPatterns, int recordIndex, int &searchScore, int &searchMatchCount,
-													bool caseInsensitive, unsigned int editDistance){
+void Record::searchContent(char *content,
+													 char *recordLanguage,
+													 std::vector <std::tuple<std::string, bool, bool>> &searchPatterns,
+													 int recordIndex,
+													 int &searchScore,
+													 int &searchMatchCount,
+													 bool &isComplianceToMustAndMustNotHave,
+													 bool caseInsensitive,
+													 unsigned int editDistance)
+{
 	char *text, *found;
 	int foundLocation;
+	double tmpScore;
 	// NOTE: array of size searchPatterns.size();
 	std::vector <std::tuple <int, int, int>> foundTuple;
 	std::vector <std::vector <std::tuple <int,int,int>>> patternLocationTuples;
 
-	for (auto searchPattern: searchPatterns){
+	for (auto pattern: searchPatterns){
 		text = content;
 		found = NULL;
-		while((found = searchFactory(text, recordLanguage, searchPattern.c_str(), caseInsensitive, editDistance))!=NULL){
+		bool foundFlag = false;
+		while((found = searchFactory(text, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))!=NULL){
 			foundLocation = found - content;
 			if (!rank[recordIndex].isDefaultRanking())
 				foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
-			text = found + searchPattern.length();
+			text = found + std::get<0>(pattern).length();
 			searchMatchCount++;
+			foundFlag = true;
 		}
 		patternLocationTuples.push_back(foundTuple);
 		foundTuple.clear();
+		scoring(isComplianceToMustAndMustNotHave, foundFlag, std::get<1>(pattern), std::get<2>(pattern));
 	}
+
+
 	if (rank[recordIndex].isDefaultRanking())
-		searchScore += searchMatchCount * 3;
+		tmpScore= searchMatchCount * contentWeight;
 	else
-		searchScore += rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+		tmpScore= rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+
+	// TODO: Adjust tmpScore according to the % of the pattern in the content
+
+	// NOT ACCURATE AT ALL, it will ignore little match count
+	//tmpScore = double(titleWeight * searchMatchCount / data[recordIndex].approxCharactersCount);
+	//std::cout << searchMatchCount << std::endl;
+	//std::cout << data[recordIndex].approxCharactersCount << std::endl;
+	searchScore += tmpScore;
 }
 
-void Record::searchAndSortWithRank(std::string pattern,
-																	Result &searchResult,
-																	bool caseInsensitive,
-																	unsigned int editDistance
-																	){
-	int searchScore, searchMatchCount;
-	std::vector <std::string> searchPatterns = parseSearchQuery(pattern);
+void Record::searchAndSortWithRank(std::vector<std::string> queries, Result &searchResult, bool caseInsensitive, unsigned int editDistance ){
+	std::vector <std::tuple<std::string, bool, bool>> searchPatterns = parseSearchQuery(queries);
 
 	for (int i=0; i < dataCount; i++){
-			searchScore = searchMatchCount = 0;
-			for (auto searchPattern: searchPatterns){
-				searchId(data[i].id, data[i].language, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
-				searchTitle(data[i].title, data[i].language, searchPattern, searchScore, searchMatchCount, caseInsensitive, editDistance);
-			}
-			searchContent(data[i].content, data[i].language, searchPatterns, i, searchScore, searchMatchCount, caseInsensitive, editDistance);
+			int searchScore = 0, searchMatchCount = 0;
+			bool isComplianceToMustAndMustNotHave = true;
+			searchId(data[i].id, data[i].language, searchPatterns, searchScore, searchMatchCount, isComplianceToMustAndMustNotHave, caseInsensitive, editDistance);
+			searchTitle(data[i].title, data[i].language, searchPatterns, searchScore, searchMatchCount, isComplianceToMustAndMustNotHave, caseInsensitive, editDistance);
+			searchContent(data[i].content, data[i].language, searchPatterns, i, searchScore, searchMatchCount, isComplianceToMustAndMustNotHave, caseInsensitive, editDistance);
 
 			if (searchMatchCount > 0 && searchScore > 0){
 					std::string bookTitle(data[i].title);
-					searchResult.insertResult(bookTitle, searchScore, searchMatchCount);
+					searchResult.insertResult(bookTitle, searchScore, searchMatchCount, isComplianceToMustAndMustNotHave);
 			}
 	}
 
@@ -118,9 +170,7 @@ void Record::readFileThenSetRecordAndRank(){
 	FILE *fptr;
 	char *line = NULL;
 	char prefix[5];
-	size_t len = 0;
-	size_t read;
-	struct record *moreData = NULL;
+	size_t len = 0, read;
 	data = (struct record*) malloc(sizeof(struct record));
 	bool isNewRecord = true;
 
@@ -161,6 +211,7 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char 
 		}else if (prefix == "@content" && !isNewRecord){
 			createMemoryThenInsert(data[dataCount-1].content, line, offset, read);
 			detectLanguage((line+offset), data[dataCount-1].language);
+			data[dataCount-1].approxCharactersCount = getRecordCharactersCount(read, offset, line, data[dataCount-1].language);
 			isNewRecord = true;
 		}else {
 			// NOTE: allow custom prefix in the future
@@ -170,16 +221,23 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char 
 }
 
 
+int Record::getRecordCharactersCount(size_t lineCharCount, int prefixCount, char *& line, char *language) {
+	if (strcmp(language, "ChineseT") == 0)
+		return (lineCharCount - prefixCount)/3; // assume all chinese characters
+	else
+		return  countWords(line); // will count the prefix as a redundant word
+}
+
 void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount) {
 	dataCount += 1;
 	currentFileDataCount += 1;
 }
 
 
-void Record::handleMalformedCases(std::string errorName, int &dataCountForCurrentFile, bool &isNewRecord){
+void Record::handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord){
 	incrementLocalFileDataCountAndDataCount(dataCountForCurrentFile);
 	createAndAssignDefaultStructData();
-	cout << errorName << endl;
+	std::cout << malformType << std::endl;
 	isNewRecord = true;	
 }
 
@@ -189,8 +247,12 @@ void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  s
 	if (target == NULL){
 		//throw std::bad_alloc("Memory not enough");
 	}
-	strcpy(target, (source+offset));
-	target[size-offset-1] = '\0';
+	if (size == offset) { // empty source
+		target[0] = '\0';
+	}else {
+		strcpy(target, (source+offset));
+		target[size-offset-1] = '\0';
+	}
 }
 
 int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,char *&line){
@@ -206,6 +268,7 @@ int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,
 	offset += 1; // skip ':'
 	return offset;
 }
+
 // TODO: malloc error handling
 void Record::createAndAssignDefaultStructData(){
 	struct record *moreData = NULL;

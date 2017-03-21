@@ -84,7 +84,7 @@ Go check out my [blog](https://cwayne.github.io "blog") for implementation detai
 
 - [x] Customizable score ranking
 - [x] Customizable tokenizer
-- [ ] Must have/ Must not have search
+- [x] Must have/ Must not have search
 - [ ] Refactor Record, add a new Search class to implement the ranking logic
 - [ ] More search algorithm
 - [ ] Chinese error toleranted search
