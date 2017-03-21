@@ -31,7 +31,12 @@ Record::Record(std::string path){
 };
 
 //TODO: caseInsensitive not implemented yet
-char * Record::searchFactory(char *text, char *recordLanguage, std::string pattern, bool caseInsensitive, unsigned int editDistance) {
+char * Record::searchFactory(char *text,
+														 char *recordLanguage,
+														 std::string pattern,
+														 bool caseInsensitive,
+														 unsigned int editDistance)
+{
 	if (strcmp(text, "FORMAT_ERROR")==0)
 		return NULL;
 	else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0)
@@ -40,7 +45,10 @@ char * Record::searchFactory(char *text, char *recordLanguage, std::string patte
 		return toleranceSearch(text, pattern.c_str(), editDistance);
 }
 
-void Record::scoring(bool &isComplianceToMustAndMustNotHave,bool found, bool mustHave, bool mustNotHave)
+void Record::scoring(bool &isComplianceToMustAndMustNotHave,
+										 bool found,
+										 bool mustHave,
+										 bool mustNotHave)
 {
 	if (mustHave){
 		if(!found)
@@ -141,7 +149,11 @@ void Record::searchContent(char *content,
 	searchScore += tmpScore;
 }
 
-void Record::searchAndSortWithRank(std::vector<std::string> queries, Result &searchResult, bool caseInsensitive, unsigned int editDistance ){
+void Record::searchAndSortWithRank(std::vector<std::string> queries,
+																	 Result &searchResult,
+																	 bool caseInsensitive,
+																	 unsigned int editDistance)
+{
 	std::vector <std::tuple<std::string, bool, bool>> searchPatterns = parseSearchQuery(queries);
 
 	for (int i=0; i < dataCount; i++){
@@ -192,7 +204,11 @@ void Record::readFileThenSetRecordAndRank(){
 	}
 }
 
-void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord) {
+void Record::handlePrefixCases(int &dataCountForCurrentFile,
+															 size_t &read,
+															 char *&line,
+															 bool &isNewRecord)
+{
 	bool isPrefixToolong = false;
 	std::string prefix = "@";
 	int offset = setPrefixAndReturnOffset(prefix, isPrefixToolong, line);
@@ -221,20 +237,28 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char 
 }
 
 
-int Record::getRecordCharactersCount(size_t lineCharCount, int prefixCount, char *& line, char *language) {
+int Record::getRecordCharactersCount(size_t lineCharCount,
+																		 int prefixCount,
+																		 char *& line,
+																		 char *language)
+{
 	if (strcmp(language, "ChineseT") == 0)
 		return (lineCharCount - prefixCount)/3; // assume all chinese characters
 	else
 		return  countWords(line); // will count the prefix as a redundant word
 }
 
-void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount) {
+void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount)
+{
 	dataCount += 1;
 	currentFileDataCount += 1;
 }
 
 
-void Record::handleMalformedCases(std::string malformType, int &dataCountForCurrentFile, bool &isNewRecord){
+void Record::handleMalformedCases(std::string malformType,
+																	int &dataCountForCurrentFile,
+																	bool &isNewRecord)
+{
 	incrementLocalFileDataCountAndDataCount(dataCountForCurrentFile);
 	createAndAssignDefaultStructData();
 	std::cout << malformType << std::endl;
@@ -242,7 +266,8 @@ void Record::handleMalformedCases(std::string malformType, int &dataCountForCurr
 }
 
 // TODO: malloc error handling
-void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size) {
+void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size)
+{
 	target= (char *) malloc(size-offset); // +1
 	if (target == NULL){
 		//throw std::bad_alloc("Memory not enough");
@@ -255,7 +280,8 @@ void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  s
 	}
 }
 
-int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,char *&line){
+int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,char *&line)
+{
 	int offset=1;
 	while(line[offset]!=':'){
 		prefix += line[offset];
@@ -270,7 +296,8 @@ int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,
 }
 
 // TODO: malloc error handling
-void Record::createAndAssignDefaultStructData(){
+void Record::createAndAssignDefaultStructData()
+{
 	struct record *moreData = NULL;
 	moreData = (struct record *) realloc(data, dataCount*sizeof(struct record));
 	if (moreData == NULL){
@@ -285,7 +312,8 @@ void Record::createAndAssignDefaultStructData(){
 	}
 }
 
-void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile) {
+void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile)
+{
 	// NOTE: Rule: if there is more than one record in the file
 	// The index-file (.tags) must be assigned to the first record
 
@@ -297,7 +325,8 @@ void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountFor
 	}
 }
 
-void Record::detectLanguage(const char* src, char *&recordLanguage){ 
+void Record::detectLanguage(const char* src, char *&recordLanguage)
+{ 
 		bool is_plain_text = true;
 		bool do_allow_extended_languages = true;
 		bool do_pick_summary_language = false;
@@ -334,7 +363,8 @@ void Record::detectLanguage(const char* src, char *&recordLanguage){
 		//printf("----[ Text (detected: %s) ]----\n", recordLanguage);
 }
 
-void Record::checkPathAndSetFileVectors(){
+void Record::checkPathAndSetFileVectors()
+{
 	DIR *dir;
 	struct dirent *ent;
 	if (exists(inputPath)){
