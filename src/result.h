@@ -12,7 +12,6 @@ inline bool sortScore(struct result a, struct result b){
 		return (a.recordScore > b.recordScore) ? true : false;
 };
 
-
 class Result {
 private:
 	std::vector <struct result> searchResult;
