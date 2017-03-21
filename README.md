@@ -5,7 +5,7 @@ Since the invention of www, data have grown so immensely that even one night of 
 ## Features
 
 - Multi-pattern searching 
-- Fuzzy search (western language only)
+- error toleranted search (western language only)
 - Ranking by analyzing contextual relationship.
 - Customizable data preprocessor
 
@@ -84,9 +84,10 @@ Go check out my [blog](https://cwayne.github.io "blog") for implementation detai
 
 - [x] Customizable score ranking
 - [x] Customizable tokenizer
-- [ ] Must have/ Must not have search (advanced query parser)
+- [ ] Must have/ Must not have search
+- [ ] Refactor Record, add a new Search class to implement the ranking logic
 - [ ] More search algorithm
-- [ ] Chinese fuzzy search
+- [ ] Chinese error toleranted search
 - [ ] Support large data (in-file search)
 
 ## License
