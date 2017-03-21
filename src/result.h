@@ -5,6 +5,7 @@ struct result {
 	std::string recordTitle;
 	double recordScore;
 	int recordMatchCount;
+	bool isValid;
 };
 
 inline bool sortScore(struct result a, struct result b){
@@ -26,7 +27,7 @@ public:
 	std::string getResultTitle(int i );
 	double getResultScore(int i);
 
-	void insertResult(std::string title, int searchScore, int searchMatchCount);
+	void insertResult(std::string title, int searchScore, int searchMatchCount, bool isComplianceToMustAndMustNotHave);
 	void sort(bool order=false);
 	void printResult(bool order=false);
 	void reset();

@@ -22,7 +22,10 @@ int main(int argc, char** argv){
 
 	TCLAP::CmdLine cmd("Command description message", ' ', "0.1");
 
-	TCLAP::ValueArg<std::string> queryArg("q","query", "Query string", false, "default query","string");
+	// TCLAP::ValueArg<std::string> queryArg("q","query", "Query string", false, "default query","string");
+	// cmd.add( queryArg );
+
+	TCLAP::MultiArg<std::string> queryArg("q", "query", "Query string", false, "string");
 	cmd.add( queryArg );
 
 	TCLAP::ValueArg<std::string> inputPathArg("p", "path", "Path to file or directory", false, "default path","string");
@@ -47,9 +50,10 @@ int main(int argc, char** argv){
 	bool isInteractive = interactiveSwitch.getValue();
 	int distance = editDistanceArg.getValue();
 	std::string scorePath = scorePathArg.getValue();
-	std::string query = queryArg.getValue();
+	//std::string query = queryArg.getValue();
 	std::string inputPath = inputPathArg.getValue();
 	std::vector <std::string> paths = formatDataArg.getValue();
+	std::vector <std::string> queries = queryArg.getValue();
 
 
 	std::cout << "My score path is: " << scorePath << std::endl;
@@ -67,29 +71,34 @@ int main(int argc, char** argv){
 
 
 		cout << "---------Data loaded---------" << endl;
-		if (query != "default query"){
-			cout << "Searching for: " << query << endl;
-			records->searchAndSortWithRank(query,searchResult, 0, distance);
+		// if (queries != "default query"){
+			//cout << "Searching for: " << queries << endl;
+			records->searchAndSortWithRank(queries,searchResult, 0, distance);
 			searchResult.printResult(isAscending);
 			searchResult.reset();
-		}
+			queries.clear();
+		// }
+
 
 		if (isInteractive){
 
 			// TODO: need to rewrite -q -> cannot support multi pattern matching from cmd
 
 			cout << "---------interactive mode---------" << endl;
+			std::vector <std::string> interactiveQuery;
 			while(1){
 				string searchPatterns;
 				cout << "What would you like to search ('q' to exit):" ;
 				std::getline(cin, searchPatterns);
 				if (searchPatterns == "q" || searchPatterns == "Q")
 					break;
+				interactiveQuery = parseInteractiveSearchQuery(searchPatterns);
 				// NOTE: currently not working with chinese characters.
-				std::cout << "-------------Fuzzy search with distance of " << distance << "----------------" << '\n';
-				records->searchAndSortWithRank(searchPatterns,searchResult, 0, distance); //fuzzy search with 1 edit distance tolerance
+				std::cout << "-------------Error tolerated search with distance of " << distance << "----------------" << '\n';
+				records->searchAndSortWithRank(interactiveQuery,searchResult, 0, distance); //fuzzy search with 1 edit distance tolerance
 				searchResult.printResult(isAscending);
 				searchResult.reset();
+				interactiveQuery.clear();
 			}
 		}
 		

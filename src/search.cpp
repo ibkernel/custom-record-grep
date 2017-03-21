@@ -11,7 +11,7 @@ using namespace std;
 
 // NOTE: Cannot search exact multi-string with spaces.
 
-char* fuzzySearch(char *haystack, const char *pattern, unsigned int distanceTolerance) {
+char* toleranceSearch(char *haystack, const char *pattern, unsigned int distanceTolerance) {
     unsigned int tokenLen, patternLen = strlen(pattern);
     char *tofree = strdup(haystack);
     char *tmp = tofree, *token;

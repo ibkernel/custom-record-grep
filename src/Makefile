@@ -27,7 +27,7 @@ CLD_SOURCES=./cld/encodings/compact_lang_det/cldutil.cc \
 
 all:
 	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -q 書本 -p ../data/formattedData/
+	./a.out -q 書本 -q "+火球" -p ../data/formattedData/
 
 interactive:
 	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)

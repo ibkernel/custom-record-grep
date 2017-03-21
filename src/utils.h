@@ -12,7 +12,9 @@ template<typename Out>
 void split(const std::string &s, char delim, Out result);
 std::vector<std::string> split(const std::string &s, char delim);
 
-std::vector<std::string> parseSearchQuery(std::string &s);
+std::vector<std::tuple<std::string, bool, bool>> parseSearchQuery(std::vector <std::string> &s);
+std::vector<std::string> parseInteractiveSearchQuery(std::string &searchQuery);
+
 
 inline bool exists(const std::string& name) {
   struct stat buffer;   
