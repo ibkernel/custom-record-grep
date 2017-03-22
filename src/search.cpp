@@ -11,7 +11,8 @@ using namespace std;
 
 // NOTE: Cannot search exact multi-string with spaces.
 
-char* toleranceSearch(char *haystack, const char *pattern, unsigned int distanceTolerance) {
+char* toleranceSearch(char *haystack, const char *pattern, unsigned int distanceTolerance)
+{
     unsigned int tokenLen, patternLen = strlen(pattern);
     char *tofree = strdup(haystack);
     char *tmp = tofree, *token;
@@ -43,7 +44,8 @@ char* toleranceSearch(char *haystack, const char *pattern, unsigned int distance
 }
 
 
-int levenshteinDistance(char *s, const char *t){
+int levenshteinDistance(char *s, const char *t)
+{
     int costOfInsert = 1 , costOfDelete = 1, costOfReplace;
     int s_len = strlen(s), t_len = strlen(t);
     if (strcmp(s, t) == 0) return 0;

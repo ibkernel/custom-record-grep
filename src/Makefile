@@ -2,6 +2,8 @@ CRGREP_SOURCES=main.cpp record.cpp ranking.cpp utils.cpp search.cpp result.cpp f
 
 CLD_LIB_CFLAGS=-DCLD_WINDOWS -Ithird_party/cld -L. -lcld -lstdc++
 
+TCLAP_CLFAGS=-Ithird_party/
+
 CLD_CFLAGS=-fPIC -Ithird_party/cld -O2 -DCLD_WINDOWS
 LDFLAGS=-L.
 CLD_AR=ar
@@ -26,11 +28,11 @@ CLD_SOURCES=third_party/cld/encodings/compact_lang_det/cldutil.cc \
         third_party/cld/languages/internal/languages.cc
 
 all:
-	g++ -std=c++11 -O3 -Ithird_party/ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -q 書本 -q "+火球" -p ../data/formattedData/
 
 interactive:
-	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -p ../data/formattedData/ -i
 
 # run-all: build-libcld
@@ -38,29 +40,29 @@ interactive:
 # 	./a.out "書本" "../data/formattedData/"
 
 ascending-order:
-	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -a -q "書本" -p "../data/formattedData/"
 
 fuzzy:
-	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -d 3 -p "../data/formattedData/" -i
 
 compile:
-	g++ -o crgrepe -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -o crgrepe -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 test:
-	g++ -std=c++11 -I./ -O3 $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 $(TCLAP_CLFAGS) -O3 $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 #	./a.out -f ../data/downloadedData/ -f ../data/formattedData/
 	./a.out -q "書本" -p ../data/formattedData/testing.txt -i
 
 format:
-	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 #	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/天域蒼穹/1612-第一百五十六章_黑風手.txt -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
 	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/ -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
 #	./a.out -q "書本" -p "../data/formattedData/" -f "../data/downloadedData/" -f  "../data/formattedData/" -f "../data/dwlist.txt" -f "../data/mergedlist.txt" -f "../data/StopWords/stop-golden.txt"
 
 debug:
-	g++ -g -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -g -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -p ../data/formattedData/
 clean:
 	rm a.out

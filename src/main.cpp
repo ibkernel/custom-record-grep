@@ -71,19 +71,14 @@ int main(int argc, char** argv){
 
 
     cout << "---------Data loaded---------" << endl;
-    // if (queries != "default query"){
-      //cout << "Searching for: " << queries << endl;
+    if (queries.size() > 0){
       records->searchAndSortWithRank(queries,searchResult, 0, distance);
       searchResult.printResult(isAscending);
       searchResult.reset();
       queries.clear();
-    // }
-
+    }
 
     if (isInteractive){
-
-      // TODO: need to rewrite -q -> cannot support multi pattern matching from cmd
-
       cout << "---------interactive mode---------" << endl;
       std::vector <std::string> interactiveQuery;
       while(1){
