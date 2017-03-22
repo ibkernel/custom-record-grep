@@ -28,4 +28,10 @@ int isDir(const std::string &name);
 
 int countWords(const char* str);
 
+bool isDirExist(const std::string& path);
+bool makePath(const std::string& path);
+
+void detectLanguageAndUpdateLanguageCount(const char* src, int &chineseCount, int &otherCount);
+void detectLanguage(const char* src, char *&recordLanguage);
+
 #endif

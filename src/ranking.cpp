@@ -153,7 +153,6 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
 
     switch (tagType){
       case 'c':
-        //NOTE: WEIRD
         chapter_size = 0;
         moreData = (struct rankTreeNode **) realloc(root->tagNodes, sizeof(struct rankTreeNode *)*(chapter_num+1));
         evenMoreData = (int *) realloc(root->lowerBoundLocationOfChildTags, sizeof(int)*(chapter_num+1));

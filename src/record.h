@@ -82,9 +82,6 @@ private:
   void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
 
 
-  void detectLanguage(const char* src, char *&recordLanguage);
-
-
   void insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile);
   void incrementLocalFileDataCountAndDataCount(int &currentFileDataCount);
 

@@ -42,6 +42,7 @@ private:
   void writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &tagQueue, std::string dataTitle);
 
   void lineFormatter(std::string &line,
+                     std::string &regexEndingPhrasePattern,
                      int &sentense_num,
                      long &char_count,
                      std::deque <std::tuple <std::string, long>> &tagQueue);

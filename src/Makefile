@@ -48,17 +48,19 @@ fuzzy:
 	./a.out -d 3 -p "../data/formattedData/" -i
 
 compile:
-	g++ -o crgrepe -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 test:
 	g++ -std=c++11 $(TCLAP_CLFAGS) -O3 $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-#	./a.out -f ../data/downloadedData/ -f ../data/formattedData/
-	./a.out -q "書本" -p ../data/formattedData/testing.txt -i
+
+#	./cr1 -q "火球" -p ../data/formattedData/001.txt
+#	./cr2 -q "火球" -p ../data/formattedData2/001.txt
+
 
 format:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 #	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/天域蒼穹/1612-第一百五十六章_黑風手.txt -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
-	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/ -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
+	./a.out -f ../data/downloadedData/ -f  ../data/formattedData2/ -f ../data/StopWords/stop-golden.txt
 #	./a.out -q "書本" -p "../data/formattedData/" -f "../data/downloadedData/" -f  "../data/formattedData/" -f "../data/dwlist.txt" -f "../data/mergedlist.txt" -f "../data/StopWords/stop-golden.txt"
 
 debug:
@@ -87,13 +89,9 @@ update-example-src:
 	cp record.cpp $(EXAMPLE_SRC_PATH)record.cc
 	cp record.h $(EXAMPLE_SRC_PATH)record.h
 
+
 # build library cld (compact language detector)
-
-
 build-libcld:
 	g++ -c $(CLD_CFLAGS) $(CLD_SOURCES)
 	$(AR) rcs libcld.a *.o
 	rm *.o
-
-compile-cld-file:
-	g++ -DCLD_WINDOWS -I./cld -L. -o languageDetect languageDetect.cpp -lcld -lstdc++

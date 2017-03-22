@@ -4,21 +4,21 @@
 #include <string.h>
 #include <time.h>
 #include <algorithm>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fstream>
 #include <regex>
 #include <sstream>
 #include <ctime>
-
 #include <vector>
-#include <set>
-#include <stack>
-#include <queue>
 #include <deque>
 #include <tuple>
+
 #include "formatter.h"
 #include "utils.h"
+
+
 
 std::tuple<std::string, int> getTagTuple(std::string tagType, long tagLocation) 
 {
@@ -68,6 +68,21 @@ void Formatter::processConcatFile(std::string pathToDir,
 };
 
 void Formatter::writeRecordHeaderToFile(std::string dataTitle){
+  struct stat info;
+  if( stat( pathToFormattedDir.c_str(), &info ) != 0 ){
+      std::cout << "Creating directory: " << pathToFormattedDir << std::endl;
+      makePath(pathToFormattedDir);
+  }
+  else if( info.st_mode & S_IFDIR ){  // S_ISDIR() doesn't exist on my windows 
+      //std::cout << pathToFormattedDir << " is a valid directory, please retry." << std::endl;
+  }
+  else {
+    std::cout << pathToFormattedDir << " is not a directory, please retry." << std::endl;
+    exit(1);
+  }
+
+
+
   std::string formattedDestination = pathToFormattedDir + dataTitle + ".txt";
   std::string indexDestination = pathToFormattedDir + dataTitle + ".tags";
   std::ofstream formattedFile, tagsFile;
@@ -81,6 +96,8 @@ void Formatter::writeRecordHeaderToFile(std::string dataTitle){
   formattedFile.close();
 };
 
+
+// TODO: Use boost::regex instead
 void Formatter::formatThenMerge(std::string pathToSingleFile,
                                 long &char_count,
                                 int &chapter_num,
@@ -93,13 +110,22 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   std::ifstream chapterFile(pathToSingleFile);
   std::string line, text = "";
 
+  int countTime = 3, chineseCount = 1, otherCount = 0;
   while (std::getline(chapterFile, line)){
     for (int i=0; i< stopWords.size();i++){
       ReplaceStringInPlace(line, stopWords[i], "");
+      //if(countTime>0)
+      //  detectLanguageAndUpdateLanguageCount(line.c_str(), chineseCount, otherCount);
+      //countTime--;
     }
     if (line.length()>2)
       text += (line + '\n');
   }
+  // detectLanguageAndUpdateLanguageCount(text.c_str(), chineseCount, otherCount);
+
+  std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。|！|？)+" : "(\\.|\\?|!)+");
+
+
   //Remove duplicated space to one only.
   std::string::iterator new_end = std::unique(text.begin(), text.end(),
       [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' '); }
@@ -117,16 +143,13 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   int lineCOunt = 0;
   while (std::getline(stext, line)){
     if (!titleFlag){
-      //line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
       paragraph_num += 1;
       tagQueue.push_back(getTagTuple("p_"+std::to_string(paragraph_num), char_count));
-      lineFormatter(line, sentense_num, char_count, tagQueue);
+      lineFormatter(line, regexEndingPhrasePattern, sentense_num, char_count, tagQueue);
       tagQueue.push_back(getTagTuple("p_"+std::to_string(paragraph_num), char_count));
     }else {
-      //line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
       title_num += 1;
       tagQueue.push_back(getTagTuple("t_"+std::to_string(title_num), char_count));
-      //std::cout << "Title:" << line << std::endl;
       char_count += line.length();
       tagQueue.push_back(getTagTuple("t_"+std::to_string(title_num), char_count));
       titleFlag = false;
@@ -194,13 +217,13 @@ void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &
 };
 
 void Formatter::lineFormatter(std::string &line,
+                              std::string &regexEndingPhrasePattern,
                               int &sentense_num,
                               long &char_count,
                               std::deque <std::tuple <std::string, long>> &tagQueue)
 {
   std::smatch m;
-  //std::regex e("(。|！|？|!|\\?)+");
-  std::regex e("(。)+");
+  std::regex e(regexEndingPhrasePattern.c_str());
   std::string copiedLine = line;
   int currentP = 0;
   sentense_num += 1;
