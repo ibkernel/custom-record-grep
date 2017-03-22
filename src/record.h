@@ -66,17 +66,28 @@ private:
                                char *& line,
                                char *language);
 
-  void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
+  int setPrefixAndReturnOffset(std::string &prefix,
+                               bool &isPrefixToolong,
+                               char* &line);
+
+  void createMemoryThenInsert(char *&target,
+                              char *&source,
+                              int offset,
+                              size_t &size);
 
   void handleMalformedCases(std::string malformType,
                             int &dataCountForCurrentFile,
                             bool &isNewRecord);
 
+  void handlePrefixCases(int &dataCountForCurrentFile, size_t &read, char *&line, bool &isNewRecord);
+
+
   void detectLanguage(const char* src, char *&recordLanguage);
-  void createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size);
+
+
   void insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile);
   void incrementLocalFileDataCountAndDataCount(int &currentFileDataCount);
-  int setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong, char* &line);
+
 
   void buildRecord();
   void readFileThenSetRecordAndRank();

@@ -1,32 +1,32 @@
 CRGREP_SOURCES=main.cpp record.cpp ranking.cpp utils.cpp search.cpp result.cpp formatter.cpp
 
-CLD_LIB_CFLAGS=-DCLD_WINDOWS -I./cld -L. -lcld -lstdc++
+CLD_LIB_CFLAGS=-DCLD_WINDOWS -Ithird_party/cld -L. -lcld -lstdc++
 
-CLD_CFLAGS=-fPIC -I./cld -O2 -DCLD_WINDOWS
+CLD_CFLAGS=-fPIC -Ithird_party/cld -O2 -DCLD_WINDOWS
 LDFLAGS=-L.
 CLD_AR=ar
-CLD_SOURCES=./cld/encodings/compact_lang_det/cldutil.cc \
-        ./cld/encodings/compact_lang_det/cldutil_dbg_empty.cc \
-        ./cld/encodings/compact_lang_det/compact_lang_det.cc \
-        ./cld/encodings/compact_lang_det/compact_lang_det_impl.cc \
-        ./cld/encodings/compact_lang_det/ext_lang_enc.cc \
-        ./cld/encodings/compact_lang_det/getonescriptspan.cc \
-        ./cld/encodings/compact_lang_det/letterscript_enum.cc \
-        ./cld/encodings/compact_lang_det/tote.cc \
-        ./cld/encodings/compact_lang_det/generated/cld_generated_score_quadchrome_0406.cc \
-        ./cld/encodings/compact_lang_det/generated/compact_lang_det_generated_cjkbis_0.cc \
-        ./cld/encodings/compact_lang_det/generated/compact_lang_det_generated_ctjkvz.cc \
-        ./cld/encodings/compact_lang_det/generated/compact_lang_det_generated_deltaoctachrome.cc \
-        ./cld/encodings/compact_lang_det/generated/compact_lang_det_generated_quadschrome.cc \
-        ./cld/encodings/compact_lang_det/win/cld_htmlutils_windows.cc \
-        ./cld/encodings/compact_lang_det/win/cld_unilib_windows.cc \
-        ./cld/encodings/compact_lang_det/win/cld_utf8statetable.cc \
-        ./cld/encodings/compact_lang_det/win/cld_utf8utils_windows.cc \
-        ./cld/encodings/internal/encodings.cc \
-        ./cld/languages/internal/languages.cc
+CLD_SOURCES=third_party/cld/encodings/compact_lang_det/cldutil.cc \
+        third_party/cld/encodings/compact_lang_det/cldutil_dbg_empty.cc \
+        third_party/cld/encodings/compact_lang_det/compact_lang_det.cc \
+        third_party/cld/encodings/compact_lang_det/compact_lang_det_impl.cc \
+        third_party/cld/encodings/compact_lang_det/ext_lang_enc.cc \
+        third_party/cld/encodings/compact_lang_det/getonescriptspan.cc \
+        third_party/cld/encodings/compact_lang_det/letterscript_enum.cc \
+        third_party/cld/encodings/compact_lang_det/tote.cc \
+        third_party/cld/encodings/compact_lang_det/generated/cld_generated_score_quadchrome_0406.cc \
+        third_party/cld/encodings/compact_lang_det/generated/compact_lang_det_generated_cjkbis_0.cc \
+        third_party/cld/encodings/compact_lang_det/generated/compact_lang_det_generated_ctjkvz.cc \
+        third_party/cld/encodings/compact_lang_det/generated/compact_lang_det_generated_deltaoctachrome.cc \
+        third_party/cld/encodings/compact_lang_det/generated/compact_lang_det_generated_quadschrome.cc \
+        third_party/cld/encodings/compact_lang_det/win/cld_htmlutils_windows.cc \
+        third_party/cld/encodings/compact_lang_det/win/cld_unilib_windows.cc \
+        third_party/cld/encodings/compact_lang_det/win/cld_utf8statetable.cc \
+        third_party/cld/encodings/compact_lang_det/win/cld_utf8utils_windows.cc \
+        third_party/cld/encodings/internal/encodings.cc \
+        third_party/cld/languages/internal/languages.cc
 
 all:
-	g++ -std=c++11 -O3 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 -Ithird_party/ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -q 書本 -q "+火球" -p ../data/formattedData/
 
 interactive:

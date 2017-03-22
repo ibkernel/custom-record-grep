@@ -266,7 +266,10 @@ void Record::handleMalformedCases(std::string malformType,
 }
 
 // TODO: malloc error handling
-void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  size_t &size)
+void Record::createMemoryThenInsert(char *&target,
+                                    char *&source,
+                                    int offset,
+                                    size_t &size)
 {
   target= (char *) malloc(size-offset); // +1
   if (target == NULL){
@@ -280,7 +283,9 @@ void Record::createMemoryThenInsert(char *&target, char *&source, int offset,  s
   }
 }
 
-int Record::setPrefixAndReturnOffset(std::string &prefix, bool &isPrefixToolong,char *&line)
+int Record::setPrefixAndReturnOffset(std::string &prefix,
+                                     bool &isPrefixToolong,
+                                     char *&line)
 {
   int offset=1;
   while(line[offset]!=':'){
