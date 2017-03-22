@@ -59,7 +59,7 @@ void Record::scoring(bool &isComplianceToMustAndMustNotHave,
   }
 }
 
-// NOTE: must / must not have is not implemented at id/title
+// NOTE: must / must not have are not implemented on id/title
 
 void Record::searchId(char *id,
                       char *recordLanguage,
@@ -176,9 +176,8 @@ void Record::buildRecord(){
   readFileThenSetRecordAndRank();
 };
 
-
-// TODO: remove last character:newline
-void Record::readFileThenSetRecordAndRank(){
+void Record::readFileThenSetRecordAndRank()
+{
   FILE *fptr;
   char *line = NULL;
   char prefix[5];
@@ -265,7 +264,6 @@ void Record::handleMalformedCases(std::string malformType,
   isNewRecord = true; 
 }
 
-// TODO: malloc error handling
 void Record::createMemoryThenInsert(char *&target,
                                     char *&source,
                                     int offset,
@@ -274,6 +272,8 @@ void Record::createMemoryThenInsert(char *&target,
   target= (char *) malloc(size-offset); // +1
   if (target == NULL){
     //throw std::bad_alloc("Memory not enough");
+    std::cout << "Error allocating memory" << std::endl;
+    exit(1);
   }
   if (size == offset) { // empty source
     target[0] = '\0';
@@ -300,13 +300,13 @@ int Record::setPrefixAndReturnOffset(std::string &prefix,
   return offset;
 }
 
-// TODO: malloc error handling
 void Record::createAndAssignDefaultStructData()
 {
   struct record *moreData = NULL;
   moreData = (struct record *) realloc(data, dataCount*sizeof(struct record));
   if (moreData == NULL){
-    //throw std::bad_alloc("Memory not enough");
+    std::cout << "Error allocating memory" << std::endl;
+    exit(1);
   }
   else {
     data = moreData;
@@ -319,7 +319,7 @@ void Record::createAndAssignDefaultStructData()
 
 void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile)
 {
-  // NOTE: Rule: if there is more than one record in the file
+  // Rule: if there is more than one record in the file
   // The index-file (.tags) must be assigned to the first record
 
   Ranking newRank(tagPath);
