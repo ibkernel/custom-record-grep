@@ -37,11 +37,12 @@ int main(int argc, char** argv){
   TCLAP::ValueArg<int> editDistanceArg("d","distance","Number of edit distance tolerated",false, 0,"int");
   cmd.add( editDistanceArg );
 
-  TCLAP::ValueArg<std::string> scorePathArg("s","score","Path to custom score description file",false,"default","string");
-  cmd.add( scorePathArg );
-
   TCLAP::MultiArg<std::string> formatDataArg("f", "format", "Path to download dir, formatted dir, downloaded list file, merged file and stop words file.", false,"string" );
   cmd.add( formatDataArg );
+
+  TCLAP::ValueArg<std::string> stopWordPathArg("s", "stopword", "Path to stopword file", false, "no_path","string");
+  cmd.add( stopWordPathArg );
+
   // Parse the argv array.
   cmd.parse( argc, argv );
 
@@ -49,14 +50,12 @@ int main(int argc, char** argv){
   bool isAscending = orderSwitch.getValue();
   bool isInteractive = interactiveSwitch.getValue();
   int distance = editDistanceArg.getValue();
-  std::string scorePath = scorePathArg.getValue();
-  //std::string query = queryArg.getValue();
+
+  std::string stopWordPath = stopWordPathArg.getValue();
   std::string inputPath = inputPathArg.getValue();
   std::vector <std::string> paths = formatDataArg.getValue();
   std::vector <std::string> queries = queryArg.getValue();
 
-
-  std::cout << "My score path is: " << scorePath << std::endl;
 
   if (paths.size() == 0){
     Record *records = new Record(inputPath);
@@ -96,33 +95,17 @@ int main(int argc, char** argv){
         interactiveQuery.clear();
       }
     }
-    
-    // TESTING STABILITY
-    // int count = 100;
-    // int i = 0;
-    // while (count--) {
-    //  i++;
-    //  cout << "--Starting "<< i << "th round--" << endl;
-    //  //Record records(inputPath);
-    //  Record *records = new Record(inputPath);
-    //  cout << "---LOADED "<< i << "th round-_-" << endl;
-    //  delete records;
-    // }
 
   }else {
-    if (paths.size() < 2){
-      cout << "We need at least 2 arguments for formatting" << endl;
+    if (paths.size() != 2){
+      cout << "We need 2 arguments for formatting" << endl;
     }else{
       // TODO: check validity of paths.
       std::clock_t c_start = std::clock();
-      if (paths.size() == 2)
+      if (stopWordPath == "no_path")
         Formatter formatData(paths[0], paths[1]);
-      else if (paths.size() == 3)
-        Formatter formatData(paths[0], paths[1], paths[2]);
-      // if (paths.size() == 4)
-      //  BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3]);
-      // else if(paths.size() == 5)
-      //  BookFormatter formatBook(paths[0], paths[1], paths[2], paths[3], paths[4]);
+      else
+        Formatter formatData(paths[0], paths[1], stopWordPath);
       std::cout << "Format time: " << float( std::clock () - c_start ) /  CLOCKS_PER_SEC << std::endl;
     }
   }

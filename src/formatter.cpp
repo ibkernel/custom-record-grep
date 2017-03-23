@@ -123,10 +123,10 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   }
   // detectLanguageAndUpdateLanguageCount(text.c_str(), chineseCount, otherCount);
 
-  std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。|！|？)+" : "(\\.|\\?|!)+");
+  std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。|！|？|\\.)+" : "(\\.|\\?|!)+");
 
 
-  //Remove duplicated space to one only.
+  //Remove duplicated spaces to one .
   std::string::iterator new_end = std::unique(text.begin(), text.end(),
       [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' '); }
   );
@@ -326,9 +326,7 @@ Formatter::Formatter(std::string pathSource, std::string pathDest, std::string p
   pathToStopWords = pathStopWords;
   std::ifstream stopWordsFile(pathToStopWords);
   std::string words;
-  std::cout << "Your stop words:" << std::endl;
   bool isConcatFile = true;
-
   while (std::getline(stopWordsFile, words)){
     stopWords.push_back(words);
   }
