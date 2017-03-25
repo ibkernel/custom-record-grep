@@ -3,14 +3,16 @@
 
 
 bool replace(std::string& str, const std::string& from, const std::string& to);
-std::string removePrefixPath(const std::string& str);
-//std::string removeDotTxt(const std::string& str);
 
-void ReplaceStringInPlace(std::string& subject, const std::string& search,
+
+void ReplaceStringInPlace(std::string& subject,
+                          const std::string& search,
                           const std::string& replace);
+
 template<typename Out>
 void split(const std::string &s, char delim, Out result);
 std::vector<std::string> split(const std::string &s, char delim);
+std::string removePrefixPath(const std::string& str);
 
 std::vector<std::tuple<std::string, bool, bool>> parseSearchQuery(std::vector <std::string> &s);
 std::vector<std::string> parseInteractiveSearchQuery(std::string &searchQuery);
@@ -25,5 +27,11 @@ int isDir(const std::string &name);
 
 
 int countWords(const char* str);
+
+bool isDirExist(const std::string& path);
+bool makePath(const std::string& path);
+
+void detectLanguageAndUpdateLanguageCount(const char* src, int &chineseCount, int &otherCount);
+void detectLanguage(const char* src, char *&recordLanguage);
 
 #endif
