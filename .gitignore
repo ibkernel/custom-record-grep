@@ -1,7 +1,4 @@
 data/*
-!data/main.py
-!data/requirements.txt
-!data/bookFormatter.py
 src/book_formatter.cpp
 src/book_formatter.h
 *.out*
