@@ -15,6 +15,7 @@ Result::~Result() {
   searchResult.clear();
 }
 
+/* insert comliant record to class member */
 void Result::insertResult(std::string title,
                           int searchScore,
                           int searchMatchCount,
@@ -30,7 +31,7 @@ void Result::insertResult(std::string title,
   }
 }
 
-
+/* get compliant result count */
 int Result::getResultCount()
 {
   int compliantCount = 0;
@@ -60,7 +61,7 @@ void Result::printResult(bool order)
     }
   }
 }
-
+/* Sort result by rank score, default: descending order */
 void Result::sort(bool order)
 {
   if (order) {  // ascending
@@ -78,6 +79,7 @@ void Result::sort(bool order)
   }
 }
 
+/* clear vector after each search */
 void Result::reset()
 {
   searchResult.clear();

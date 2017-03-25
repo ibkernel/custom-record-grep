@@ -13,11 +13,6 @@ inline bool sortScore(struct result a, struct result b){
 };
 
 class Result {
-private:
-  std::vector <struct result> searchResult;
-  int resultCount;
-
-
 public:
   Result();
   ~Result();
@@ -33,6 +28,10 @@ public:
   void sort(bool order=false);
   void printResult(bool order=false);
   void reset();
+
+private:
+  std::vector <struct result> searchResult;
+  int resultCount;
 };
 
 

@@ -1,6 +1,6 @@
 #ifndef CRGREP_RANKING_H_
 #define CRGREP_RANKING_H_
-#include <map>
+#include <unordered_map>
 
 const int chapterTagWeight = 3,  titleTagWeight = 10, paragraphTagWeight = 4, sentenseTagWeight = 5;
 const int idWeight = 0, titleWeight = 300000, contentWeight = 3;
@@ -12,6 +12,15 @@ struct rankTreeNode {
 };
 
 class Ranking {
+public:
+  Ranking(std::string tagFilePath);
+  ~Ranking();
+
+  int getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuple);
+  std::tuple <int, int, int> getRankTreeTuple(int foundLocation);
+  bool isDefaultRanking();
+  void printTag();
+
 private:
   struct rankTreeNode *root;
   std::string pathToTagFile;
@@ -25,22 +34,12 @@ private:
                                              int arrayLength,
                                              int foundLocation);
 
-  int getPatternScore(std::map<std::string, int> &foundMap,
+  int getPatternScore(std::unordered_map<std::string, int> &foundMap,
                       std::tuple<int,int,int>&singleLocation,
                       int patternNum);
 
   void insertTag(char tagType, int lowerBound, int upperBound);
   void buildRank();
-
-public:
-  Ranking(std::string tagFilePath);
-  ~Ranking();
-
-  int getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuple);
-  std::tuple <int, int, int> getRankTreeTuple(int foundLocation);
-  
-  bool isDefaultRanking();
-  void printTag();
 };
 
 #endif

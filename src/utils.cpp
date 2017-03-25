@@ -20,7 +20,7 @@
 #include <direct.h>   // _mkdir
 #endif
 
-
+/* count words without spaces */
 int countWords(const char* str)
 {
    if (str == NULL)
@@ -46,7 +46,7 @@ int countWords(const char* str)
    return numWords;
 }
 
-// replace all
+/* replace all `search` pattern in `subject` with `replace` */
 void ReplaceStringInPlace(std::string& subject,
                           const std::string& search,
                           const std::string& replace)
@@ -58,6 +58,7 @@ void ReplaceStringInPlace(std::string& subject,
     }
 };
 
+/* replace first match of to `from` in `str` with `to` */
 bool replace(std::string& str, const std::string& from, const std::string& to)
 {
     size_t start_pos = str.find(from);
@@ -67,13 +68,14 @@ bool replace(std::string& str, const std::string& from, const std::string& to)
     return true;
 }
 
+/* remove final '/' or '\' of the string */
 std::string removePrefixPath(const std::string& str)
 {
   size_t found = str.find_last_of("/\\");
   return str.substr(found+1);
 }
 
-
+/* split words by spaces */
 std::vector<std::string> split(const std::string &s, char delim)
 {
   std::vector<std::string> elems;
@@ -104,23 +106,25 @@ int isDir(const std::string &name)
   return 1;
 }
 
-// TODO: separte "" exact query and others
+/**
+ * parseInteractiveSearchQuery - parse queries on interactive mode only
+ * @searchQuery: search string
+ * 
+ * return the first string quoted by '"' if any or return splitted string
+ */
 std::vector<std::string> parseInteractiveSearchQuery(std::string &searchQuery)
 {
   std::size_t foundFirst = searchQuery.find("\"");
 
   bool openFlag = false, closingFlag = false;
   if (foundFirst!=std::string::npos){
-    //std::cout << "First Needle found at " << foundFirst << "\n";
     openFlag = true;
   }
   std::size_t foundSecond = searchQuery.find("\"", foundFirst+1);
   if (foundSecond!=std::string::npos){
-    //std::cout << "Second Needle found at " << foundSecond << "\n";
     closingFlag = true;
   }
   if (openFlag && closingFlag){
-    //std::cout << "This is an exact query :" << searchQuery.substr(foundFirst+1, foundSecond-1) <<"\n";
     std::vector <std::string> parsedQuery = {searchQuery.substr(foundFirst+1, foundSecond-1)};
     return parsedQuery;
   }
@@ -128,6 +132,12 @@ std::vector<std::string> parseInteractiveSearchQuery(std::string &searchQuery)
     return split(searchQuery, ' ');
 }
 
+/**
+ * parseSearchQuery - parse queries
+ * @searchQuery: search query vector
+ * 
+ * return tuple<query string, if must have, if must not>
+ */
 std::vector<std::tuple<std::string, bool, bool>>parseSearchQuery(std::vector <std::string> &searchQueries)
 {
   std::vector <std::tuple <std::string, bool, bool>>searchPatterns;
@@ -164,7 +174,7 @@ std::vector<std::tuple<std::string, bool, bool>>parseSearchQuery(std::vector <st
 }
 
 
-
+/* used to help crgrep determine the language of the record */
 void detectLanguageAndUpdateLanguageCount(const char* src, int &chineseCount, int &otherCount)
 { 
     bool is_plain_text = true;
@@ -204,6 +214,7 @@ void detectLanguageAndUpdateLanguageCount(const char* src, int &chineseCount, in
       otherCount++;
 }
 
+/* copy detected language string to char  */
 void detectLanguage(const char* src, char *&recordLanguage)
 { 
     bool is_plain_text = true;

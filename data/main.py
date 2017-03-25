@@ -50,36 +50,47 @@ class Downloader:
 			htmlparser = etree.HTMLParser()
 			tree = etree.parse(response, htmlparser)
 			newline_space_pattern = re.compile('[\s]+')
-			try:
-				tables = tree.xpath("//body/form/div[1]/div[3]//table[3]")
-				book_links = []
-				i = 0
-				for element in tables[0]:
-					if i%2 == 0:
-						book_info = element.findall('td')[1].find('a')
-						book_title = newline_space_pattern.sub("", book_info.text)
-						book_link = "{}{}".format(self.domain_name,book_info.attrib['href'].replace('Book/','Book/Chapter/'))
-						book_links.append((book_title, book_link))
-						#print(book_title)
-						i+=1
-					else:
-						i+=1
-				#print(book_links)
-			except:
-				tables = tree.xpath("//body/form/div[3]/div[3]//table[3]")
-				book_links = []
-				i = 0
-				for element in tables[0]:
-					if i%2 == 0:
-						book_info = element.findall('td')[1].find('a')
-						book_title = newline_space_pattern.sub("", book_info.text) # unicode (.encode('utf8') -> str)
-						book_link = "{}{}".format(self.domain_name,book_info.attrib['href'].replace('Book/','Book/Chapter/'))
-						book_links.append((book_title, book_link))
-						#print(u'{}'.format(book_title))
-						i+=1
-					else:
-						i+=1
-				i = 0
+			# try:
+			# 	tables = tree.xpath("//body/form/div[1]/div[3]//table[3]")
+			# 	book_links = []
+			# 	i = 0
+			# 	for element in tables[0]:
+			# 		if i%2 == 0:
+			# 			book_info = element.findall('td')[1].find('a')
+			# 			book_title = newline_space_pattern.sub("", book_info.text)
+			# 			book_link = "{}{}".format(self.domain_name,book_info.attrib['href'].replace('Book/','Book/Chapter/'))
+			# 			book_links.append((book_title, book_link))
+			# 			#print(book_title)
+			# 			i+=1
+			# 		else:
+			# 			i+=1
+			# 	#print(book_links)
+			# except:
+			# 	tables = tree.xpath("//body/form/div[3]/div[3]//table[3]")
+			# 	book_links = []
+			# 	i = 0
+			# 	for element in tables[0]:
+			# 		if i%2 == 0:
+			# 			book_info = element.findall('td')[1].find('a')
+			# 			book_title = newline_space_pattern.sub("", book_info.text) # unicode (.encode('utf8') -> str)
+			# 			book_link = "{}{}".format(self.domain_name,book_info.attrib['href'].replace('Book/','Book/Chapter/'))
+			# 			book_links.append((book_title, book_link))
+			# 			#print(u'{}'.format(book_title))
+			# 			i+=1
+			# 		else:
+			# 			i+=1
+			# 	i = 0
+			book_links = []
+			book_links.append(("回到明朝當王爺", "https://tw.hjwzw.com/Book/Chapter/1693"))
+			book_links.append(("全職高手", "https://tw.hjwzw.com/Book/Chapter/24632"))
+			book_links.append(("放開那個女巫", "https://tw.hjwzw.com/Book/Chapter/36006"))
+			book_links.append(("奧術神座", "https://tw.hjwzw.com/Book/Chapter/33572"))
+			book_links.append(("隱殺", "https://tw.hjwzw.com/Book/Chapter/1785"))
+			book_links.append(("北宋小廚師", "https://tw.hjwzw.com/Book/32369"))
+			book_links.append(("重生之賊行天下", "https://tw.hjwzw.com/Book/8423"))
+			
+			
+
 			for booktitle, booklink in book_links:
 				# 因為book_links順序有可能變，所以還是要確認每一本書都下載完了沒 在else:增加downloadBookWithChecking
 				if not booktitle in self.downloaded_list and not booktitle in self.current_downloaded_list:

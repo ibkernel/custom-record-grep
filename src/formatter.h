@@ -9,6 +9,11 @@ std::tuple<std::string, int> getTagTuple(std::string tagType, long tagLocation);
 // one dir -> merge every file in that dir into one record
 
 class Formatter{
+public:
+  Formatter(std::string pathSource, std::string pathDest);
+  Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords);
+  ~Formatter(){};
+  
 private:
   std::string pathToFormattedDir;
   std::string pathToRawData;
@@ -49,12 +54,7 @@ private:
 
   void insertFilesPathInDirIntoVector(std::string path, std::vector <std::string> &paths);
 
-  void updateDirPathInRawDir();
-
-public:
-  Formatter(std::string pathSource, std::string pathDest);
-  Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords);
-  ~Formatter(){};
+  void insertDirPathInRawDir();
 
 };
 

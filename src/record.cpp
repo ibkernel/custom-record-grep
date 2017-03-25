@@ -16,22 +16,50 @@
 
 using namespace std;
 
-Record::~Record(){};
-Record::Record(std::string path){
+/* free record pointer on destruction */
+Record::~Record()
+{
+  free(data);
+};
+
+/* construct record */
+Record::Record(std::string path)
+{
   inputPath = path;
   fileCount = 0;
   dataCount = 0;
   buildRecord();
 };
 
-//TODO: caseInsensitive not implemented yet
+/* get count of files */
+int Record::getFileCount() const{
+  return fileCount;
+}
+
+/* get count of all record */
+int Record::getRecordCount() const{
+  return dataCount;
+};
+
+
+/**
+ * searchFactory - choose the search algorithm to implement
+ * @text: haystack text
+ * @recordLanguage: Either 'ChineseT' or not chineseT
+ * @pattern: needle string
+ * @caseInsensitive: NOT Implemented yet
+ * @editDistance: edit distance tolerance
+ *
+ * return the pointer to the founded position if successful
+ * 
+ */
 char * Record::searchFactory(char *text,
                              char *recordLanguage,
                              std::string pattern,
                              bool caseInsensitive,
                              unsigned int editDistance)
 {
-  if (strcmp(text, "FORMAT_ERROR")==0)
+  if (strcmp(text, "FORMAT_ERROR")==0) // record malformed
     return NULL;
   else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0)
     return strstr(text, pattern.c_str());
@@ -39,10 +67,11 @@ char * Record::searchFactory(char *text,
     return toleranceSearch(text, pattern.c_str(), editDistance);
 }
 
-void Record::scoring(bool &isComplianceToMustAndMustNotHave,
+/* update flag if not compliance, only compliant record will be stored */
+void Record::checkComplianceToMustAndMustNotHave(bool &isComplianceToMustAndMustNotHave,
                      bool found,
                      bool mustHave,
-                     bool mustNotHave)
+                     bool mustNotHave) const
 {
   if (mustHave){
     if(!found)
@@ -53,8 +82,23 @@ void Record::scoring(bool &isComplianceToMustAndMustNotHave,
   }
 }
 
-// NOTE: must / must not have are not implemented on id/title
-
+/**
+ * searchId - search id
+ * @id: record title text
+ * @recordLanguage: Either 'ChineseT' or not chineseT
+ * @searchPatterns: processed search patterns
+ * @recordIndex: index of current processing record
+ * @searchScore: the record search score
+ * @searchMatchCount: the patterns match count
+ * @isComplianceToMustAndMustNotHave: flag to 
+ * @caseInsensitive: NOT Implemented yet
+ * @editDistance: edit distance tolerance
+ *
+ * The record language are passed down to searchFactory to distinguish whether
+ * fuzzy search is available (Not available for chineseT)
+ *
+ * NOTE: must / must not have are not implemented on id/title
+ */
 void Record::searchId(char *id,
                       char *recordLanguage,
                       std::vector<std::tuple<std::string, bool, bool>> &searchPatterns,
@@ -66,14 +110,26 @@ void Record::searchId(char *id,
 {
   for (auto pattern: searchPatterns)
     if((searchFactory(id, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))>0){
-      //scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
       searchScore += idWeight;
       searchMatchCount++;
-    }else {
-      //scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
     }
 }
-
+/**
+ * searchTitle - search title
+ * @title: record title text
+ * @recordLanguage: Either 'ChineseT' or not chineseT
+ * @searchPatterns: processed search patterns
+ * @recordIndex: index of current processing record
+ * @searchScore: the record search score
+ * @searchMatchCount: the patterns match count
+ * @isComplianceToMustAndMustNotHave: flag to 
+ * @caseInsensitive: NOT Implemented yet
+ * @editDistance: edit distance tolerance
+ *
+ * The record language are passed down to searchFactory to distinguish whether
+ * fuzzy search is available (Not available for chineseT)
+ * NOTE: must / must not have are not implemented on id/title
+ */
 void Record::searchTitle(char *title,
                          char *recordLanguage,
                          std::vector<std::tuple<std::string, bool, bool>> &searchPatterns,
@@ -85,15 +141,28 @@ void Record::searchTitle(char *title,
 {
   for (auto pattern: searchPatterns){
     if((searchFactory(title, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))!=NULL){
-      //scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
       searchScore += titleWeight;
       searchMatchCount++;
-    }else {
-      //scoring(isComplianceToMustAndMustNotHave, true, std::get<1>(pattern), std::get<2>(pattern));
     }
   }
 }
 
+/**
+ * searchContent - search content
+ * @content: record content text
+ * @recordLanguage: Either 'ChineseT' or not chineseT
+ * @searchPatterns: processed search patterns
+ * @recordIndex: index of current processing record
+ * @searchScore: the record search score
+ * @searchMatchCount: the patterns match count
+ * @isComplianceToMustAndMustNotHave: flag to 
+ * @caseInsensitive: NOT Implemented yet
+ * @editDistance: edit distance tolerance
+ *
+ * The record language are passed down to searchFactory to distinguish whether
+ * fuzzy search is available (Not available for chineseT)
+ * 
+ */
 void Record::searchContent(char *content,
                            char *recordLanguage,
                            std::vector <std::tuple<std::string, bool, bool>> &searchPatterns,
@@ -125,7 +194,7 @@ void Record::searchContent(char *content,
     }
     patternLocationTuples.push_back(foundTuple);
     foundTuple.clear();
-    scoring(isComplianceToMustAndMustNotHave, foundFlag, std::get<1>(pattern), std::get<2>(pattern));
+    checkComplianceToMustAndMustNotHave(isComplianceToMustAndMustNotHave, foundFlag, std::get<1>(pattern), std::get<2>(pattern));
   }
 
 
@@ -135,14 +204,23 @@ void Record::searchContent(char *content,
     tmpScore= rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
 
   // TODO: Adjust tmpScore according to the % of the pattern in the content
-
-  // NOT ACCURATE AT ALL, it will ignore little match count
+  //       NOT ACCURATE AT ALL, it will ignore little match count
   //tmpScore = double(titleWeight * searchMatchCount / data[recordIndex].approxCharactersCount);
   //std::cout << searchMatchCount << std::endl;
   //std::cout << data[recordIndex].approxCharactersCount << std::endl;
   searchScore += tmpScore;
 }
 
+/**
+ * searchAndSortWithRank - search with ranking
+ * @queries: list of queries, still need to parse for + -
+ * @searchResult: class to store results
+ * @caseInsensitive: NOT implemented yet
+ * @editDistance: edit distance tolerance default to 0
+ *
+ * queries need to be processed after received for detecting
+ * special ones: must have (+) and must not have (-)
+ */
 void Record::searchAndSortWithRank(std::vector<std::string> queries,
                                    Result &searchResult,
                                    bool caseInsensitive,
@@ -165,11 +243,16 @@ void Record::searchAndSortWithRank(std::vector<std::string> queries,
 
 }
 
+
+/* Update file paths and tags paths then start loading into memory */
 void Record::buildRecord(){
   checkPathAndSetFileVectors();
   readFileThenSetRecordAndRank();
 };
 
+
+
+/* Initiate record loading and rank tree building */
 void Record::readFileThenSetRecordAndRank()
 {
   FILE *fptr;
@@ -197,6 +280,11 @@ void Record::readFileThenSetRecordAndRank()
   }
 }
 
+/**
+ * handlePrefixCases - select corresponding prefix and update its data
+ * @isNewRecord: bool to reset new file condition                             
+ *
+ */
 void Record::handlePrefixCases(int &dataCountForCurrentFile,
                                size_t &read,
                                char *&line,
@@ -229,11 +317,11 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile,
   }
 }
 
-
+/* get approximate utf8 character count */
 int Record::getRecordCharactersCount(size_t lineCharCount,
                                      int prefixCount,
                                      char *& line,
-                                     char *language)
+                                     char *language) const
 {
   if (strcmp(language, "ChineseT") == 0)
     return (lineCharCount - prefixCount)/3; // assume all chinese characters
@@ -241,13 +329,20 @@ int Record::getRecordCharactersCount(size_t lineCharCount,
     return  countWords(line); // will count the prefix as a redundant word
 }
 
+/* increment global record count and local-to-file record count */
 void Record::incrementLocalFileDataCountAndDataCount(int &currentFileDataCount)
 {
   dataCount += 1;
   currentFileDataCount += 1;
 }
 
-
+/**
+ * handleMalformedCases - create dummy data for malformed record
+ * @malformType: the malform error string
+ * @dataCountForCurrentFile: record count of the current file
+ * @isNewRecord: bool to reset outer condition                             
+ *
+ */
 void Record::handleMalformedCases(std::string malformType,
                                   int &dataCountForCurrentFile,
                                   bool &isNewRecord)
@@ -258,14 +353,15 @@ void Record::handleMalformedCases(std::string malformType,
   isNewRecord = true; 
 }
 
+
+/* insert source into new target memory */
 void Record::createMemoryThenInsert(char *&target,
                                     char *&source,
                                     int offset,
                                     size_t &size)
 {
-  target= (char *) malloc(size-offset); // +1
+  target= (char *) malloc(size-offset);
   if (target == NULL){
-    //throw std::bad_alloc("Memory not enough");
     std::cout << "Error allocating memory" << std::endl;
     exit(1);
   }
@@ -277,15 +373,16 @@ void Record::createMemoryThenInsert(char *&target,
   }
 }
 
+/* get the prefix string before character ':' */
 int Record::setPrefixAndReturnOffset(std::string &prefix,
                                      bool &isPrefixToolong,
-                                     char *&line)
+                                     char *&line) const
 {
   int offset=1;
   while(line[offset]!=':'){
     prefix += line[offset];
     offset++;
-    if (offset == 30) {
+    if (offset == 30) { // Limitation for long offset
       isPrefixToolong = true;
       break;
     }
@@ -294,6 +391,7 @@ int Record::setPrefixAndReturnOffset(std::string &prefix,
   return offset;
 }
 
+/* assign default value for current record */
 void Record::createAndAssignDefaultStructData()
 {
   struct record *moreData = NULL;
@@ -311,11 +409,19 @@ void Record::createAndAssignDefaultStructData()
   }
 }
 
+/**
+ * insertAllRanksForCurrentFile - update rank tree after loading a file
+ * @tagPath: the indexed tag path of the file
+ * @dataCountForCurrentFile: record count for the file (each file may have
+ *                           multiple record, however the tagfile is only
+ *                           corresponded to the first record )
+ *
+ * Must be inplemented before the next file load up.
+ */
 void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountForCurrentFile)
 {
   // Rule: if there is more than one record in the file
   // The index-file (.tags) must be assigned to the first record
-
   Ranking newRank(tagPath);
   rank.push_back(newRank);
   for (int i=0; i < dataCountForCurrentFile-1; i++) {
@@ -324,7 +430,8 @@ void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountFor
   }
 }
 
-void Record::checkPathAndSetFileVectors()
+/* check inputPath then insert file paths toclass vector members */
+void Record::checkPathAndSetFileVectors() 
 {
   DIR *dir;
   struct dirent *ent;
@@ -356,12 +463,3 @@ void Record::checkPathAndSetFileVectors()
     exit(1);
   }
 }
-
-int Record::getFileCount(){
-  return fileCount;
-}
-
-int Record::getRecordCount() {
-  return dataCount;
-};
-

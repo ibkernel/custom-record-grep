@@ -7,10 +7,18 @@
 #include <algorithm>
 #include "search.h"
 
-using namespace std;
+// using namespace std;
 
-// NOTE: Cannot search exact multi-string with spaces.
-
+ 
+/**
+ * toleranceSearch - search with edit distance toleranted
+ * @haystack: haystack text
+ * @pattern: needle string
+ * @editDistance: edit distance tolerance
+ *
+ * return the pointer to the founded position if successful
+ * NOTE: Cannot search exact multi-string with spaces.
+ */
 char* toleranceSearch(char *haystack, const char *pattern, unsigned int distanceTolerance)
 {
     unsigned int tokenLen, patternLen = strlen(pattern);
@@ -25,7 +33,6 @@ char* toleranceSearch(char *haystack, const char *pattern, unsigned int distance
     
     for(token=strsep(&tmp, delim); token!=NULL; token=strsep(&tmp, delim)){
       int tokenLen = strlen(token);
-      //cout << "token len:" << tokenLen << " token:" << token << endl;
       if((tokenLen>(patternLen + distanceTolerance)) || (tokenLen < (patternLen - distanceTolerance))){
             lenOfOffset += (tokenLen + LEN_OF_DELIM);
             continue;
@@ -43,7 +50,7 @@ char* toleranceSearch(char *haystack, const char *pattern, unsigned int distance
       return NULL;
 }
 
-
+/* return the edit distance between s and t */
 int levenshteinDistance(char *s, const char *t)
 {
     int costOfInsert = 1 , costOfDelete = 1, costOfReplace;

@@ -18,14 +18,68 @@
 #include "formatter.h"
 #include "utils.h"
 
-
-
 std::tuple<std::string, int> getTagTuple(std::string tagType, long tagLocation) 
 {
   return std::make_tuple(tagType, tagLocation); // Always works
 };
 
 
+/* initialize class member */
+Formatter::Formatter(std::string pathSource, std::string pathDest)
+{
+  pathToFormattedDir = pathDest;
+  pathToRawData = pathSource;
+  pathToStopWords = "none";
+  bool isConcatFile = true;
+  stopWords.push_back("\r");
+  if (isDir(pathSource)){
+    insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
+    processFile();
+    insertDirPathInRawDir();
+    processFile(isConcatFile);
+  }else {
+    singleFilePaths.push_back(pathSource);
+    processFile();
+  }
+};
+
+/* initialize class member*/
+Formatter::Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords)
+{
+  pathToFormattedDir = pathDest;
+  pathToRawData = pathSource;
+  pathToStopWords = pathStopWords;
+  std::ifstream stopWordsFile(pathToStopWords);
+  std::string words;
+  bool isConcatFile = true;
+  while (std::getline(stopWordsFile, words)){
+    stopWords.push_back(words);
+  }
+  stopWordsFile.close();
+  stopWords.push_back("\r");
+  if (isDir(pathSource)){
+    insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
+    processFile();
+    insertDirPathInRawDir();
+    processFile(isConcatFile);
+  }else {
+    singleFilePaths.push_back(pathSource);
+    processFile();
+  }
+};
+
+/**
+ * processFile - process independent file and concatenating file
+ * @concatFlag: whether the following data a to-be-concat file
+ * 
+ * Single file: 1.If the user submitted a path to a FILE, the file
+ *              is obviously a single file. 
+ *              2.If the user submitted a path to a DIRECTORY, all the
+ *              file children will be treated as single file.
+ * Concat file: Some slightly difference compare to the above 2.
+ *              the rest of the children's (which are directories) children
+ *              are considered to be related concat files.
+ */
 void Formatter::processFile(bool concatFlag)
 {
   if (!concatFlag){
@@ -50,6 +104,7 @@ void Formatter::processFile(bool concatFlag)
 
 };
 
+/* process concatFile */
 void Formatter::processConcatFile(std::string pathToDir,
                                   long &char_count,
                                   int &chapter_num,
@@ -61,12 +116,12 @@ void Formatter::processConcatFile(std::string pathToDir,
   std::vector <std::string> toProcessFilePaths;
   insertFilesPathInDirIntoVector(pathToDir, toProcessFilePaths);
   for (auto path: toProcessFilePaths) {
-    //std::cout << path << std::endl;
     formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
   }
   toProcessFilePaths.clear();
 };
 
+/* open and truncate destination of the formatted file and tagged file */
 void Formatter::writeRecordHeaderToFile(std::string dataTitle){
   struct stat info;
   if( stat( pathToFormattedDir.c_str(), &info ) != 0 ){
@@ -74,14 +129,12 @@ void Formatter::writeRecordHeaderToFile(std::string dataTitle){
       makePath(pathToFormattedDir);
   }
   else if( info.st_mode & S_IFDIR ){  // S_ISDIR() doesn't exist on my windows 
-      //std::cout << pathToFormattedDir << " is a valid directory, please retry." << std::endl;
+      // valid directory do nothing
   }
   else {
     std::cout << pathToFormattedDir << " is not a directory, please retry." << std::endl;
     exit(1);
   }
-
-
 
   std::string formattedDestination = pathToFormattedDir + dataTitle + ".txt";
   std::string indexDestination = pathToFormattedDir + dataTitle + ".tags";
@@ -97,7 +150,10 @@ void Formatter::writeRecordHeaderToFile(std::string dataTitle){
 };
 
 
-// TODO: Use boost::regex instead
+/**
+ * filter-out stop-words and start indexing the text alongside generating formatted
+ * file.
+ */
 void Formatter::formatThenMerge(std::string pathToSingleFile,
                                 long &char_count,
                                 int &chapter_num,
@@ -110,21 +166,18 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   std::ifstream chapterFile(pathToSingleFile);
   std::string line, text = "";
 
-  int countTime = 3, chineseCount = 1, otherCount = 0;
+  int chineseCount = 0, otherCount = 0;
   while (std::getline(chapterFile, line)){
     for (int i=0; i< stopWords.size();i++){
       ReplaceStringInPlace(line, stopWords[i], "");
-      //if(countTime>0)
-      //  detectLanguageAndUpdateLanguageCount(line.c_str(), chineseCount, otherCount);
-      //countTime--;
     }
     if (line.length()>2)
       text += (line + '\n');
   }
-  // detectLanguageAndUpdateLanguageCount(text.c_str(), chineseCount, otherCount);
+  chapterFile.close();
+  detectLanguageAndUpdateLanguageCount(text.c_str(), chineseCount, otherCount);
 
   std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。|！|？|\\.)+" : "(\\.|\\?|!)+");
-
 
   //Remove duplicated spaces to one .
   std::string::iterator new_end = std::unique(text.begin(), text.end(),
@@ -162,6 +215,11 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   writeTagInfoToFile(tagQueue, dataTitle);
 };
 
+/**
+ * writeTagInfoToFile - create the tag file with the information stored during file 
+ *                      formatting
+ * writeTagInfoToFile must be called at the end of formatThenMerge
+ */
 void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &tagQueue, std::string dataTitle)
 {
   std::string tagInfoPath = pathToFormattedDir + dataTitle + ".tags";
@@ -216,6 +274,18 @@ void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &
   tagFile.close();
 };
 
+
+/**
+ * lineFormatter - insert sentense tags 
+ * @line: string of the paragraph
+ * @regexEndingPhrasePattern: the punctuation pattern to see as a ending of a phrase
+ * @sentense_num: number of the processed sentensed
+ * @char_count: count of total character in the record
+ * @tagQueue: the deque which stores tags
+ *
+ * With the given regex pattern, lineFormatter see all the matches of the pattern
+ * as a the end of a sentense, thus inserting the `s` tag into the deque.
+ */
 void Formatter::lineFormatter(std::string &line,
                               std::string &regexEndingPhrasePattern,
                               int &sentense_num,
@@ -251,6 +321,7 @@ void Formatter::lineFormatter(std::string &line,
   char_count = char_count + line.length();
 }
 
+/* Insert the child files of the user provided path only */
 void Formatter::insertFilesPathInDirIntoVector(std::string path, std::vector <std::string> &paths)
 {
   DIR *dir;
@@ -276,7 +347,8 @@ void Formatter::insertFilesPathInDirIntoVector(std::string path, std::vector <st
   }
 }
 
-void Formatter::updateDirPathInRawDir()
+/* Insert the child directory path of the user provided path only */
+void Formatter::insertDirPathInRawDir()
 {
   DIR *dir;
   struct dirent *ent;
@@ -296,48 +368,6 @@ void Formatter::updateDirPathInRawDir()
       }
     }
   }else {
-    std::cout << "error: updateDirPathInRawDir" << std::endl;
+    std::cout << "error: insertDirPathInRawDir" << std::endl;
   }
 }
-
-Formatter::Formatter(std::string pathSource, std::string pathDest)
-{
-  pathToFormattedDir = pathDest;
-  pathToRawData = pathSource;
-  pathToStopWords = "none";
-  bool isConcatFile = true;
-  stopWords.push_back("\r");
-  if (isDir(pathSource)){
-    insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
-    processFile();
-    updateDirPathInRawDir();
-    processFile(isConcatFile);
-  }else {
-    singleFilePaths.push_back(pathSource);
-    processFile();
-  }
-};
-
-
-Formatter::Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords)
-{
-  pathToFormattedDir = pathDest;
-  pathToRawData = pathSource;
-  pathToStopWords = pathStopWords;
-  std::ifstream stopWordsFile(pathToStopWords);
-  std::string words;
-  bool isConcatFile = true;
-  while (std::getline(stopWordsFile, words)){
-    stopWords.push_back(words);
-  }
-  stopWords.push_back("\r");
-  if (isDir(pathSource)){
-    insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
-    processFile();
-    updateDirPathInRawDir();
-    processFile(isConcatFile);
-  }else {
-    singleFilePaths.push_back(pathSource);
-    processFile();
-  }
-};
