@@ -6,10 +6,10 @@ Since the invention of www, data have grown so immensely that even one night of 
 
 - Multi-pattern searching 
 - error toleranted search (western language only)
-- Ranking by analyzing contextual relationship.
+- Ranking by proximity relationship.
 - Customizable data preprocessor
 
-## Data Format Introduction
+## Data Format
 
 ### Format of the data
 
@@ -41,7 +41,7 @@ s_3 177 1281
 
 **If there are more than one record in a single file, the indexing file is consider corresponding to the first record only, the rest remains default**
 
-Although, crgrep works only if the input data were all well formatted, **crgrep can took care all of the preprocessing stuff for us**. All crgrep need is just some arguments, see instruction below.
+Although, crgrep works only if the input data were all well formatted, **crgrep can took care all of the preprocessing stuff for us**. All crgrep need is just some arguments, [see instruction](#Preprocess-data).
 
 ## Usage
 
@@ -57,7 +57,7 @@ make compile
 
 ### Preprocess data
 
-Generate index file for ranking and create the formatted data
+Generate the formatted data and the corresponding index file ([see further explanation](https://cwayne.github.io/2017/03/23/crgrep/#How-do-the-preprocessor-work))
 
 ```
 ./crgrep -f path_to_source_dir_or_file -f path_to_formatted_dir [-s path_to_stop_word_file]
@@ -70,11 +70,10 @@ Generate index file for ranking and create the formatted data
 
 ##### if the provided path is a file
 
-Crgrep will treat it as a single record, making the first line of the file the title, leaving the rest of the lines the content.
-
+Crgrep will treat it as a single record, making the first line of the file the title, leaving the rest of the lines the content. On the remaining lines, index's paragraphs are separated by newline, sentense are separated by ending punctuations `. 。 ? ! `
 ##### if the provided path is a directory
 
-Crgrep will look through every directory and file on the first level, files will be treated just like above, however, the remaining directory are different, every directory will be considered a single record, all the files in it are being concatenated, others sub-directory ignored.
+Crgrep will look through every directory and file on the first level, files will be treated just like above, however, **the remaining directory are different, every directory will be considered a single record, all the files in it are being concatenated, others sub-directory ignored.**
 
 ### Commands:
 
@@ -94,7 +93,7 @@ Crgrep will look through every directory and file on the first level, files will
 
 ## Implement details
 
-Go check out my [blog](https://cwayne.github.io "blog") for implementation details and the lesson I learned from the journey.
+Go check out my [blog](https://cwayne.github.io/2017/03/23/crgrep/ "blog") for implementation details and the lesson I learned from the journey.
 
 ## Credit
 

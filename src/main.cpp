@@ -88,7 +88,7 @@ int main(int argc, char** argv){
           break;
         interactiveQuery = parseInteractiveSearchQuery(searchPatterns);
         // NOTE: currently not working with chinese characters.
-        std::cout << "-------------Error tolerated search with distance of " << distance << "----------------" << '\n';
+        std::cout << "-------------tolerated search with distance of " << distance << "----------------" << '\n';
         records->searchAndSortWithRank(interactiveQuery,searchResult, 0, distance); //fuzzy search with 1 edit distance tolerance
         searchResult.printResult(isAscending);
         searchResult.reset();
