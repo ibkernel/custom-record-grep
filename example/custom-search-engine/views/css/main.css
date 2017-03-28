@@ -1,0 +1,29 @@
+body {
+   background-color: white;
+}
+.record {
+   background-color: grey;
+}
+.record > h3 {
+   color: blue;
+}
+.record > h4 {
+   color: yellow;
+}
+.search-box {
+   margin-top: 15%;
+   text-align: center;
+   /*background-color: green;*/
+}
+.result-box {
+	display: block;
+/*	background-color: blue;*/
+}
+.search-form > h1 {
+   /*color:red;
+   margin-top:200px;*/
+   font-size: 6.6em;
+   /*margin: 25px;*/
+   font-family: 'Londrina Solid', cursive;
+   
+}

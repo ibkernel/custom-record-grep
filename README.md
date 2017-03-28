@@ -95,7 +95,7 @@ Crgrep will look through every directory and file on the first level, files will
 
 ## Implementation detail
 
-Go check out my [blog](https://cwayne.github.io/2017/03/23/crgrep/ "blog") for implementation details and the lesson I learned from the journey.
+Go check out my [blog](https://cwayne.github.io/2017/03/23/crgrep/ "blog") for implementation details and the lesson I learned on the journey.
 
 ## Credit
 
