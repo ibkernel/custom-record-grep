@@ -41,7 +41,7 @@ s_3 177 1281
 
 **If there are more than one record in a single file, the indexing file is consider corresponding to the first record only, the rest remains default**
 
-Although, crgrep works only if the input data were all well formatted, **crgrep can took care all of the preprocessing stuff for us**. All crgrep need is just some arguments, [see instruction](#preprocess-data).
+Although, crgrep works only if the input data were all well formatted, **crgrep can took care all of the preprocessing stuff for us**. All crgrep need is just some arguments, [see instruction below](#preprocess-data).
 
 ## Usage
 
@@ -64,6 +64,7 @@ Generate the formatted data and the corresponding index file ([see further expla
 ```
 
 **The optional argument `path_to_stop_word_file` is a file containing stop words you wish to remove when formatting.**
+
 *Stop Word File Format: a stop word per line (ending with a '\n')*
 
 #### Preprocess rule
