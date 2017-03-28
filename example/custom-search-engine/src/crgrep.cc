@@ -23,10 +23,14 @@ void LoadData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 NAN_METHOD(Search) {
 	Nan::Utf8String q(info[0]);
 	std::string str(*q);
-	Callback *callback = new Callback(info[1].As<Function>());
-	AsyncQueueWorker(new SearchWorker(callback, str, records));
+  int a = info[1]->NumberValue();
+  bool isAscend = (a == 1) ? true : false;
+  int outputSize = info[2]->NumberValue();
+  unsigned int distance = info[3]->Int32Value();
+  
+	Callback *callback = new Callback(info[4].As<Function>());
+	AsyncQueueWorker(new SearchWorker(callback, str, records, isAscend, outputSize, distance));
 }
-
 
 void Init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("loadData").ToLocalChecked(),

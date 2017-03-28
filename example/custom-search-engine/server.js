@@ -16,22 +16,20 @@ app.get('/', function(req, res) {
 });
 
 app.post('/search', function(req, res){
-	var c1 = req.body.checkbox;
-  var c2 = req.body.method; // NOT DONE YET
-  var c3 = "-L "+req.body.list;
-  var c4 = "-R "+req.body.ranking;
-  var c5 = req.body.outputSize;
-  var c6 = req.body.distance;
-  console.log("@C:"+req.body.checkbox);
-  console.log("1:"+req.body.query,"2:",c1,"3:",c2,"4:", c3,"5:", c4,"6:", c5,"7:", c6);
+	var isOutputAscendOrder = req.body.checkbox;
+	var outputSize = req.body.outputSize;
+	var distance = req.body.distance;
+	var ascendOrder
+	if (isOutputAscendOrder == "true")
+		ascendOrder = 1;
+	else 
+		ascendOrder = 0;
 	console.log("query:",req.body.query);
-	// q = "校花 裝逼 打臉 小白臉";
-	searchAsync(req.body.query, res);
-	//res.send('ok');
+	searchAsync(req.body.query, ascendOrder, outputSize, distance, res)
 });
 
 
-function searchAsync(query, res) {
+function searchAsync(query, ascendOrder, outputSize, distance, res) {
 	function done (err, result) {
 		if (err){
 			console.log("error");
@@ -39,12 +37,12 @@ function searchAsync(query, res) {
 		}
 		console.log("-----Result------");
 		var jsonObj = JSON.stringify(result);
-		//console.log(jsonObj);
-		// res.end(jsonObj);
+		console.log(jsonObj);
+		res.end(jsonObj);
 		console.log("-----End of Result------\n");
 	}
 
-	crgrep.search(query, done);
+	crgrep.search(query,ascendOrder,outputSize, distance, done);
 }
 
 app.listen(port);

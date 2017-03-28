@@ -28,15 +28,16 @@ using Nan::Null;
 using Nan::To;
 
 
-SearchWorker::SearchWorker(Callback *callback, string query, Record *&data)
-	: AsyncWorker(callback), query(query), searchResult({0}),
-	 resultCount(0), data(data){}
+SearchWorker::SearchWorker(Callback *callback, string query, Record *&data, bool isAscend, int outputSize, unsigned int distance)
+	: AsyncWorker(callback), query(query), searchResult({outputSize}), isAscend(isAscend),
+	 resultCount(0), data(data), distance(distance){}
 
 void SearchWorker::Execute() {
 	std::vector <std::string> queries = parseInteractiveSearchQuery(query);
-	data->searchAndSortWithRank(queries, searchResult,0,0);
+	data->searchAndSortWithRank(queries, searchResult,0,distance);
 	resultCount = searchResult.getResultCount();
-	searchResult.sort(false);
+	searchResult.sort(isAscend);
+
 	std::cout << "result count: " << resultCount << std::endl;
 	queries.clear();
 }
@@ -60,6 +61,7 @@ void SearchWorker::HandleOKCallback() {
 		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(searchResult.getResultScore(i)));
 		Nan::Set(returnArr, i+1, vobj);
 	}
+	std::cout << "time to return" << std::endl;
 
 	Local<Value> argv[] = {
 			Null()

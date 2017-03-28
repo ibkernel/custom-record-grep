@@ -11,7 +11,7 @@ bool sortScore(struct resultFormat a, struct resultFormat b);
 class SearchWorker : public Nan::AsyncWorker {
 	public:
 		SearchWorker(Nan::Callback *callback, std::string query, 
-			Record *&data);
+			Record *&data, bool isAscend, int outputSize, unsigned int distance);
 		~SearchWorker() {}
 
 		void Execute();
@@ -22,6 +22,8 @@ class SearchWorker : public Nan::AsyncWorker {
 		std::string query;
 		int resultCount;
 		Record *data;
+		bool isAscend;
+		unsigned int distance;
 };
 
 
