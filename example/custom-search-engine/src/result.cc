@@ -8,8 +8,7 @@
 #include "result.h"
 
 
-Result::Result() {
-}
+Result::Result(int size): outputSize(size){};
 
 Result::~Result() {
   searchResult.clear();
@@ -32,7 +31,7 @@ void Result::insertResult(std::string title,
 }
 
 /* get compliant result count */
-int Result::getResultCount()
+int Result::getResultCount() const
 {
   int compliantCount = 0;
   for (int i=0; i<searchResult.size(); i++)
@@ -40,12 +39,12 @@ int Result::getResultCount()
   return compliantCount;
 };
 
-double Result::getResultScore(int i)
+double Result::getResultScore(int i) const
 {
   return searchResult[i].recordScore;
 };
 
-std::string Result::getResultTitle(int i )
+std::string Result::getResultTitle(int i ) const
 {
   return searchResult[i].recordTitle;
 };
@@ -53,14 +52,24 @@ std::string Result::getResultTitle(int i )
 void Result::printResult(bool order)
 {
   sort(order);
+  int i  = 0;
+  if (outputSize == -1)
+    outputSize = getResultCount();
   for (auto r: searchResult) {
-    if (r.isValid){
+    if (r.isValid && i < outputSize){
       std::cout << "Book :" << r.recordTitle << std::endl;
       std::cout << "Rank score:" << r.recordScore << std::endl;
       std::cout << "Match count:" << r.recordMatchCount << std::endl;
+      i++;
     }
   }
 }
+
+int Result::getOutputSize() const
+{
+  return outputSize;
+}
+
 /* Sort result by rank score, default: descending order */
 void Result::sort(bool order)
 {

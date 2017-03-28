@@ -16,10 +16,9 @@ public:
   Ranking(std::string tagFilePath);
   ~Ranking();
 
-  int getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuple);
-  std::tuple <int, int, int> getRankTreeTuple(int foundLocation);
-  bool isDefaultRanking();
-  void printTag();
+  int getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuple) const;
+  std::tuple <int, int, int> getRankTreeTuple(int foundLocation) const;
+  bool isDefaultRanking() const;
 
 private:
   struct rankTreeNode *root;
@@ -32,11 +31,11 @@ private:
 
   int getBelongingNodeIndexWithFoundLocation(int *&lowerBound,
                                              int arrayLength,
-                                             int foundLocation);
+                                             int foundLocation) const;
 
   int getPatternScore(std::unordered_map<std::string, int> &foundMap,
                       std::tuple<int,int,int>&singleLocation,
-                      int patternNum);
+                      int patternNum) const;
 
   void insertTag(char tagType, int lowerBound, int upperBound);
   void buildRank();

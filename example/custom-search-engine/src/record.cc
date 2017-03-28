@@ -186,8 +186,8 @@ void Record::searchContent(char *content,
     bool foundFlag = false;
     while((found = searchFactory(text, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))!=NULL){
       foundLocation = found - content;
-      if (!rank[recordIndex].isDefaultRanking())
-        foundTuple.push_back(rank[recordIndex].getRankTreeTuple(foundLocation));
+      if (!rank[recordIndex]->isDefaultRanking())
+        foundTuple.push_back(rank[recordIndex]->getRankTreeTuple(foundLocation));
       text = found + std::get<0>(pattern).length();
       searchMatchCount++;
       foundFlag = true;
@@ -198,10 +198,10 @@ void Record::searchContent(char *content,
   }
 
 
-  if (rank[recordIndex].isDefaultRanking())
+  if (rank[recordIndex]->isDefaultRanking())
     tmpScore= searchMatchCount * contentWeight;
   else
-    tmpScore= rank[recordIndex].getAdvancedRankingScore(patternLocationTuples);
+    tmpScore= rank[recordIndex]->getAdvancedRankingScore(patternLocationTuples);
 
   // TODO: Adjust tmpScore according to the % of the pattern in the content
   //       NOT ACCURATE AT ALL, it will ignore little match count
@@ -422,10 +422,12 @@ void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountFor
 {
   // Rule: if there is more than one record in the file
   // The index-file (.tags) must be assigned to the first record
-  Ranking newRank(tagPath);
+  // Ranking newRank(tagPath);
+  Ranking* newRank = new Ranking(tagPath);
   rank.push_back(newRank);
   for (int i=0; i < dataCountForCurrentFile-1; i++) {
-    Ranking newRank("NO-INDEX_FILE");
+    // Ranking newRank("NO-INDEX_FILE");
+    Ranking* defaultRank = new Ranking("NO-INDEX_FILE");
     rank.push_back(newRank);
   }
 }

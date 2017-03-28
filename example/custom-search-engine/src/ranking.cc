@@ -17,20 +17,20 @@
 
 using namespace std;
 
-Ranking::~Ranking(){};
-Ranking::Ranking(std::string tagFilePath)
+Ranking::Ranking(std::string tagFilePath):pathToTagFile{tagFilePath}, root{nullptr}, isDefaultRankingBool{true},
+                            chapter_num{0}, chapter_size{0}, paragraph_size{0}, paragraph_num{1}
 {
-    pathToTagFile = tagFilePath;
-    root = NULL;
-    isDefaultRankingBool = true;
-    chapter_num = chapter_size  = paragraph_size = 0;
-    paragraph_num = 1;
     buildRank();
+};
+
+Ranking::~Ranking()
+{
+  free(root);
 };
 /**
  * getAdvancedRankingScore - get sum of all patterns ranking score
  */
-int Ranking::getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuples)
+int Ranking::getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,int,int>>>  &patternLocationTuples) const
 {
   int score = 0, patternNum = 0;
   std::unordered_map<std::string, int> foundMap;
@@ -54,7 +54,7 @@ int Ranking::getAdvancedRankingScore(std::vector <std::vector <std::tuple <int,i
  */
 int Ranking::getPatternScore(std::unordered_map<std::string, int> &foundMap,
                              std::tuple<int,int,int>&singleLocation,
-                             int patternNum)
+                             int patternNum) const
 {
   std::unordered_map<std::string, int>::iterator it;
   std::string chapterIndex = std::to_string(std::get<0>(singleLocation));
@@ -90,7 +90,7 @@ int Ranking::getPatternScore(std::unordered_map<std::string, int> &foundMap,
 }
 
 /* find chapter-paragraph-sentense tag of the record with the found location */
-std::tuple <int, int, int> Ranking::getRankTreeTuple(int foundLocation)
+std::tuple <int, int, int> Ranking::getRankTreeTuple(int foundLocation) const
 {
   std::tuple <int, int, int> location;
   int chapter_array_index = getBelongingNodeIndexWithFoundLocation(root->lowerBoundLocationOfChildTags, root->childTagCount, foundLocation);
@@ -119,7 +119,7 @@ std::tuple <int, int, int> Ranking::getRankTreeTuple(int foundLocation)
  */
 int Ranking::getBelongingNodeIndexWithFoundLocation(int *&lowerBound,
                                                     int arrayLength,
-                                                    int foundLocation)
+                                                    int foundLocation) const
 {
   if (arrayLength == 0) // NOTE: It should never happen, however we need more testing to verify
     return -1;
@@ -260,18 +260,7 @@ void Ranking::buildRank()
   }
 };
 
-bool Ranking::isDefaultRanking()
+bool Ranking::isDefaultRanking() const
 {
   return isDefaultRankingBool;
-}
-
-// For testing
-void Ranking::printTag()
-{
-  cout << "Total chapter tags: " << root->childTagCount << endl;
-  for (int i=0; i < root->childTagCount; i++){
-    cout << "Current chapter: " << root->childTagCount << "\tTotal paragraph tags:" << root->tagNodes[i]->childTagCount << endl;
-    for (int j=0; j < root->tagNodes[i]->childTagCount; j++)
-      cout << "Total sentense tags:" << root->tagNodes[i]->tagNodes[j]->childTagCount << endl;
-  }
 }

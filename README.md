@@ -53,6 +53,7 @@ Although, crgrep works only if the input data were all well formatted, **crgrep 
 cd ./src
 make build-libcld
 make compile
+./crgrep -h
 ```
 
 ### Preprocess data
@@ -85,14 +86,14 @@ Crgrep will look through every directory and file on the first level, files will
 | -a       | ascending output order                   | `./crgrep -q pattern1 -p path -a`        |
 | -d       | error distance tolerance                 | `./crgrep -q pattern1 -p path -d 3`      |
 | -i       | interactive mode                         | `./crgrep -i -p path`                    |
-| -o       | output limit                             | NOT IMPLEMENTED YET                      |
+| -o       | output size                              | `./crgrep -q pattern1 -p path -o 3`      |
 | -f       | path to raw file or directory to format and path to format destination directory | `./crgrep -f path_to_file_or_dir -f path_to_dest_dir` |
 | -s       | path to stop word file                   | `./crgrep -f path_to_file_or_dir -f path_to_dest_dir -s path_to_stop_word_file` |
 | -h       | show description message                 | `./crgrep -h`                            |
 
 
 
-## Implement details
+## Implementation detail
 
 Go check out my [blog](https://cwayne.github.io/2017/03/23/crgrep/ "blog") for implementation details and the lesson I learned from the journey.
 
@@ -111,7 +112,6 @@ Thanks to:
 
 - [ ] Support large data (in-file search)
 - [ ] Chinese error toleranted search
-- [ ] Refactor all crgrep :)
 
 ## License
 

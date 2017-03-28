@@ -15,11 +15,13 @@ inline bool sortScore(struct result a, struct result b){
 class Result {
 public:
   Result();
+  Result(int size);
   ~Result();
 
-  int getResultCount();
-  std::string getResultTitle(int i );
-  double getResultScore(int i);
+  int getResultCount() const;
+  std::string getResultTitle(int i ) const;
+  double getResultScore(int i) const;
+  int getOutputSize() const;
 
   void insertResult(std::string title,
                     int searchScore,
@@ -32,6 +34,7 @@ public:
 private:
   std::vector <struct result> searchResult;
   int resultCount;
+  int outputSize;
 };
 
 

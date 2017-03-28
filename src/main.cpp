@@ -22,14 +22,14 @@ int main(int argc, char** argv){
 
   TCLAP::CmdLine cmd("Command description message", ' ', "0.1");
 
-  // TCLAP::ValueArg<std::string> queryArg("q","query", "Query string", false, "default query","string");
-  // cmd.add( queryArg );
-
   TCLAP::MultiArg<std::string> queryArg("q", "query", "Query string", false, "string");
   cmd.add( queryArg );
 
   TCLAP::ValueArg<std::string> inputPathArg("p", "path", "Path to file or directory", false, "default path","string");
   cmd.add( inputPathArg );
+
+  TCLAP::ValueArg<int> outputSizeArg("o", "output", "Output size", false, -1,"int");
+  cmd.add( outputSizeArg );
 
   TCLAP::SwitchArg orderSwitch("a","ascend","Result in ascending order", cmd, false);
   TCLAP::SwitchArg interactiveSwitch("i","interactive","interactive mode", cmd, false);
@@ -50,6 +50,7 @@ int main(int argc, char** argv){
   bool isAscending = orderSwitch.getValue();
   bool isInteractive = interactiveSwitch.getValue();
   int distance = editDistanceArg.getValue();
+  int outputSize = outputSizeArg.getValue();
 
   std::string stopWordPath = stopWordPathArg.getValue();
   std::string inputPath = inputPathArg.getValue();
@@ -59,15 +60,14 @@ int main(int argc, char** argv){
 
   if (paths.size() == 0){
     Record *records = new Record(inputPath);
-    Result searchResult;
+    Result searchResult(outputSize);
 
     cout << "---------Debug info---------" << endl << endl;
     cout << "Record Count: " << records->getRecordCount() << endl;
     cout << "File Count: " << records->getFileCount() << endl;
     // records.dubugPrintAllRecords();
-    cout << endl;
+    // cout << endl;
     cout << "----------info End----------" << endl << endl;
-
 
     cout << "---------Data loaded---------" << endl;
     if (queries.size() > 0){
@@ -89,7 +89,7 @@ int main(int argc, char** argv){
         interactiveQuery = parseInteractiveSearchQuery(searchPatterns);
         // NOTE: currently not working with chinese characters.
         std::cout << "-------------tolerated search with distance of " << distance << "----------------" << '\n';
-        records->searchAndSortWithRank(interactiveQuery,searchResult, 0, distance); //fuzzy search with 1 edit distance tolerance
+        records->searchAndSortWithRank(interactiveQuery,searchResult, 0, distance); 
         searchResult.printResult(isAscending);
         searchResult.reset();
         interactiveQuery.clear();
@@ -100,7 +100,6 @@ int main(int argc, char** argv){
     if (paths.size() != 2){
       cout << "We need 2 arguments for formatting" << endl;
     }else{
-      // TODO: check validity of paths.
       std::clock_t c_start = std::clock();
       if (stopWordPath == "no_path")
         Formatter formatData(paths[0], paths[1]);

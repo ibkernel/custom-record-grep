@@ -29,15 +29,11 @@ CLD_SOURCES=third_party/cld/encodings/compact_lang_det/cldutil.cc \
 
 all:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/
+	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/ -o 10
 
 interactive:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -p ../data/formattedData2/ -i
-
-# run-all: build-libcld
-# 	g++ -std=c++11 -I./ $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-# 	./a.out "書本" "../data/formattedData/"
 
 ascending-order:
 	g++ -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
@@ -50,18 +46,10 @@ fuzzy:
 compile:
 	g++ -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
-test:
-	g++ -std=c++11 $(TCLAP_CLFAGS) -O3 $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-
-#	./cr1 -q "火球" -p ../data/formattedData/001.txt
-#	./cr2 -q "火球" -p ../data/formattedData2/001.txt
-
-
 format:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-#	./a.out -q "書本" -p ../data/formattedData/ -f ../data/downloadedData/天域蒼穹/1612-第一百五十六章_黑風手.txt -f  ../data/formattedData/ -f ../data/StopWords/stop-golden.txt
 	./a.out -f ../data/readData/ -f  ../data/formattedData2/ -s ../data/StopWords/stop-golden.txt
-#	./a.out -q "書本" -p "../data/formattedData/" -f "../data/downloadedData/" -f  "../data/formattedData/" -f "../data/dwlist.txt" -f "../data/mergedlist.txt" -f "../data/StopWords/stop-golden.txt"
+#	./a.out -f ../data/readData/ -f  ../data/formattedData2/
 
 debug:
 	g++ -g -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
