@@ -1,9 +1,9 @@
 # Custom search engine using crgrep
 Thanks to node.js' NAN module, it is now simplier to build a web-based search engine. This is a demo using crgrep as the searching backend. 
 
-*There are some slighlty code change in order to make it a native addon.*
+*There are some code file added in order to make it a native addon.*
 
-**Currently under development**
+**You may want to rewrite the web page, because I just pick one of my old react.js stuff and put it online. It is badly coded**
 
 ## Requirement
 
@@ -18,14 +18,21 @@ make build-libcld:
 
 Build node native c++ addon
 ```
-node-gyp rebuild
+node-gyp build
 ```
 Run server
 ```
 npm start
 ```
+Time to play with our newly created search engine at http:://localhost:8888/ 
+
+## Node.js addon
+In case you wonder how I turn the c++ crgrep into node.js add-on, you can go check out these files:
+- `src/crgrep.cc`
+- `src/search_worker.cc`
+- `src/search_worker.h`
 
 ## Roadmap
 
 - [x] update crgrep to-date
-- [ ] Web page
+- [x] Web page
