@@ -87,7 +87,7 @@
             <div className="QueryInfo row">
              <br/>
              <div className="col s6 offset-s3 center card-panel green lighten-3">
-               <h5>{this.props.count} results ({this.props.searchtime} seconds)</h5>
+               <h5>{this.props.count} results</h5>
              </div>
 
             </div>
@@ -99,7 +99,7 @@
         render: function(){
           var QueryInfo = this.props.info.map(function(info){
             return (
-              <Info key="info" count={info.foundCount} searchtime={info.searchTime} sorttime={info.sortTime} >
+              <Info key="info" count={info.resultCount}>
               </Info>
             );
           });
@@ -115,10 +115,7 @@
       render: function(){
         var RecordNodes = this.props.data.map(function(record){
           return (
-            <Record title={record.title} id={record.id} author={record.author} 
-            content={record.content} category={record.category} viewcount={record.viewCount}
-            duration={record.duration} favoritecount={record.favoriteCount} published={record.published}
-            keyword={record.keyword} uid={record.uid} key={record.id} score={record.score}>
+            <Record title={record.title} score={record.score}>
             </Record>
           );
         });
@@ -146,53 +143,11 @@
         return (
           <div className="col l8 offset-l2 m8 offset-m2 s10 offset-s1 card-panel hoverable">
             <h5 className="recordTitle">
-              {this.props.title}
+              Book: {this.props.title}
             </h5>
-            <div className="row"> 
-              <div className="chip col s4">
-                <i className="large material-icons left">person_pin</i>
-                <center className="truncate">{this.props.author}</center>
-              </div>
-              <div className="chip col s4">
-                <i className="large material-icons left">vpn_key</i>
-                <center className="truncate">{this.props.keyword}</center>
-              </div>
-              <div className="chip col s4">
-                <i className="large material-icons left">toc</i>
-                <center className="truncate">{this.props.category}</center>
-              </div>
-            </div>
-            {/*<div className="chip right">
-              <h6>{this.props.category}</h6>
-            </div>
-            <h6>{this.props.uid}</h6>*/}
-
-            <table className="centered">
-              <thead>
-                <tr>
-                    <th data-field="date">Published date</th>
-                    <th data-field="viewcount">View Count</th>
-                    <th data-field="favoritecount">Favorite Count</th>
-                    <th data-field="duration">Duration</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{published_date}</td>
-                  <td>{this.props.viewcount}</td>
-                  <td>{this.props.favoritecount}</td>
-                  <td>{this.props.duration}</td>
-                </tr>
-              </tbody>
-            </table>
-            
-
-            <p>{this.props.content}</p>
-
-              <object className="video640"
-                data={link}>
-              </object>
-
+            <h6>
+              Score: {this.props.score}
+            </h6>
           </div>
         );
       }
