@@ -10,6 +10,11 @@ Thanks to node.js' NAN module, it is now simplier to build a web-based search en
 - node-gyp
 
 ## Usage
+Install require module
+```
+npm install -g node-gyp
+npm install
+```
 
 build cld library
 ```

@@ -33,7 +33,7 @@ all:
 
 interactive:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -p ../data/formattedData2/ -i
+	./a.out -p ../data/formattedData/ -i
 
 ascending-order:
 	g++ -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
@@ -44,7 +44,7 @@ fuzzy:
 	./a.out -d 3 -p "../data/formattedData/" -i
 
 compile:
-	g++ -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -O3 -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 format:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)

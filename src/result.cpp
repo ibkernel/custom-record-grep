@@ -53,7 +53,7 @@ void Result::printResult(bool order)
 {
   sort(order);
   int i  = 0;
-  if (outputSize == -1)
+  if (outputSize < 0)
     outputSize = getResultCount();
   for (auto r: searchResult) {
     if (r.isValid && i < outputSize){
