@@ -19,16 +19,22 @@ using namespace std;
 /* free record pointer on destruction */
 Record::~Record()
 {
+  std::cout << "Freeing memory" << std::endl;
   free(data);
+  for (auto rk: rank) {
+    delete rk;
+  }
 };
 
 /* construct record */
 Record::Record(std::string path)
 {
+  std::cout << "Loading record..." << std::endl;
   inputPath = path;
   fileCount = 0;
   dataCount = 0;
   buildRecord();
+  std::cout << "Data loaded" << std::endl;
 };
 
 /* get count of files */

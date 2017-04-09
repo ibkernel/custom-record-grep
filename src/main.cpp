@@ -95,7 +95,7 @@ int main(int argc, char** argv){
         interactiveQuery.clear();
       }
     }
-
+    delete records;
   }else {
     if (paths.size() != 2){
       cout << "We need 2 arguments for formatting" << endl;

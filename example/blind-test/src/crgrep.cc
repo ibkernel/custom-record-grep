@@ -32,11 +32,17 @@ NAN_METHOD(Search) {
 	AsyncQueueWorker(new SearchWorker(callback, str, records, isAscend, outputSize, distance));
 }
 
+void FreeData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  delete records;
+}
+
 void Init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("loadData").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(LoadData)->GetFunction());
   exports->Set(Nan::New("search").ToLocalChecked(),
                Nan::New<v8::FunctionTemplate>(Search)->GetFunction());
+  exports->Set(Nan::New("freeData").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(FreeData)->GetFunction());
 }
 
 NODE_MODULE(crgrep, Init)

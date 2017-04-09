@@ -29,10 +29,10 @@ CLD_SOURCES=third_party/cld/encodings/compact_lang_det/cldutil.cc \
 
 all:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/ -o 10
+	./a.out -q 書本 -q "+火球" -p ../data/formattedData/ -o 10
 
 interactive:
-	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+#	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -p ../data/formattedData/ -i
 
 ascending-order:
@@ -48,18 +48,21 @@ compile:
 
 format:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -f ../data/readData/ -f  ../data/formattedData2/ -s ../data/StopWords/stop-golden.txt
+	./a.out -f ../data/readData/ -f  ../data/formattedData/
 #	./a.out -f ../data/readData/ -f  ../data/formattedData2/
+#	./a.out -f ../data/readData/ -f  ../data/formattedData/ -s ../data/StopWords/stop-golden.txt
 
 debug:
 	g++ -g -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -p ../data/formattedData/
+	gdb ./a.out
+#	./a.out -p ../data/formattedData/
 clean:
 	rm a.out
 	rm *.o
 	rm libcld.a
 
 EXAMPLE_SRC_PATH=../example/custom-search-engine/src/
+EXAMPLE_SRC_PATH2=../example/blind-test/src/
 
 update-example-src:
 	cp ranking.cpp $(EXAMPLE_SRC_PATH)ranking.cc
@@ -76,6 +79,21 @@ update-example-src:
 
 	cp record.cpp $(EXAMPLE_SRC_PATH)record.cc
 	cp record.h $(EXAMPLE_SRC_PATH)record.h
+
+	cp ranking.cpp $(EXAMPLE_SRC_PATH2)ranking.cc
+	cp ranking.h $(EXAMPLE_SRC_PATH2)ranking.h
+
+	cp result.cpp $(EXAMPLE_SRC_PATH2)result.cc
+	cp result.h $(EXAMPLE_SRC_PATH2)result.h
+
+	cp search.cpp $(EXAMPLE_SRC_PATH2)search.cc
+	cp search.h $(EXAMPLE_SRC_PATH2)search.h
+
+	cp utils.cpp $(EXAMPLE_SRC_PATH2)utils.cc
+	cp utils.h $(EXAMPLE_SRC_PATH2)utils.h
+
+	cp record.cpp $(EXAMPLE_SRC_PATH2)record.cc
+	cp record.h $(EXAMPLE_SRC_PATH2)record.h
 
 
 # build library cld (compact language detector)

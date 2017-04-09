@@ -25,6 +25,7 @@ Ranking::Ranking(std::string tagFilePath):pathToTagFile{tagFilePath}, root{nullp
 
 Ranking::~Ranking()
 {
+  std::cout << "Freeing rank data" << std::endl;
   free(root);
 };
 /**
