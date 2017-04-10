@@ -45,14 +45,32 @@ function searchAsync(query, ascendOrder, outputSize, distance, res) {
 	crgrep.search(query,ascendOrder,outputSize, distance, done);
 }
 
+process.on('SIGINT', function() {
+    console.log("Caught interrupt signal");
+    crgrep.freeData();
+    gracefulShutdown(); // Weird behavior
+});
+
+var gracefulShutdown = function() {
+  console.log("Shutting down gracefully.");
+  process.exit();
+
+  // server.close(function() {
+  //   console.log("Closed out remaining connections.");
+  //   process.exit()
+  // });
+  
+  //  // if after 
+  //  setTimeout(function() {
+  //      console.error("Could not close connections in time, forcefully shutting down");
+  //      process.exit()
+  // }, 1000);
+}
+
+
 app.listen(port);
 console.log('start at http://localhost:'+port);
 
 console.log(crgrep.loadData());
 console.log("-----data loaded------");
 
-
-
-// var obj = crgrep.search("書本");
-// var jsonObj = JSON.stringify(obj);
-// console.log(jsonObj);
