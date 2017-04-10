@@ -29,8 +29,8 @@
 
       var SearchBox = React.createClass({
         handleCommandSubmit: function(commands){
-          var data = this.state.data;
-          this.setState({data: []});
+          // var data = this.state.data;
+          this.setState({data: [], data2: [], info: "", info2: "", hidden: true});
           $(".progress").removeClass( "hide" );
           $(".Info").addClass( "hide" );
           $.ajax({
@@ -40,12 +40,13 @@
             cache: false,
             data: commands,
             success: function(data){
-              // var data = JSON.parse(data);
-              var info = data.slice(0, 1);
-              
+              var data1 = JSON.parse(data['1']);
+              var data2 = JSON.parse(data['2']);
               console.log(data);
-              this.setState({data:data.slice(1),info: info});
-              //console.log(data);
+              console.log(data1);
+              console.log(data1.slice(0,1));
+              this.setState({data:data1.slice(2),info: data1.slice(1,2)[0]['src']});
+              this.setState({data2:data2.slice(2),info2: data2.slice(1,2)[0]['src']});
               $(".Info").removeClass( "hide" );
               $(".progress").addClass( "hide" );
             }.bind(this),
@@ -55,67 +56,52 @@
             }.bind(this)
           });
         },
+        handleRevealClick: function() {
+          this.setState({hidden: !this.state.hidden});
+        },
         getInitialState: function(){
-          return {data:[],info: []};
+          return {data:[],info: "", data2: [], info2: "", hidden: true};
         },
         render: function(){
-
-          return (
-            <div className="search-box">
-              <SearchForm onCommandSubmit={this.handleCommandSubmit}/>
-              {/*<div className="result-box">
-                {this.state.data}
-              </div>*/}
-              <RecordInfo info={this.state.info} />
-
-              <div className="progress hide">
-                  <div className="indeterminate"></div>
-              </div>
-
-              <RecordList data={this.state.data}  />
-                  
-            </div>
-
-
-          );
-        }
-      });
-
-      var Info = React.createClass({
-        render: function(){
-          return (
-            <div className="QueryInfo row">
-             <br/>
-             <div className="col s6 offset-s3 center card-panel green lighten-3">
-               <h5>{this.props.count} results</h5>
-             </div>
-
-            </div>
-          );
-        }
-      });
-
-      var RecordInfo = React.createClass({
-        render: function(){
-          var QueryInfo = this.props.info.map(function(info){
             return (
-              <Info key="info" count={info.resultCount}>
-              </Info>
+              <div className="search-box">
+                <SearchForm onCommandSubmit={this.handleCommandSubmit}/>
+                <br/>
+                <div className="center">
+                  <button className="waves-effect waves-light btn-large" onClick={this.handleRevealClick}>Reveal</button>
+                </div>
+                
+                <div className="progress hide">
+                    <div className="indeterminate"></div>
+                </div>
+                 <div className="row">
+                  <div className="col s5 offset-s1">
+                    <div className={this.state.hidden ? "hide card center-align blue" : "card center-align blue"}>
+                      <span className="card-title">{this.state.info}</span>
+                    </div>
+                    <RecordList data={this.state.data}  color="grey" hidden={this.state.hidden}/>
+                  </div>
+                  <div className="col s5">
+                    <div className={this.state.hidden ? "hide" : "card center-align orange"}>
+                      <span className="card-title">{this.state.info2}</span>
+                    </div>
+                    <RecordList data={this.state.data2}  color="white" hidden={this.state.hidden}/>
+                  </div>
+                </div>
+
+              </div>
             );
-          });
-          return (
-            <div className="Info">
-              {QueryInfo}
-            </div>
-          );
-        }
+          }
+
       });
-      
+
       var RecordList = React.createClass({
       render: function(){
+        var color = this.props.color;
+        var hidden = this.props.hidden;
         var RecordNodes = this.props.data.map(function(record){
           return (
-            <Record title={record.title} score={record.score}>
+            <Record title={record.title} score={record.score} color={color} hidden={hidden}>
             </Record>
           );
         });
@@ -130,24 +116,11 @@
 
     var Record = React.createClass({
       render: function(){
-        var link = "http://www.youtube.com/v/"+this.props.id;
-        //var date = this.props.published;
-        var n =  this.props.published;
-        var date = (""+n).split("");
-        var year = date.slice(0,4);
-        var month = date.slice(4,6);
-        var day = date.slice(6,8);
-        var published_date = year + "-" + month + "-" + day;
-        published_date = published_date.split(",");
-
         return (
-          <div className="col l8 offset-l2 m8 offset-m2 s10 offset-s1 card-panel hoverable">
-            <h5 className="recordTitle">
-              Book: {this.props.title}
-            </h5>
-            <h6>
-              Score: {this.props.score}
-            </h6>
+          <div className={this.props.color +" card hoverable"}>
+            <h6 className="center-align">&nbsp;</h6>
+            <h4 className="center-align">{this.props.title}</h4>
+            <h6 className="center-align">&nbsp;{this.props.hidden ? "" : "Score :" + this.props.score} </h6>
           </div>
         );
       }
@@ -164,6 +137,9 @@
         handleoutputAscendOrderChanged: function(event){
           this.setState({outputAscendOrder: !this.state.outputAscendOrder});
         },
+        handleMustHaveBoth: function(event){
+          this.setState({isMustHave: !this.state.isMustHave});
+        },
         handleOuputSizeChange: function(event){
           this.setState({outputSize: event.target.value})
         },
@@ -171,12 +147,13 @@
           event.preventDefault();
           var query = this.state.query_text.trim();
           var checkbox = this.state.outputAscendOrder;
+          var checkbox2 = this.state.isMustHave;
           var outputSize = this.state.outputSize;
           var distance = this.state.distance;
           if(!query){
             return ;
           }
-          this.props.onCommandSubmit({query:query, checkbox: checkbox, outputSize: outputSize, distance: distance});
+          this.props.onCommandSubmit({query:query, checkbox: checkbox, outputSize: outputSize, distance: distance, isMustHave: checkbox2});
           this.setState({query:query, checkbox: checkbox});
         },
         getInitialState: function(){
@@ -185,7 +162,8 @@
             query: '',
             outputAscendOrder: false,
             outputSize: '-1',
-            distance: '0'
+            distance: '0',
+            isMustHave: false,
           }
         },
         render: function(){
@@ -212,6 +190,10 @@
                     <div className="input-field col m6 offset-m3 s12">
                         <input type="checkbox" name="optionsRadios" className="filled-in" id="optionsRadios1" value={this.state.outputAscendOrder} onChange={this.handleoutputAscendOrderChanged}/>
                         <label htmlFor="optionsRadios1">Ascend Output Order</label>
+                    </div>
+                    <div className="input-field col m6 offset-m3 s12">
+                        <input type="checkbox" name="optionsRadios" className="filled-in" id="optionsRadios2" value={this.state.isMustHave} onChange={this.handleMustHaveBoth}/>
+                        <label htmlFor="optionsRadios2">Must Have Both</label>
                     </div>
                     <br/>
                     <div className="input-field col s12 m3 offset-m3">

@@ -28,7 +28,7 @@ private:
   int paragraph_num;
   int paragraph_size;
   bool isDefaultRankingBool;
-
+  static int rankCount;
   int getBelongingNodeIndexWithFoundLocation(int *&lowerBound,
                                              int arrayLength,
                                              int foundLocation) const;
@@ -39,6 +39,7 @@ private:
 
   void insertTag(char tagType, int lowerBound, int upperBound);
   void buildRank();
+  void freeRankTree();
 };
 
 #endif

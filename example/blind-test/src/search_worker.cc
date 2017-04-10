@@ -46,10 +46,14 @@ void SearchWorker::Execute() {
 void SearchWorker::HandleOKCallback() {
 	HandleScope scope;
 	int outputCount = ((resultCount < 10) ? resultCount : 10);
-	v8::Local<v8::Array> returnArr = Nan::New<v8::Array>(outputCount+1);
+	v8::Local<v8::Array> returnArr = Nan::New<v8::Array>(outputCount+2);
 	v8::Local<v8::Object> resultObj = Nan::New<v8::Object>();
+	v8::Local<v8::Object> srcObj = Nan::New<v8::Object>();
+	std::string src = "crgrep";
 	Nan::Set(resultObj, Nan::New("resultCount").ToLocalChecked(), Nan::New(outputCount));
+	Nan::Set(srcObj, Nan::New("src").ToLocalChecked(), Nan::New(src.c_str()).ToLocalChecked());
 	Nan::Set(returnArr, 0, resultObj);
+	Nan::Set(returnArr, 1, srcObj);
 	std::string title;
 	for(int i=0; i<outputCount; i++){
 		
@@ -59,7 +63,7 @@ void SearchWorker::HandleOKCallback() {
 		std::cout << searchResult.getResultScore(i) << std::endl;
 		Nan::Set(vobj, Nan::New("title").ToLocalChecked(), Nan::New(title.c_str()).ToLocalChecked());
 		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(searchResult.getResultScore(i)));
-		Nan::Set(returnArr, i+1, vobj);
+		Nan::Set(returnArr, i+2, vobj);
 	}
 	std::cout << "time to return" << std::endl;
 

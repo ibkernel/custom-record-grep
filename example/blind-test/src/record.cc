@@ -20,7 +20,18 @@ using namespace std;
 Record::~Record()
 {
   std::cout << "Freeing memory" << std::endl;
-  free(data);
+  for (int i=0; i<dataCount; i++) {
+    if(data[i].language)
+      free(data[i].language);
+    if(data[i].id)
+      free(data[i].id);
+    if(data[i].title)
+      free(data[i].title);
+    if(data[i].content)
+      free(data[i].content);
+  }
+  if(data)
+    free(data);
   for (auto rk: rank) {
     delete rk;
   }
@@ -269,6 +280,11 @@ void Record::readFileThenSetRecordAndRank()
   bool isNewRecord = true;
 
   for (int i=0; i<fileCount; i++){
+    // NOTE: the first char of rawfile will get changed into '\0' randomly
+    // I don't know why this happen. 
+    if (rawfiles[i].c_str()[0] == '\0'){
+      rawfiles[i].at(0) = '.';
+    }
     fptr = fopen(rawfiles[i].c_str(), "r");
     int dataCountForCurrentFile = 0;
     while((read = getline(&line, &len, fptr)) != -1){

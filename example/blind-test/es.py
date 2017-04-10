@@ -11,8 +11,6 @@ mypath = "./data/"
 onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
 
-
-
 es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
 for file in onlyfiles:
   if ".txt" in file: # we only want txt file not tag file

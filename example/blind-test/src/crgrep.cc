@@ -15,7 +15,8 @@ using namespace Nan;
 Record* records = 0;
 
 void LoadData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-	string dataPath = string("../../data/formattedData/"); // from server.js's perspective
+  string dataPath = string("../../data/formattedData/"); // from server.js's perspective
+	//string dataPath = string("data/"); // from server.js's perspective
 	records = new Record(dataPath);
 	info.GetReturnValue().Set(Nan::New(records->getFileCount()));
 }

@@ -17,17 +17,38 @@
 
 using namespace std;
 
-Ranking::Ranking(std::string tagFilePath):pathToTagFile{tagFilePath}, root{nullptr}, isDefaultRankingBool{true},
-                            chapter_num{0}, chapter_size{0}, paragraph_size{0}, paragraph_num{1}
+int Ranking::rankCount = 0;
+
+Ranking::Ranking(std::string tagFilePath):pathToTagFile{tagFilePath}, 
+                root{nullptr}, isDefaultRankingBool{true},
+                chapter_num{0}, chapter_size{0}, paragraph_size{0}, paragraph_num{1}
 {
     buildRank();
 };
 
 Ranking::~Ranking()
 {
-  std::cout << "Freeing rank data" << std::endl;
-  free(root);
+  freeRankTree();
 };
+// free mallocated rank tree memory
+void Ranking::freeRankTree()
+{
+  if (root != nullptr){
+    for (int i=0; i< root->childTagCount; i++){ // chapter
+      if(root->tagNodes[i] != nullptr){
+        for (int j=0; j< root->tagNodes[i]->childTagCount; j++){ // parargraph or title
+          if(root->tagNodes[i]->tagNodes[j]->tagNodes != nullptr)
+            free(root->tagNodes[i]->tagNodes[j]->tagNodes);
+          if(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags != nullptr)
+            free(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags);
+        }
+        // NOTE paragraph and title tagNode is not freed, doing so will cause error IDK.
+      }
+    }
+    free(root);
+  }
+}
+
 /**
  * getAdvancedRankingScore - get sum of all patterns ranking score
  */
@@ -200,6 +221,9 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
         root->tagNodes[chapter_num-1]->tagNodes[0] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
         root->tagNodes[chapter_num-1]->tagNodes[0]->childTagCount = 0;
         chapter_size += 1;
+
+        root->tagNodes[chapter_num-1]->tagNodes[0]->tagNodes = nullptr;
+        root->tagNodes[chapter_num-1]->tagNodes[0]->lowerBoundLocationOfChildTags = nullptr;
         break;
       case 'p':
         if(!root->tagNodes[chapter_num-1]->childTagCount)
@@ -232,6 +256,8 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = (struct rankTreeNode*)malloc(sizeof(struct rankTreeNode)* 1);
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags = evenMoreData;
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags[paragraph_size-1] = lowerBound;
+          root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1]->lowerBoundLocationOfChildTags = nullptr;
+          root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1]->tagNodes = nullptr;
         }else {
           puts("Error reallocating memory");
           exit(1);
@@ -256,6 +282,7 @@ void Ranking::buildRank()
       insertTag(tagName.at(0), lowerBoundLocation, upperBoundLocation);
     }
     isDefaultRankingBool = false;
+    rankCount ++;
   } else {
     std::cout << "index file doesn't exist! Using default ranking" << std::endl;
   }

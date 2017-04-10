@@ -29,11 +29,15 @@ CLD_SOURCES=third_party/cld/encodings/compact_lang_det/cldutil.cc \
 
 all:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -q 書本 -q "+火球" -p ../data/formattedData/ -o 10
+	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/ -o 10
+
+cm:
+	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+
 
 interactive:
-#	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -p ../data/formattedData/ -i
+	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	./a.out -p ../data/formattedData2/ -i
 
 ascending-order:
 	g++ -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
