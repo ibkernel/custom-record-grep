@@ -3,4 +3,8 @@
 	url = https://github.com/mzsanford/cld
 [submodule "src/third_party/cld"]
 	path = src/third_party/cld
+    url = https://github.com/mzsanford/cld
+[submodule "example/blind-test/src/cld"]
+	path = example/blind-test/src/cld
 	url = https://github.com/mzsanford/cld
+
