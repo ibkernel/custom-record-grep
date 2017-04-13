@@ -115,8 +115,12 @@ void Formatter::processConcatFile(std::string pathToDir,
 {
   std::vector <std::string> toProcessFilePaths;
   insertFilesPathInDirIntoVector(pathToDir, toProcessFilePaths);
+  int i = 0;
   for (auto path: toProcessFilePaths) {
     formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
+    i++;
+    if (!i%1000)
+      std::cout << "File processed: " << i << std::endl;
   }
   toProcessFilePaths.clear();
 };
@@ -162,7 +166,7 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
                                 int &sentense_num,
                                 std::string dataTitle)
 {
-  std::cout << "Current processing file: " << pathToSingleFile << std::endl; 
+  // std::cout << "Current processing file: " << pathToSingleFile << std::endl; 
   std::ifstream chapterFile(pathToSingleFile);
   std::string line, text = "";
 
