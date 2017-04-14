@@ -96,6 +96,7 @@ void Formatter::readPathsInDirAndProcessEachPath()
   }else {
     std::cout << "error: readPathsInDirAndProcessEachPath: " << std::endl;
   }
+  closedir(dir);
 }
 
 void Formatter::newProcessFile(std::string pathToChildDir, bool concatFlag)
@@ -189,6 +190,7 @@ void Formatter::processConcatFile(std::string pathToDir,
   }else {
     std::cout << "error processing dir: " << pathToDir << std::endl;
   }
+  closedir(dir);
 
 };
 
@@ -416,6 +418,7 @@ void Formatter::insertFilesPathInDirIntoVector(std::string path, std::vector <st
   }else {
     std::cout << "error insertFilesPathInDirIntoVector: " << path << std::endl;
   }
+  closedir(dir);
 }
 
 /* Insert the child directory path of the user provided path only */
@@ -441,4 +444,5 @@ void Formatter::insertDirPathInRawDir()
   }else {
     std::cout << "error: insertDirPathInRawDir: " << std::endl;
   }
+  closedir(dir);
 }
