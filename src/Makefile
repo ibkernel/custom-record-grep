@@ -52,7 +52,7 @@ compile:
 
 format:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -f ../data/readData/ -f  ../data/formattedData/
+	./a.out -f ../../downloadedData/ -f  ../../formattedData/
 #	./a.out -f ../data/readData/ -f  ../data/formattedData2/
 #	./a.out -f ../data/readData/ -f  ../data/formattedData/ -s ../data/StopWords/stop-golden.txt
 

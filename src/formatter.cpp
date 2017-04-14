@@ -347,7 +347,7 @@ void Formatter::insertFilesPathInDirIntoVector(std::string path, std::vector <st
     }
 
   }else {
-    std::cout << "error: getAllFilesPathInDir" << std::endl;
+    std::cout << "error getAllFilesPathInDir: " << path << std::endl;
   }
 }
 
@@ -372,6 +372,6 @@ void Formatter::insertDirPathInRawDir()
       }
     }
   }else {
-    std::cout << "error: insertDirPathInRawDir" << std::endl;
+    std::cout << "error: insertDirPathInRawDir: " << std::endl;
   }
 }
