@@ -32,15 +32,65 @@ Formatter::Formatter(std::string pathSource, std::string pathDest)
   pathToStopWords = "none";
   bool isConcatFile = true;
   stopWords.push_back("\r");
+  // Refactor to process each single path at a time
+  // if is file -> process single file
+  // if is dir -> process dir
   if (isDir(pathSource)){
-    insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
-    processFile();
-    insertDirPathInRawDir();
-    processFile(isConcatFile);
+    readPathsInDirAndProcessEachPath();
+    // insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
+    // processFile();
+    // insertDirPathInRawDir();
+    // processFile(isConcatFile);
   }else {
     singleFilePaths.push_back(pathSource);
     processFile();
   }
+};
+
+void Formatter::readPathsInDirAndProcessEachPath()
+{
+  DIR *dir;
+  struct dirent *ent;
+  if ((dir = opendir(pathToRawData.c_str())) != NULL) {
+    while ((ent = readdir(dir)) != NULL){
+      std::string pathToChildDir;
+      char end = pathToRawData.back();
+      if (end == '/' || end == '\\') {
+        pathToChildDir = pathToRawData+ent->d_name;
+      }else {
+        pathToChildDir = pathToRawData+'/'+ent->d_name;
+      }
+      if(isDir(pathToChildDir)){
+        if (strcmp(ent->d_name, ".")!=0 && strcmp(ent->d_name, "..")!=0){
+          newProcessFile(pathToChildDir, true);
+          // concatFilePaths.push_back(pathToChildDir);
+        }
+      }else {
+        newProcessFile(pathToChildDir, false);
+      }
+    }
+  }else {
+    std::cout << "error: readPathsInDirAndProcessEachPath: " << std::endl;
+  }
+}
+
+void Formatter::newProcessFile(std::string pathToChildDir, bool concatFlag)
+{
+  if (!concatFlag){
+    int chapter_num = 0, title_num = 0, paragraph_num = 0, sentense_num =0;
+    long char_count = 0;
+    std::string dataTitle = removePrefixPath(pathToChildDir);
+    ReplaceStringInPlace(dataTitle, ".txt", "");
+    writeRecordHeaderToFile(dataTitle);
+    formatThenMerge(pathToChildDir, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
+  }else {
+    int chapter_num = 0, title_num = 0, paragraph_num = 0, sentense_num =0;
+    long char_count = 0;
+    std::string dataTitle = removePrefixPath(pathToChildDir);
+    writeRecordHeaderToFile(dataTitle);
+    processConcatFile(pathToChildDir, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
+  }
+
 };
 
 /* initialize class member*/

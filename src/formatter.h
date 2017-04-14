@@ -23,8 +23,9 @@ private:
   std::vector <std::string> singleFilePaths;
   std::vector <std::string> concatFilePaths;
 
+  void readPathsInDirAndProcessEachPath();
   void processFile(bool concatFlag=false);
-
+  void newProcessFile(std::string pathToChildDir, bool concatFlag=false);
   void processConcatFile(std::string pathToDir,
                          long &char_count,
                          int &chapter_num,

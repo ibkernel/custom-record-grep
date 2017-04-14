@@ -51,10 +51,11 @@ compile:
 	clang++ -O3 -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 format:
-	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+#	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -f ../../downloadedData/ -f  ../../formattedData/
-#	./a.out -f ../data/readData/ -f  ../data/formattedData2/
-#	./a.out -f ../data/readData/ -f  ../data/formattedData/ -s ../data/StopWords/stop-golden.txt
+
+format2:
+	./a.out -f ../../testD/ -f  ../../formattedData/
 
 debug:
 	g++ -g -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
