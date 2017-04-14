@@ -51,7 +51,7 @@ compile:
 	clang++ -O3 -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 format:
-#	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	./a.out -f ../../downloadedData/ -f  ../../formattedData/
 
 format2:

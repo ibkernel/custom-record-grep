@@ -22,7 +22,31 @@ std::tuple<std::string, int> getTagTuple(std::string tagType, long tagLocation)
 {
   return std::make_tuple(tagType, tagLocation); // Always works
 };
-
+/* initialize class member*/
+Formatter::Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords)
+{
+  pathToFormattedDir = pathDest;
+  pathToRawData = pathSource;
+  pathToStopWords = pathStopWords;
+  std::ifstream stopWordsFile(pathToStopWords);
+  std::string words;
+  bool isConcatFile = true;
+  while (std::getline(stopWordsFile, words)){
+    stopWords.push_back(words);
+  }
+  stopWordsFile.close();
+  stopWords.push_back("\r");
+  if (isDir(pathSource)){
+    readPathsInDirAndProcessEachPath();
+    // insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
+    // processFile();
+    // insertDirPathInRawDir();
+    // processFile(isConcatFile);
+  }else {
+    singleFilePaths.push_back(pathSource);
+    processFile();
+  }
+};
 
 /* initialize class member */
 Formatter::Formatter(std::string pathSource, std::string pathDest)
@@ -93,30 +117,7 @@ void Formatter::newProcessFile(std::string pathToChildDir, bool concatFlag)
 
 };
 
-/* initialize class member*/
-Formatter::Formatter(std::string pathSource, std::string pathDest, std::string pathStopWords)
-{
-  pathToFormattedDir = pathDest;
-  pathToRawData = pathSource;
-  pathToStopWords = pathStopWords;
-  std::ifstream stopWordsFile(pathToStopWords);
-  std::string words;
-  bool isConcatFile = true;
-  while (std::getline(stopWordsFile, words)){
-    stopWords.push_back(words);
-  }
-  stopWordsFile.close();
-  stopWords.push_back("\r");
-  if (isDir(pathSource)){
-    insertFilesPathInDirIntoVector(pathToRawData, singleFilePaths);
-    processFile();
-    insertDirPathInRawDir();
-    processFile(isConcatFile);
-  }else {
-    singleFilePaths.push_back(pathSource);
-    processFile();
-  }
-};
+
 
 /**
  * processFile - process independent file and concatenating file
@@ -163,16 +164,32 @@ void Formatter::processConcatFile(std::string pathToDir,
                                   int &sentense_num,
                                   std::string dataTitle)
 {
+  DIR *dir;
+  struct dirent *ent;
   std::vector <std::string> toProcessFilePaths;
-  insertFilesPathInDirIntoVector(pathToDir, toProcessFilePaths);
-  int i = 0;
-  for (auto path: toProcessFilePaths) {
-    formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
-    i++;
-    if (!i%1000)
-      std::cout << "File processed: " << i << std::endl;
+  // insertFilesPathInDirIntoVector(pathToDir, toProcessFilePaths);
+  if ((dir = opendir(pathToDir.c_str())) != NULL) {
+    while ((ent = readdir(dir)) != NULL){
+      std::string pathToSingleFile;
+      char end = pathToDir.back();
+      if (end == '/' || end == '\\') {
+        pathToSingleFile = pathToDir+ent->d_name;
+      }else {
+        pathToSingleFile = pathToDir+'/'+ent->d_name;
+      }
+      if(!isDir(pathToSingleFile)){
+        if (strcmp(ent->d_name, ".DS_Store")!=0){
+          toProcessFilePaths.push_back(pathToSingleFile);
+        }
+      }
+    }
+    for (auto path: toProcessFilePaths) {
+      formatThenMerge(path, char_count, chapter_num, title_num, paragraph_num, sentense_num, dataTitle);
+    }
+  }else {
+    std::cout << "error processing dir: " << pathToDir << std::endl;
   }
-  toProcessFilePaths.clear();
+
 };
 
 /* open and truncate destination of the formatted file and tagged file */
@@ -397,7 +414,7 @@ void Formatter::insertFilesPathInDirIntoVector(std::string path, std::vector <st
     }
 
   }else {
-    std::cout << "error getAllFilesPathInDir: " << path << std::endl;
+    std::cout << "error insertFilesPathInDirIntoVector: " << path << std::endl;
   }
 }
 
