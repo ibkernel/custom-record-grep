@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <tuple>
 #include <iterator>
 #include "utils.h"
 #include <cctype>
@@ -147,7 +148,7 @@ std::vector<std::tuple<std::string, bool, bool>>parseSearchQuery(std::vector <st
 
     if (foundNeglate == std::string::npos && foundObligation == std::string::npos){
       std::cout << "Casual exact match: " << q << std::endl;
-      searchPatterns.push_back(q);
+      // searchPatterns.push_back(q);
     }else {
       for (auto slicedQuery : split(q, ' ')){
         // Handle Special queries : +, -

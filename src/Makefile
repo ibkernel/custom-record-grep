@@ -48,7 +48,7 @@ fuzzy:
 	./a.out -d 3 -p "../data/formattedData/" -i
 
 compile:
-	g++ -O3 -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	clang++ -O3 -o crgrep -std=c++11 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 
 format:
 	g++ -std=c++11 -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
