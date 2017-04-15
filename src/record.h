@@ -95,7 +95,7 @@ private:
 
   void createMemoryThenInsert(char *&target,
                               char *&source,
-                              int offset,
+                              size_t offset,
                               size_t &size);
 
   void handleMalformedCases(std::string malformType,

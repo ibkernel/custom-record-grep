@@ -378,7 +378,7 @@ void Record::handleMalformedCases(std::string malformType,
 /* insert source into new target memory */
 void Record::createMemoryThenInsert(char *&target,
                                     char *&source,
-                                    int offset,
+                                    size_t offset,
                                     size_t &size)
 {
   target= (char *) malloc(size-offset);

@@ -239,7 +239,7 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
 
   int chineseCount = 0, otherCount = 0;
   while (std::getline(chapterFile, line)){
-    for (int i=0; i< stopWords.size();i++){
+    for (unsigned int i=0; i< stopWords.size();i++){
       ReplaceStringInPlace(line, stopWords[i], "");
     }
     if (line.length()>2)
@@ -365,7 +365,7 @@ void Formatter::lineFormatter(std::string &line,
   std::smatch m;
   std::regex e(regexEndingPhrasePattern.c_str());
   std::string copiedLine = line;
-  int currentP = 0;
+  unsigned int currentP = 0;
   sentense_num += 1;
   tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + currentP));
   while (regex_search(copiedLine, m, e)) {
