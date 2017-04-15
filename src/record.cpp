@@ -286,7 +286,7 @@ void Record::readFileThenSetRecordAndRank()
     }
     fptr = fopen(rawfiles[i].c_str(), "r");
     int dataCountForCurrentFile = 0;
-    while((read = getline(&line, &len, fptr))>0){
+    while((read = getline(&line, &len, fptr))!=-1){
       switch (line[0]) {
         case '@':
           handlePrefixCases(dataCountForCurrentFile, read, line, isNewRecord);
