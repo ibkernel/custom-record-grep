@@ -274,7 +274,6 @@ void Record::readFileThenSetRecordAndRank()
 {
   FILE *fptr;
   char *line = NULL;
-  char prefix[5];
   size_t len = 0, read;
   data = (struct record*) malloc(sizeof(struct record));
   bool isNewRecord = true;
@@ -287,7 +286,7 @@ void Record::readFileThenSetRecordAndRank()
     }
     fptr = fopen(rawfiles[i].c_str(), "r");
     int dataCountForCurrentFile = 0;
-    while((read = getline(&line, &len, fptr)) != -1){
+    while((read = getline(&line, &len, fptr))>0){
       switch (line[0]) {
         case '@':
           handlePrefixCases(dataCountForCurrentFile, read, line, isNewRecord);
@@ -448,8 +447,7 @@ void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountFor
   Ranking* newRank = new Ranking(tagPath);
   rank.push_back(newRank);
   for (int i=0; i < dataCountForCurrentFile-1; i++) {
-    // Ranking newRank("NO-INDEX_FILE");
-    Ranking* defaultRank = new Ranking("NO-INDEX_FILE");
+    // Ranking* defaultRank = new Ranking("NO-INDEX_FILE");
     rank.push_back(newRank);
   }
 }

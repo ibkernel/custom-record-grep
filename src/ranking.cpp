@@ -19,9 +19,9 @@ using namespace std;
 
 int Ranking::rankCount = 0;
 
-Ranking::Ranking(std::string tagFilePath):pathToTagFile{tagFilePath}, 
-                root{nullptr}, isDefaultRankingBool{true},
-                chapter_num{0}, chapter_size{0}, paragraph_size{0}, paragraph_num{1}
+Ranking::Ranking(std::string tagFilePath): 
+                root{nullptr}, pathToTagFile{tagFilePath},
+                chapter_num{0}, chapter_size{0}, paragraph_num{1}, paragraph_size{0}, isDefaultRankingBool{true}
 {
     buildRank();
 };

@@ -30,7 +30,6 @@ Formatter::Formatter(std::string pathSource, std::string pathDest, std::string p
   pathToStopWords = pathStopWords;
   std::ifstream stopWordsFile(pathToStopWords);
   std::string words;
-  bool isConcatFile = true;
   while (std::getline(stopWordsFile, words)){
     stopWords.push_back(words);
   }
@@ -54,7 +53,6 @@ Formatter::Formatter(std::string pathSource, std::string pathDest)
   pathToFormattedDir = pathDest;
   pathToRawData = pathSource;
   pathToStopWords = "none";
-  bool isConcatFile = true;
   stopWords.push_back("\r");
   // Refactor to process each single path at a time
   // if is file -> process single file
@@ -250,7 +248,9 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   chapterFile.close();
   detectLanguageAndUpdateLanguageCount(text.c_str(), chineseCount, otherCount);
 
-  std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。|！|？|\\.)+" : "(\\.|\\?|!)+");
+  std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。)+" : "(\\.|\\?|!)+");
+  // NOTE: will coredump if too many files.
+  // std::string regexEndingPhrasePattern = (chineseCount > otherCount ? "(。|！|？|\\.)+" : "(\\.|\\?|!)+");
 
   //Remove duplicated spaces to one .
   std::string::iterator new_end = std::unique(text.begin(), text.end(),
@@ -266,7 +266,6 @@ void Formatter::formatThenMerge(std::string pathToSingleFile,
   chapter_num += 1;
   tagQueue.push_back(getTagTuple("c_"+std::to_string(chapter_num), char_count));
   std::stringstream stext(text);
-  int lineCOunt = 0;
   while (std::getline(stext, line)){
     if (!titleFlag){
       paragraph_num += 1;
@@ -322,8 +321,6 @@ void Formatter::writeTagInfoToFile(std::deque <std::tuple <std::string, long>> &
     return;
   }
 
-
-  int queue_count = 0;
   std::deque <std::tuple <std::string, long>> otherTagQueue;
   for (auto t: tagQueue){
     if (otherTagQueue.size() == 0){
@@ -370,7 +367,6 @@ void Formatter::lineFormatter(std::string &line,
   std::string copiedLine = line;
   int currentP = 0;
   sentense_num += 1;
-  bool lastLineFlag = false;
   tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + currentP));
   while (regex_search(copiedLine, m, e)) {
     if ((currentP + m.position() + m[0].length()) == line.length()){

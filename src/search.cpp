@@ -21,7 +21,7 @@
  */
 char* toleranceSearch(char *haystack, const char *pattern, unsigned int distanceTolerance)
 {
-    unsigned int tokenLen, patternLen = strlen(pattern);
+    unsigned int patternLen = strlen(pattern);
     char *tofree = strdup(haystack);
     char *tmp = tofree, *token;
     strcpy(tmp, haystack);
@@ -32,7 +32,7 @@ char* toleranceSearch(char *haystack, const char *pattern, unsigned int distance
     
     
     for(token=strsep(&tmp, delim); token!=NULL; token=strsep(&tmp, delim)){
-      int tokenLen = strlen(token);
+      unsigned int tokenLen = strlen(token);
       if((tokenLen>(patternLen + distanceTolerance)) || (tokenLen < (patternLen - distanceTolerance))){
             lenOfOffset += (tokenLen + LEN_OF_DELIM);
             continue;

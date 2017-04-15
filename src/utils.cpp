@@ -11,11 +11,8 @@
 #include <string>
 #include <errno.h>    // errno, ENOENT, EEXIST
 
+#include "third_party_headers.h"
 
-#include "./cld/encodings/compact_lang_det/compact_lang_det.h"
-#include "./cld/encodings/compact_lang_det/ext_lang_enc.h"
-#include "./cld/encodings/compact_lang_det/unittest_data.h"
-#include "./cld/encodings/proto/encodings.pb.h"
 
 #if defined(_WIN32)
 #include <direct.h>   // _mkdir
@@ -183,7 +180,7 @@ void detectLanguageAndUpdateLanguageCount(const char* src, int &chineseCount, in
     bool do_pick_summary_language = false;
     bool do_remove_weak_matches = false;
     bool is_reliable;
-    Language plus_one = UNKNOWN_LANGUAGE;
+    // Language plus_one = UNKNOWN_LANGUAGE;
     const char* tld_hint = NULL;
     int encoding_hint = UNKNOWN_ENCODING;
     Language language_hint = UNKNOWN_LANGUAGE;
@@ -223,7 +220,7 @@ void detectLanguage(const char* src, char *&recordLanguage)
     bool do_pick_summary_language = false;
     bool do_remove_weak_matches = false;
     bool is_reliable;
-    Language plus_one = UNKNOWN_LANGUAGE;
+    // Language plus_one = UNKNOWN_LANGUAGE;
     const char* tld_hint = NULL;
     int encoding_hint = UNKNOWN_ENCODING;
     Language language_hint = UNKNOWN_LANGUAGE;
