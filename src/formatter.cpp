@@ -369,7 +369,7 @@ void Formatter::lineFormatter(std::string &line,
   sentense_num += 1;
   tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + currentP));
   while (regex_search(copiedLine, m, e)) {
-    if ((currentP + m.position() + m[0].length()) == line.length()){
+    if ((currentP + unsigned(m.position()) + unsigned(m[0].length())) == line.length()){
       tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + line.length()));
       sentense_num += 1;
       tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + line.length()));
@@ -378,7 +378,7 @@ void Formatter::lineFormatter(std::string &line,
       sentense_num += 1;
       tagQueue.push_back(getTagTuple("s_"+std::to_string(sentense_num), char_count + m.position() + currentP));
     }
-    currentP += (m.position()+m[0].length());
+    currentP += (unsigned(m.position())+unsigned(m[0].length()));
     copiedLine = m.suffix();
   }
   if (currentP != line.length()){

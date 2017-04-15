@@ -51,7 +51,7 @@ char* toleranceSearch(char *haystack, const char *pattern, unsigned int distance
 }
 
 /* return the edit distance between s and t */
-int levenshteinDistance(char *s, const char *t)
+unsigned int levenshteinDistance(char *s, const char *t)
 {
     int costOfInsert = 1 , costOfDelete = 1, costOfReplace;
     int s_len = strlen(s), t_len = strlen(t);
