@@ -4,17 +4,15 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <tuple>
 #include <iterator>
 #include "utils.h"
 #include <cctype>
 #include <string>
 #include <errno.h>    // errno, ENOENT, EEXIST
 
+#include "third_party_headers.h"
 
-#include "./cld/encodings/compact_lang_det/compact_lang_det.h"
-#include "./cld/encodings/compact_lang_det/ext_lang_enc.h"
-#include "./cld/encodings/compact_lang_det/unittest_data.h"
-#include "./cld/encodings/proto/encodings.pb.h"
 
 #if defined(_WIN32)
 #include <direct.h>   // _mkdir
@@ -146,8 +144,22 @@ std::vector<std::tuple<std::string, bool, bool>>parseSearchQuery(std::vector <st
     std::size_t foundNeglate = q.find("-");
 
     if (foundNeglate == std::string::npos && foundObligation == std::string::npos){
-      std::cout << "Casual exact match: " << q << std::endl;
-      searchPatterns.push_back(q);
+      bool isMustHave = false, isMustNotHave = false;
+      switch (q.at(0)){
+        case '+':
+          q.erase(0,1);
+          isMustHave = true;
+          searchPatterns.push_back(std::make_tuple(q, isMustHave, isMustNotHave));
+          break;
+        case '-':
+          q.erase(0,1);
+          isMustNotHave = true;
+          searchPatterns.push_back(std::make_tuple(q, isMustHave, isMustNotHave));
+          break;
+        default:
+          searchPatterns.push_back(std::make_tuple(q, isMustHave, isMustNotHave));
+          break;
+      }
     }else {
       for (auto slicedQuery : split(q, ' ')){
         // Handle Special queries : +, -
@@ -182,7 +194,7 @@ void detectLanguageAndUpdateLanguageCount(const char* src, int &chineseCount, in
     bool do_pick_summary_language = false;
     bool do_remove_weak_matches = false;
     bool is_reliable;
-    Language plus_one = UNKNOWN_LANGUAGE;
+    // Language plus_one = UNKNOWN_LANGUAGE;
     const char* tld_hint = NULL;
     int encoding_hint = UNKNOWN_ENCODING;
     Language language_hint = UNKNOWN_LANGUAGE;
@@ -222,7 +234,7 @@ void detectLanguage(const char* src, char *&recordLanguage)
     bool do_pick_summary_language = false;
     bool do_remove_weak_matches = false;
     bool is_reliable;
-    Language plus_one = UNKNOWN_LANGUAGE;
+    // Language plus_one = UNKNOWN_LANGUAGE;
     const char* tld_hint = NULL;
     int encoding_hint = UNKNOWN_ENCODING;
     Language language_hint = UNKNOWN_LANGUAGE;
@@ -290,7 +302,7 @@ bool makePath(const std::string& path)
     case ENOENT:
         // parent didn't exist, try to create it
         {
-            int pos = path.find_last_of('/');
+            size_t pos = path.find_last_of('/');
             if (pos == std::string::npos)
 #if defined(_WIN32)
                 pos = path.find_last_of('\\');

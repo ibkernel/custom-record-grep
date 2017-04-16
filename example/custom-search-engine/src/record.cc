@@ -76,10 +76,12 @@ char * Record::searchFactory(char *text,
                              bool caseInsensitive,
                              unsigned int editDistance)
 {
-  if (strcmp(text, "FORMAT_ERROR")==0) // record malformed
+  if (strcmp(recordLanguage, "FORMAT_ERROR")==0) // record malformed
     return NULL;
-  else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0)
+  else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0){
+
     return strstr(text, pattern.c_str());
+  }
   else
     return toleranceSearch(text, pattern.c_str(), editDistance);
 }
@@ -102,7 +104,7 @@ void Record::checkComplianceToMustAndMustNotHave(bool &isComplianceToMustAndMust
 /**
  * searchId - search id
  * @id: record title text
- * @recordLanguage: Either 'ChineseT' or not chineseT
+ * @recordLanguage: Either 'ChineseT', not chineseT or FORMAT_ERROR
  * @searchPatterns: processed search patterns
  * @recordIndex: index of current processing record
  * @searchScore: the record search score
@@ -125,11 +127,12 @@ void Record::searchId(char *id,
                       bool caseInsensitive,
                       unsigned int editDistance)
 {
-  for (auto pattern: searchPatterns)
+  for (auto pattern: searchPatterns){
     if((searchFactory(id, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))>0){
       searchScore += idWeight;
       searchMatchCount++;
     }
+  }
 }
 /**
  * searchTitle - search title
@@ -274,7 +277,6 @@ void Record::readFileThenSetRecordAndRank()
 {
   FILE *fptr;
   char *line = NULL;
-  char prefix[5];
   size_t len = 0, read;
   data = (struct record*) malloc(sizeof(struct record));
   bool isNewRecord = true;
@@ -287,7 +289,7 @@ void Record::readFileThenSetRecordAndRank()
     }
     fptr = fopen(rawfiles[i].c_str(), "r");
     int dataCountForCurrentFile = 0;
-    while((read = getline(&line, &len, fptr)) != -1){
+    while((read = getline(&line, &len, fptr))!=-1){
       switch (line[0]) {
         case '@':
           handlePrefixCases(dataCountForCurrentFile, read, line, isNewRecord);
@@ -379,7 +381,7 @@ void Record::handleMalformedCases(std::string malformType,
 /* insert source into new target memory */
 void Record::createMemoryThenInsert(char *&target,
                                     char *&source,
-                                    int offset,
+                                    size_t offset,
                                     size_t &size)
 {
   target= (char *) malloc(size-offset);
@@ -448,8 +450,7 @@ void Record::insertAllRanksForCurrentFile(std::string &tagPath, int dataCountFor
   Ranking* newRank = new Ranking(tagPath);
   rank.push_back(newRank);
   for (int i=0; i < dataCountForCurrentFile-1; i++) {
-    // Ranking newRank("NO-INDEX_FILE");
-    Ranking* defaultRank = new Ranking("NO-INDEX_FILE");
+    // Ranking* defaultRank = new Ranking("NO-INDEX_FILE");
     rank.push_back(newRank);
   }
 }

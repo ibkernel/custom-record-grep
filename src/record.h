@@ -17,16 +17,16 @@ public:
   ~Record();
   int getRecordCount() const;
   int getFileCount() const;
-  // void dubugPrintAllRecords() {
-  //   for (int i=0; i < dataCount; i++){
-  //     std::cout << "ID: " << data[i].id << std::endl;
-  //     std::cout << "Title: " << data[i].title << std::endl;
-  //     //std::cout << "Content: " << data[i].content << std::endl;
-  //     std::cout << "Language: " << data[i].language << std::endl;
-  //     std::cout << "Char count: " << data[i].approxCharactersCount << std::endl;
-  //     std::cout << "--------------" << std::endl;
-  //   }
-  // };
+  void dubugPrintAllRecords() {
+    for (int i=0; i < dataCount; i++){
+      std::cout << "ID: " << data[i].id << std::endl;
+      std::cout << "Title: " << data[i].title << std::endl;
+      std::cout << "Content: " << data[i].content << std::endl;
+      std::cout << "Language: " << data[i].language << std::endl;
+      std::cout << "Char count: " << data[i].approxCharactersCount << std::endl;
+      std::cout << "--------------" << std::endl;
+    }
+  };
   void searchAndSortWithRank(std::vector <std::string> queries,
                              Result &searchResult,
                              bool caseInsensitive = 0,

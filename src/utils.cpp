@@ -144,8 +144,22 @@ std::vector<std::tuple<std::string, bool, bool>>parseSearchQuery(std::vector <st
     std::size_t foundNeglate = q.find("-");
 
     if (foundNeglate == std::string::npos && foundObligation == std::string::npos){
-      std::cout << "Casual exact match: " << q << std::endl;
-      // searchPatterns.push_back(q);
+      bool isMustHave = false, isMustNotHave = false;
+      switch (q.at(0)){
+        case '+':
+          q.erase(0,1);
+          isMustHave = true;
+          searchPatterns.push_back(std::make_tuple(q, isMustHave, isMustNotHave));
+          break;
+        case '-':
+          q.erase(0,1);
+          isMustNotHave = true;
+          searchPatterns.push_back(std::make_tuple(q, isMustHave, isMustNotHave));
+          break;
+        default:
+          searchPatterns.push_back(std::make_tuple(q, isMustHave, isMustNotHave));
+          break;
+      }
     }else {
       for (auto slicedQuery : split(q, ' ')){
         // Handle Special queries : +, -

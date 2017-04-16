@@ -34,7 +34,7 @@ void Result::insertResult(std::string title,
 int Result::getResultCount() const
 {
   int compliantCount = 0;
-  for (int i=0; i<searchResult.size(); i++)
+  for (unsigned int i=0; i<searchResult.size(); i++)
       compliantCount++;
   return compliantCount;
 };

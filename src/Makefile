@@ -34,8 +34,8 @@ all:
 	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/ -o 10
 
 interactive:
-#	g++ $(CRGREP_CLFLAGS) -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -p ../data/formattedData2/ -i
+	g++ $(CRGREP_CLFLAGS) -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	./a.out -p ../data/testD/ -i
 
 ascending-order:
 #	g++ $(CRGREP_CLFLAGS) $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
@@ -81,6 +81,8 @@ update-example-src:
 	cp record.cpp $(EXAMPLE_SRC_PATH)record.cc
 	cp record.h $(EXAMPLE_SRC_PATH)record.h
 
+	cp third_party_headers.h $(EXAMPLE_SRC_PATH)third_party_headers.h
+
 	cp ranking.cpp $(EXAMPLE_SRC_PATH2)ranking.cc
 	cp ranking.h $(EXAMPLE_SRC_PATH2)ranking.h
 
@@ -96,6 +98,7 @@ update-example-src:
 	cp record.cpp $(EXAMPLE_SRC_PATH2)record.cc
 	cp record.h $(EXAMPLE_SRC_PATH2)record.h
 
+	cp third_party_headers.h $(EXAMPLE_SRC_PATH2)third_party_headers.h
 
 # build library cld (compact language detector)
 build-libcld:

@@ -76,10 +76,12 @@ char * Record::searchFactory(char *text,
                              bool caseInsensitive,
                              unsigned int editDistance)
 {
-  if (strcmp(text, "FORMAT_ERROR")==0) // record malformed
+  if (strcmp(recordLanguage, "FORMAT_ERROR")==0) // record malformed
     return NULL;
-  else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0)
+  else if ((strcmp(recordLanguage,"ChineseT")==0 )|| editDistance == 0){
+
     return strstr(text, pattern.c_str());
+  }
   else
     return toleranceSearch(text, pattern.c_str(), editDistance);
 }
@@ -102,7 +104,7 @@ void Record::checkComplianceToMustAndMustNotHave(bool &isComplianceToMustAndMust
 /**
  * searchId - search id
  * @id: record title text
- * @recordLanguage: Either 'ChineseT' or not chineseT
+ * @recordLanguage: Either 'ChineseT', not chineseT or FORMAT_ERROR
  * @searchPatterns: processed search patterns
  * @recordIndex: index of current processing record
  * @searchScore: the record search score
@@ -125,11 +127,12 @@ void Record::searchId(char *id,
                       bool caseInsensitive,
                       unsigned int editDistance)
 {
-  for (auto pattern: searchPatterns)
+  for (auto pattern: searchPatterns){
     if((searchFactory(id, recordLanguage, std::get<0>(pattern).c_str(), caseInsensitive, editDistance))>0){
       searchScore += idWeight;
       searchMatchCount++;
     }
+  }
 }
 /**
  * searchTitle - search title

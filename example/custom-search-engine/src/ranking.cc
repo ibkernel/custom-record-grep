@@ -19,9 +19,9 @@ using namespace std;
 
 int Ranking::rankCount = 0;
 
-Ranking::Ranking(std::string tagFilePath):pathToTagFile{tagFilePath}, 
-                root{nullptr}, isDefaultRankingBool{true},
-                chapter_num{0}, chapter_size{0}, paragraph_size{0}, paragraph_num{1}
+Ranking::Ranking(std::string tagFilePath): 
+                root{nullptr}, pathToTagFile{tagFilePath},
+                chapter_num{0}, chapter_size{0}, paragraph_num{1}, paragraph_size{0}, isDefaultRankingBool{true}
 {
     buildRank();
 };
@@ -146,7 +146,7 @@ int Ranking::getBelongingNodeIndexWithFoundLocation(int *&lowerBound,
   if (arrayLength == 0) // NOTE: It should never happen, however we need more testing to verify
     return -1;
   int mid = arrayLength/2, left =0, right = arrayLength - 1;
-  int minDiff = lowerBound[arrayLength-1], curDiff = 0, inMid = 0;
+  int minDiff = lowerBound[arrayLength-1], curDiff = 0;
   if (foundLocation > lowerBound[arrayLength-1])
     return arrayLength-1;
   if (foundLocation < lowerBound[0])
@@ -157,18 +157,14 @@ int Ranking::getBelongingNodeIndexWithFoundLocation(int *&lowerBound,
       return mid;
     if (lowerBound[mid] > foundLocation){
       curDiff = lowerBound[mid] - foundLocation;
-      if (curDiff < minDiff){
-        inMid = mid;
+      if (curDiff < minDiff)
         minDiff = curDiff;
-      }
       right = mid -1;
       mid = (left+right)/2;
     }else {
       curDiff = foundLocation - lowerBound[mid];
-      if (curDiff < minDiff){
-        inMid = mid;
+      if (curDiff < minDiff)
         minDiff = curDiff;
-      }
       left = mid + 1;
       mid = (left+right)/2;
     }
