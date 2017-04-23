@@ -41,10 +41,19 @@ void Ranking::freeRankTree()
             free(root->tagNodes[i]->tagNodes[j]->tagNodes);
           if(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags != nullptr)
             free(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags);
+          free(root->tagNodes[i]->tagNodes[j]);
         }
-        // NOTE paragraph and title tagNode is not freed, doing so will cause error IDK.
+        if (root->tagNodes[i]->tagNodes != nullptr)
+          free(root->tagNodes[i]->tagNodes);
+        if (root->tagNodes[i]->lowerBoundLocationOfChildTags != nullptr)
+          free(root->tagNodes[i]->lowerBoundLocationOfChildTags);
+        free(root->tagNodes[i]);
       }
     }
+    if (root->tagNodes != nullptr)
+      free(root->tagNodes);
+    if (root->lowerBoundLocationOfChildTags != nullptr)
+      free(root->lowerBoundLocationOfChildTags);
     free(root);
   }
 }
@@ -249,11 +258,12 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
         evenMoreData = (int *) realloc(root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags, sizeof(int)*(paragraph_size));
         if (moreData != NULL && evenMoreData != NULL){
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes = moreData;
-          root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = (struct rankTreeNode*)malloc(sizeof(struct rankTreeNode)* 1);
+          root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = nullptr;
+          // root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = (struct rankTreeNode*)malloc(sizeof(struct rankTreeNode)* 1);
+          // root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1]->lowerBoundLocationOfChildTags = nullptr;
+          // root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1]->tagNodes = nullptr;
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags = evenMoreData;
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags[paragraph_size-1] = lowerBound;
-          root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1]->lowerBoundLocationOfChildTags = nullptr;
-          root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1]->tagNodes = nullptr;
         }else {
           puts("Error reallocating memory");
           exit(1);
@@ -264,6 +274,8 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
         std::cout << "error tag" << std::endl;
         break;
     }
+    evenMoreData = nullptr;
+    moreData = nullptr;
   }
 };
 

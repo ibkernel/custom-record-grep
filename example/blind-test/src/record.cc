@@ -20,6 +20,7 @@ using namespace std;
 Record::~Record()
 {
   std::cout << "Freeing memory" << std::endl;
+  std::cout << "dataCount : " << dataCount << std::endl;
   for (int i=0; i<dataCount; i++) {
     if(data[i].language)
       free(data[i].language);
@@ -302,6 +303,7 @@ void Record::readFileThenSetRecordAndRank()
     fclose(fptr);
     insertAllRanksForCurrentFile(tagFiles[i], dataCountForCurrentFile);
   }
+  free(line);
 }
 
 /**
@@ -384,7 +386,9 @@ void Record::createMemoryThenInsert(char *&target,
                                     size_t offset,
                                     size_t &size)
 {
-  target= (char *) malloc(size-offset);
+  // must free target because we had already assign a default value
+  free(target);
+  target= (char *) malloc(size-offset+1);
   if (target == NULL){
     std::cout << "Error allocating memory" << std::endl;
     exit(1);
@@ -472,6 +476,7 @@ void Record::checkPathAndSetFileVectors()
               rawfiles.push_back(newFilePath);
               tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
               fileCount++;
+              // if(fileCount > 100) break;
             }
           }
         }

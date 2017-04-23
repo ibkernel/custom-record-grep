@@ -260,7 +260,9 @@ void detectLanguage(const char* src, char *&recordLanguage)
                                           &text_bytes,
                                           &is_reliable);
 
-    recordLanguage = (char*) malloc(sizeof(char)*strlen(LanguageName(lang)));
+    // must free recordLanguage because a default value was previously assign.
+    free(recordLanguage);
+    recordLanguage = (char*) malloc(sizeof(char)*strlen(LanguageName(lang))+1);
     strcpy(recordLanguage, LanguageName(lang));
     //printf("----[ Text (detected: %s) ]----\n", recordLanguage);
 }
