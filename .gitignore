@@ -12,3 +12,4 @@ npm-debug.log
 loop.sh
 crgrep
 core
+*.swp
