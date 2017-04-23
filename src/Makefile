@@ -31,7 +31,7 @@ CLD_SOURCES=third_party/cld/encodings/compact_lang_det/cldutil.cc \
 
 all:
 	g++ $(CRGREP_CLFLAGS) $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
-	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/ -o 10
+#	./a.out -q 書本 -q "+火球" -p ../data/formattedData2/ -o 10
 
 interactive:
 	g++ $(CRGREP_CLFLAGS) -O3 $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)

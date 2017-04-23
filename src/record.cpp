@@ -30,8 +30,8 @@ Record::~Record()
     if(data[i].content)
       free(data[i].content);
   }
-  if(data)
-    free(data);
+  //if(data)
+  free(data);
   for (auto rk: rank) {
     delete rk;
   }
@@ -332,7 +332,9 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile,
     }else if (prefix == "@content" && !isNewRecord){
       createMemoryThenInsert(data[dataCount-1].content, line, offset, read);
       detectLanguage((line+offset), data[dataCount-1].language);
+      cout << "in record.cpp: " << data[dataCount-1].language << std::endl;
       data[dataCount-1].approxCharactersCount = getRecordCharactersCount(read, offset, line, data[dataCount-1].language);
+//      data[dataCount-1].approxCharactersCount = 10;
       isNewRecord = true;
     }else {
       // NOTE: allow custom prefix in the future
@@ -472,6 +474,7 @@ void Record::checkPathAndSetFileVectors()
               rawfiles.push_back(newFilePath);
               tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
               fileCount++;
+//		if(fileCount > 50) break;
             }
           }
         }

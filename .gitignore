@@ -10,3 +10,5 @@ src/book_formatter.h
 libcld.a
 npm-debug.log
 loop.sh
+crgrep
+core
