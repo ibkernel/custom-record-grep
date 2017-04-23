@@ -335,7 +335,6 @@ void Record::handlePrefixCases(int &dataCountForCurrentFile,
       createMemoryThenInsert(data[dataCount-1].content, line, offset, read);
       detectLanguage((line+offset), data[dataCount-1].language);
       data[dataCount-1].approxCharactersCount = getRecordCharactersCount(read, offset, line, data[dataCount-1].language);
-//      data[dataCount-1].approxCharactersCount = 10;
       isNewRecord = true;
     }else {
       // NOTE: allow custom prefix in the future
@@ -477,7 +476,7 @@ void Record::checkPathAndSetFileVectors()
               rawfiles.push_back(newFilePath);
               tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
               fileCount++;
-              if(fileCount > 100) break;
+              // if(fileCount > 100) break;
             }
           }
         }
