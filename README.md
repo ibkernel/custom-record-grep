@@ -108,6 +108,7 @@ Thanks to:
 
 ## TODO
 
+- Add load data restriction argument
 - More search algorithm !
 
 ## Roadmap
