@@ -2,7 +2,7 @@
 
 Since the invention of www, data have grown so immensely that even one night of crawling, the amount of data would be tremendous and hard to classify. As a curious programmer who want to search huge data, determining the priority of the search result has become an important and challenging task. This project provides a simple lightweight tool to help us search keywords with ranking priority by proximity matching.
 
-**Environment: MacOS**
+*tested on MAC OSX and Ubuntu 16.04*
 
 ## Features
 
