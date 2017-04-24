@@ -13,7 +13,7 @@ struct record {
 
 class Record {
 public:
-  Record(std::string path);
+  Record(std::vector<std::string> vectorPath);
   ~Record();
   int getRecordCount() const;
   int getFileCount() const;
@@ -37,7 +37,7 @@ private:
   std::vector<Ranking*> rank;
   int fileCount;
   int dataCount;
-  std::string inputPath;
+  std::vector<std::string> inputPaths;
   std::vector<std::string> rawfiles;
   std::vector<std::string> tagFiles;
 

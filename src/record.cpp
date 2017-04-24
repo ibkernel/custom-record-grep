@@ -39,10 +39,10 @@ Record::~Record()
 };
 
 /* construct record */
-Record::Record(std::string path)
+Record::Record(std::vector<std::string> vectorPath)
 {
   std::cout << "Loading record..." << std::endl;
-  inputPath = path;
+  inputPaths = vectorPath;
   fileCount = 0;
   dataCount = 0;
   buildRecord();
@@ -464,32 +464,33 @@ void Record::checkPathAndSetFileVectors()
 {
   DIR *dir;
   struct dirent *ent;
-  if (exists(inputPath)){
-    if(isDir(inputPath)){
-      if ((dir = opendir(inputPath.c_str())) != NULL) {
-        if (inputPath[inputPath.length()-1] != '/')
-          inputPath = inputPath+"/";
-        while ((ent = readdir(dir)) != NULL) {
-          std::string newFilePath = inputPath+ent->d_name;
-          if (!isDir(newFilePath)) {
-            if (newFilePath.substr(newFilePath.length() - 4) == ".txt"){
-              rawfiles.push_back(newFilePath);
-              tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
-              fileCount++;
-              // if(fileCount > 100) break;
+  for (auto inputPath : inputPaths){
+    if (exists(inputPath)){
+      if(isDir(inputPath)){
+        if ((dir = opendir(inputPath.c_str())) != NULL) {
+          if (inputPath[inputPath.length()-1] != '/')
+            inputPath = inputPath+"/";
+          while ((ent = readdir(dir)) != NULL) {
+            std::string newFilePath = inputPath+ent->d_name;
+            if (!isDir(newFilePath)) {
+              if (newFilePath.substr(newFilePath.length() - 4) == ".txt"){
+                rawfiles.push_back(newFilePath);
+                tagFiles.push_back(newFilePath.substr(0, newFilePath.size()-3)+"tags");
+                fileCount++;
+                // if(fileCount > 100) break;
+              }
             }
           }
+          closedir(dir);
         }
-        closedir(dir);
       }
+      else {
+        rawfiles.push_back(inputPath);
+        tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"tags");
+        fileCount++;
+      }
+    }else {
+      std::cout << "Path " << inputPath << " don't have any file" << std::endl;
     }
-    else {
-      rawfiles.push_back(inputPath);
-      tagFiles.push_back(inputPath.substr(0, inputPath.size()-3)+"tags");
-      fileCount++;
-    }
-  }else {
-    std::cout << "File doesn't exists !" << std::endl;
-    exit(1);
   }
 }

@@ -83,7 +83,7 @@ Crgrep will look through every directory and file on the first level, files will
 
 | argument | description                              | example                                  |
 | :------- | ---------------------------------------- | ---------------------------------------- |
-| -p       | source path to file or directory         | `./crgrep -q pattern1 -p path_to_formatted_dir_or_file` |
+| -p       | source path to file or directory (accept multiple path, -p before each path)        | `./crgrep -q pattern1 -p path_to_formatted_dir_or_file` |
 | -q       | search query, one query at a time        | `./crgrep -q +must_have_pattern -q -must_not_pattern -q "pattern with spaces" -p path` |
 | -a       | ascending output order                   | `./crgrep -q pattern1 -p path -a`        |
 | -d       | error distance tolerance                 | `./crgrep -q pattern1 -p path -d 3`      |

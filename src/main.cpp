@@ -25,7 +25,7 @@ int main(int argc, char** argv){
   TCLAP::MultiArg<std::string> queryArg("q", "query", "Query string", false, "string");
   cmd.add( queryArg );
 
-  TCLAP::ValueArg<std::string> inputPathArg("p", "path", "Path to file or directory", false, "default path","string");
+  TCLAP::MultiArg<std::string> inputPathArg("p", "path", "Path to file or directory", false, "string");
   cmd.add( inputPathArg );
 
   TCLAP::ValueArg<int> outputSizeArg("o", "output", "Output size", false, -1,"int");
@@ -53,13 +53,13 @@ int main(int argc, char** argv){
   int outputSize = outputSizeArg.getValue();
 
   std::string stopWordPath = stopWordPathArg.getValue();
-  std::string inputPath = inputPathArg.getValue();
+  std::vector <std::string> inputPaths = inputPathArg.getValue();
   std::vector <std::string> paths = formatDataArg.getValue();
   std::vector <std::string> queries = queryArg.getValue();
 
 
   if (paths.size() == 0){
-    Record *records = new Record(inputPath);
+    Record *records = new Record(inputPaths);
     Result searchResult(outputSize);
 
     cout << "---------Debug info---------" << endl << endl;

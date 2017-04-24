@@ -1,4 +1,5 @@
 #include <nan.h>
+#include <sstream>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +16,26 @@ using namespace Nan;
 Record* records = 0;
 
 void LoadData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-	string dataPath = string("data/"); // from server.js's perspective
-	records = new Record(dataPath);
+  Nan::Utf8String top30booksFromES(info[0]);
+  std::string top30(*top30booksFromES);
+  std::cout << top30 << std::endl;
+
+  stringstream ss(top30);
+  std::vector <std::string> vectorDataPath2;
+  while( ss.good() )
+  {
+      std::string novel_name;
+      getline( ss, novel_name, ',' );
+      vectorDataPath2.push_back( novel_name );
+  }
+
+  for (auto a : vectorDataPath2)
+    cout << a << endl;
+
+  std::vector <std::string> vectorDataPath;
+  string dataPath = string("../../data/formattedData/"); // from server.js's perspective
+  vectorDataPath.push_back(dataPath);
+	records = new Record(vectorDataPath);
 	info.GetReturnValue().Set(Nan::New(records->getFileCount()));
 }
 
@@ -35,7 +54,6 @@ NAN_METHOD(Search) {
 void FreeData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   delete records;
 }
-
 
 void Init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("loadData").ToLocalChecked(),
