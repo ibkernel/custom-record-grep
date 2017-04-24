@@ -60,8 +60,6 @@ void SearchWorker::HandleOKCallback() {
 		
 		v8::Local<v8::Object> vobj = Nan::New<v8::Object>();
 		title = searchResult.getResultTitle(i);
-		std::cout << title << std::endl;
-		std::cout << searchResult.getResultScore(i) << std::endl;
 		Nan::Set(vobj, Nan::New("title").ToLocalChecked(), Nan::New(title.c_str()).ToLocalChecked());
 		Nan::Set(vobj, Nan::New("score").ToLocalChecked(), Nan::New(searchResult.getResultScore(i)));
 		Nan::Set(returnArr, i+2, vobj);

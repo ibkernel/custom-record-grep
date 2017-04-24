@@ -55,13 +55,21 @@ function searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObj, res)
     }
     var crgrepJsonObj = JSON.stringify(result);
     // TODO: merge the two results -> let crgrep merge it for me
-    console.log(esObj);
-    console.log(crgrepJsonObj);
-    res.end(esObj);
+//    console.log(esObj);
+//    console.log(crgrepJsonObj);
+    res.end(JSON.stringify(esObj));
   }
   // TODO:  把load_data加進search_worker.cc當中，搜尋完也就delete object
   // concat book_name with ',' as delimeter and pass to crgrep.
-  crgrep.search(query,ascendOrder,outputSize, distance, done, "../../data/formattedData", "測試");
+  var book_names = "";
+  var es_res = esObj.slice(2);
+  var i = 0;
+  es_res.forEach(function(entry) {
+      if (i < 51)
+          book_names += entry['title'] + ',';
+      i += 1;
+  });
+  crgrep.search(query,ascendOrder,outputSize, distance, done, "../../../formattedData/", book_names);
 }
 
 // elastic search
@@ -107,8 +115,7 @@ function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave
     for (var i = 0, len = arr.length; i < len; i++) {
       esObj.push({title: arr[i]['_source'].title.replace('@title:', '').replace('\n',''),score: arr[i]['_score']});
     }
-    var esObjJSON = JSON.stringify(esObj);
-    searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObjJSON, res);
+    searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObj, res);
     // res.end(esObjJSON);
   });
 }
