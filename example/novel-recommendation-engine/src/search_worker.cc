@@ -28,11 +28,12 @@ using Nan::Null;
 using Nan::To;
 
 
-SearchWorker::SearchWorker(Callback *callback, string query, Record *&data, bool isAscend, int outputSize, unsigned int distance)
+SearchWorker::SearchWorker(Callback *callback, string query, Record *&data, bool isAscend, int outputSize, unsigned int distance, std::vector <std::string> &vectorDataPath)
 	: AsyncWorker(callback), query(query), searchResult({outputSize}), isAscend(isAscend),
-	 resultCount(0), data(data), distance(distance){}
+	 resultCount(0), data(nullptr), distance(distance), bookPath{vectorDataPath}{}
 
 void SearchWorker::Execute() {
+	data = new Record(bookPath);
 	std::vector <std::string> queries = parseInteractiveSearchQuery(query);
 	data->searchAndSortWithRank(queries, searchResult,0,distance);
 	resultCount = searchResult.getResultCount();
@@ -71,7 +72,7 @@ void SearchWorker::HandleOKCallback() {
 			Null()
 		,	v8::Local<v8::Array>(returnArr)
 	};
-
+	delete data;
 	callback->Call(2, argv);
 }
 

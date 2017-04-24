@@ -5,10 +5,13 @@
 #include <vector>
 #include <time.h>
 #include <algorithm>
+#include <climits>
 #include "result.h"
 
 
-Result::Result(int size): outputSize(size){};
+Result::Result(int size): outputSize(size){
+  outputSize = (size == -1 ? INT_MAX : 10);
+};
 
 Result::~Result() {
   searchResult.clear();
@@ -53,8 +56,6 @@ void Result::printResult(bool order)
 {
   sort(order);
   int i  = 0;
-  if (outputSize < 0)
-    outputSize = getResultCount();
   for (auto r: searchResult) {
     if (r.isValid && i < outputSize){
       std::cout << "Book :" << r.recordTitle << std::endl;

@@ -64,6 +64,7 @@ clean:
 
 EXAMPLE_SRC_PATH=../example/custom-search-engine/src/
 EXAMPLE_SRC_PATH2=../example/blind-test/src/
+EXAMPLE_SRC_PATH3=../example/novel-recommendation-engine/src/
 
 update-example-src:
 	cp ranking.cpp $(EXAMPLE_SRC_PATH)ranking.cc
@@ -99,6 +100,23 @@ update-example-src:
 	cp record.h $(EXAMPLE_SRC_PATH2)record.h
 
 	cp third_party_headers.h $(EXAMPLE_SRC_PATH2)third_party_headers.h
+
+	cp ranking.cpp $(EXAMPLE_SRC_PATH3)ranking.cc
+	cp ranking.h $(EXAMPLE_SRC_PATH3)ranking.h
+
+	cp result.cpp $(EXAMPLE_SRC_PATH3)result.cc
+	cp result.h $(EXAMPLE_SRC_PATH3)result.h
+
+	cp search.cpp $(EXAMPLE_SRC_PATH3)search.cc
+	cp search.h $(EXAMPLE_SRC_PATH3)search.h
+
+	cp utils.cpp $(EXAMPLE_SRC_PATH3)utils.cc
+	cp utils.h $(EXAMPLE_SRC_PATH3)utils.h
+
+	cp record.cpp $(EXAMPLE_SRC_PATH3)record.cc
+	cp record.h $(EXAMPLE_SRC_PATH3)record.h
+
+	cp third_party_headers.h $(EXAMPLE_SRC_PATH3)third_party_headers.h
 
 # build library cld (compact language detector)
 build-libcld:

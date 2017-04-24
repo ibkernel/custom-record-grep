@@ -22,16 +22,16 @@ Record::~Record()
   std::cout << "Freeing memory" << std::endl;
   std::cout << "dataCount : " << dataCount << std::endl;
   for (int i=0; i<dataCount; i++) {
-    if(data[i].language)
+    if(data[i].language != nullptr)
       free(data[i].language);
-    if(data[i].id)
+    if(data[i].id != nullptr)
       free(data[i].id);
-    if(data[i].title)
+    if(data[i].title != nullptr)
       free(data[i].title);
-    if(data[i].content)
+    if(data[i].content != nullptr)
       free(data[i].content);
   }
-  if(data)
+  if(data != nullptr)
     free(data);
   for (auto rk: rank) {
     delete rk;

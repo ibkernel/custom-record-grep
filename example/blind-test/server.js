@@ -154,7 +154,7 @@ process.on('uncaughtException', function (err) {
 var server = app.listen(port);
 console.log('start at http://localhost:'+port);
 console.log("-----Loading data------\nPlease do not interrupt the process");
-console.log(crgrep.loadData());
+console.log(crgrep.loadData("../../data/formattedData", ""));
 console.log("-----data loaded------");
 
 

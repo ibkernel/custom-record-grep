@@ -37,24 +37,45 @@ void Ranking::freeRankTree()
     for (int i=0; i< root->childTagCount; i++){ // chapter
       if(root->tagNodes[i] != nullptr){
         for (int j=0; j< root->tagNodes[i]->childTagCount; j++){ // parargraph or title
-          if(root->tagNodes[i]->tagNodes[j]->tagNodes != nullptr)
+          if(root->tagNodes[i]->tagNodes[j]->tagNodes != nullptr){
             free(root->tagNodes[i]->tagNodes[j]->tagNodes);
-          if(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags != nullptr)
+            root->tagNodes[i]->tagNodes[j]->tagNodes = nullptr;
+          }
+          if(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags != nullptr){
             free(root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags);
-          free(root->tagNodes[i]->tagNodes[j]);
+            root->tagNodes[i]->tagNodes[j]->lowerBoundLocationOfChildTags = nullptr;
+          }
+          if(root->tagNodes[i]->tagNodes[j] != nullptr){
+            free(root->tagNodes[i]->tagNodes[j]);
+            root->tagNodes[i]->tagNodes[j] = nullptr;
+          }
         }
-        if (root->tagNodes[i]->tagNodes != nullptr)
+        if (root->tagNodes[i]->tagNodes != nullptr){
           free(root->tagNodes[i]->tagNodes);
-        if (root->tagNodes[i]->lowerBoundLocationOfChildTags != nullptr)
+          root->tagNodes[i]->tagNodes = nullptr;
+        }
+        if (root->tagNodes[i]->lowerBoundLocationOfChildTags != nullptr){
           free(root->tagNodes[i]->lowerBoundLocationOfChildTags);
-        free(root->tagNodes[i]);
+          root->tagNodes[i]->lowerBoundLocationOfChildTags = nullptr;
+        }
+        if (root->tagNodes[i] != nullptr){
+          free(root->tagNodes[i]);
+          root->tagNodes[i] = nullptr;
+        }
       }
     }
-    if (root->tagNodes != nullptr)
+    if (root->tagNodes != nullptr){
       free(root->tagNodes);
-    if (root->lowerBoundLocationOfChildTags != nullptr)
+      root->tagNodes = nullptr;
+    }
+    if (root->lowerBoundLocationOfChildTags != nullptr){
       free(root->lowerBoundLocationOfChildTags);
-    free(root);
+      root->lowerBoundLocationOfChildTags = nullptr;
+    }
+    if (root != nullptr){
+      free(root);
+      root = nullptr;
+    }
   }
 }
 
@@ -191,7 +212,7 @@ int Ranking::getBelongingNodeIndexWithFoundLocation(int *&lowerBound,
  */
 void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
 {
-  if (root == NULL){
+  if (root == nullptr){
     root = (struct rankTreeNode*) malloc(sizeof(struct rankTreeNode) * 1);
     root->lowerBoundLocationOfChildTags = (int *) malloc(sizeof(int) * 1);
     root->tagNodes = (struct rankTreeNode **)malloc(sizeof(struct rankTreeNode *) * 1);
@@ -200,15 +221,15 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
     root->childTagCount = 1;
     chapter_num += 1;
   }else {
-    struct rankTreeNode **moreData = NULL;
-    int*  evenMoreData = NULL;
+    struct rankTreeNode **moreData = nullptr;
+    int*  evenMoreData = nullptr;
 
     switch (tagType){
       case 'c':
         chapter_size = 0;
         moreData = (struct rankTreeNode **) realloc(root->tagNodes, sizeof(struct rankTreeNode *)*(chapter_num+1));
         evenMoreData = (int *) realloc(root->lowerBoundLocationOfChildTags, sizeof(int)*(chapter_num+1));
-        if (moreData!= NULL && evenMoreData != NULL){
+        if (moreData!= nullptr && evenMoreData != nullptr){
           root->tagNodes = moreData;
           root->tagNodes[chapter_num] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode) * 1);
           root->lowerBoundLocationOfChildTags = evenMoreData;
@@ -236,7 +257,7 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
         root->tagNodes[chapter_num-1]->childTagCount += 1;
         moreData = (struct rankTreeNode **) realloc(root->tagNodes[chapter_num-1]->tagNodes, sizeof(struct rankTreeNode *)*(chapter_size+1));
         evenMoreData = (int *)realloc(root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags, sizeof(int)*(chapter_size+1));
-        if(moreData != NULL && evenMoreData != NULL){
+        if(moreData != nullptr && evenMoreData != nullptr){
           root->tagNodes[chapter_num-1]->tagNodes = moreData;
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size] = (struct rankTreeNode *)malloc(sizeof(struct rankTreeNode));
           root->tagNodes[chapter_num-1]->lowerBoundLocationOfChildTags = evenMoreData;
@@ -256,7 +277,7 @@ void Ranking::insertTag(char tagType, int lowerBound, int upperBound)
         root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->childTagCount += 1;
         moreData = (struct rankTreeNode **) realloc(root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes, sizeof(struct rankTreeNode *)*(paragraph_size));
         evenMoreData = (int *) realloc(root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->lowerBoundLocationOfChildTags, sizeof(int)*(paragraph_size));
-        if (moreData != NULL && evenMoreData != NULL){
+        if (moreData != nullptr && evenMoreData != nullptr){
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes = moreData;
           root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = nullptr;
           // root->tagNodes[chapter_num-1]->tagNodes[chapter_size-1]->tagNodes[paragraph_size-1] = (struct rankTreeNode*)malloc(sizeof(struct rankTreeNode)* 1);

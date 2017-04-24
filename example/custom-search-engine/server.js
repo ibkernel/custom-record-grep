@@ -71,6 +71,6 @@ var gracefulShutdown = function() {
 app.listen(port);
 console.log('start at http://localhost:'+port);
 
-console.log(crgrep.loadData("這是一本書,這又是另一本書2,哈又來一本新書"));
+console.log(crgrep.loadData("../../data/formattedData/", ""));
 console.log("-----data loaded------");
 

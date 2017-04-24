@@ -59,7 +59,9 @@ function searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObj, res)
     console.log(crgrepJsonObj);
     res.end(esObj);
   }
-  crgrep.search(query,ascendOrder,outputSize, distance, done);
+  // TODO:  把load_data加進search_worker.cc當中，搜尋完也就delete object
+  // concat book_name with ',' as delimeter and pass to crgrep.
+  crgrep.search(query,ascendOrder,outputSize, distance, done, "../../data/formattedData", "測試");
 }
 
 // elastic search
@@ -113,7 +115,7 @@ function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave
 
 process.on('SIGINT', function() {
     console.log("Caught interrupt signal");
-    crgrep.freeData();
+    // crgrep.freeData();
     gracefulShutdown(); // Weird behavior
 });
 
@@ -136,14 +138,14 @@ var gracefulShutdown = function() {
 process.on('uncaughtException', function (err) {
   console.log(err);
   console.log('Error happened, please check if your elasticsearch is running.\nTerminating process');
-  crgrep.freeData();
+  // crgrep.freeData();
   gracefulShutdown();
 });
 
 var server = app.listen(port);
 console.log('start at http://localhost:'+port);
 console.log("-----Loading data------\nPlease do not interrupt the process");
-console.log(crgrep.loadData());
+// console.log(crgrep.loadData("../../data/formattedData", ""));
 console.log("-----data loaded------");
 
 

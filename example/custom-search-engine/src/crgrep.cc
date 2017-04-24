@@ -16,25 +16,38 @@ using namespace Nan;
 Record* records = 0;
 
 void LoadData(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-  Nan::Utf8String top30booksFromES(info[0]);
-  std::string top30(*top30booksFromES);
-  std::cout << top30 << std::endl;
-
-  stringstream ss(top30);
-  std::vector <std::string> vectorDataPath2;
-  while( ss.good() )
+  if (info.Length() != 2)
   {
-      std::string novel_name;
-      getline( ss, novel_name, ',' );
-      vectorDataPath2.push_back( novel_name );
+        std::cout << "Invalid number of arguments" << std::endl;
+        exit(1);
+  }
+  std::vector <std::string> vectorDataPath;
+  Nan::Utf8String pathToDir(info[0]);
+  Nan::Utf8String top30booksFromES(info[1]);
+  std::string top30(*top30booksFromES);
+  std::string dirPath(*pathToDir);
+
+  if (dirPath.empty()){
+    std::cout << "missing dir path argument" << std::endl;
+    exit(1);
   }
 
-  for (auto a : vectorDataPath2)
+  if (top30.empty()){
+    vectorDataPath.push_back(dirPath);
+  }
+  else {
+    stringstream ss(top30);
+    while( ss.good() )
+    {
+        std::string novel_name;
+        getline( ss, novel_name, ',' );
+        vectorDataPath.push_back( dirPath + novel_name + ".txt");
+    }
+  }
+
+  for (auto a : vectorDataPath)
     cout << a << endl;
 
-  std::vector <std::string> vectorDataPath;
-  string dataPath = string("../../data/formattedData/"); // from server.js's perspective
-  vectorDataPath.push_back(dataPath);
 	records = new Record(vectorDataPath);
 	info.GetReturnValue().Set(Nan::New(records->getFileCount()));
 }
