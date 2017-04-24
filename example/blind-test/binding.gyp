@@ -24,7 +24,6 @@
           'cflags': [
             '-DCLD_WINDOWS'
             '-std=c++11',
-            '-stdlib=libc++'
           ],
 
         }],
