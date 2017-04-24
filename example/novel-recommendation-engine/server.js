@@ -70,7 +70,7 @@ function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave
     operator = "and";
   query = query.replace('+', '').replace('-', '');
   client.search({
-    index: 'posts',
+    index: 'novels',
     body: {
       "_source": ["title"],
       "from": 0,

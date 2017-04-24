@@ -23,7 +23,10 @@ npm start
 ```
 ## Elasticsearch search settings
 
-[TODO]
+Analyzer
+```
+cjk_analyzer
+```
 
 ## Demo page
-You can visit my novel recommendation website [here](findmynovel.csie.io)
+You can take a quick tour at my novel recommendation website [here](findmynovel.csie.io)

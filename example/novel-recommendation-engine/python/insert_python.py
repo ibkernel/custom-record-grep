@@ -7,10 +7,10 @@ import json
 from os import listdir
 from os.path import isfile, join
 
-mypath = "./formattedData/"
+mypath = "/home/wayne/project-novel/formattedData/"
 onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-es = Elasticsearch([{'host', 'localhost', 'port': 9200}]
+es = Elasticsearch([{'host':'localhost', 'port': 9200}])
 for file in onlyfiles:
     if ".txt" in file:
         print(file)
