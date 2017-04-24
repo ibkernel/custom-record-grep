@@ -55,6 +55,7 @@ function searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObj, res)
     }
     var crgrepJsonObj = JSON.stringify(result);
     // TODO: merge the two results -> let crgrep merge it for me
+    console.log(esObj);
     console.log(crgrepJsonObj);
     res.end(esObj);
   }

@@ -7,4 +7,7 @@
 [submodule "example/blind-test/src/cld"]
 	path = example/blind-test/src/cld
 	url = https://github.com/mzsanford/cld
+[submodule "example/novel-recommendation-engine/src/cld"]
+	path = example/novel-recommendation-engine/src/cld
+	url = https://github.com/mzsanford/cld
 
