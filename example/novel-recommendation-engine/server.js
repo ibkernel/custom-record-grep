@@ -7,6 +7,7 @@ var elasticsearch = require('elasticsearch');
 
 var extend = require('util')._extend
 
+var port = 8987;
 app.use(bodyParser());
 app.use(express.static(__dirname + '/views'));
 app.get('/', function(req, res) {
@@ -19,10 +20,9 @@ var client = new elasticsearch.Client({
   log: 'trace'
 });
 
-
 client.ping({
   // ping usually has a 3000ms timeout
-  requestTimeout: 1000
+  requestTimeout: 3000
 }, function (error) {
   if (error) {
     console.trace('elasticsearch cluster is down!');
@@ -32,7 +32,6 @@ client.ping({
 });
 
 
-var port = 8987;
 
 app.post('/search', function(req, res){
   var isOutputAscendOrder = req.body.checkbox;
@@ -44,30 +43,26 @@ app.post('/search', function(req, res){
     ascendOrder = 1;
   else 
     ascendOrder = 0;
-  console.log("query:",req.body.query);
-  searchCrgrepAsync(req.body.query, ascendOrder, outputSize, distance,isMustHave, res);
+  searchElastic(req.body.query, ascendOrder, outputSize, distance, res, isMustHave);
 });
 
 // crgrep search
-function searchCrgrepAsync(query, ascendOrder, outputSize, distance,isMustHave, res) {
+function searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObj, res) {
   function done (err, result) {
     if (err){
       console.log("error");
       exit(1);
     }
-    // console.log("-----Result------");
     var crgrepJsonObj = JSON.stringify(result);
-    searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave, crgrepJsonObj);
-
-    // res.end(crgrepJsonObj);
-    // console.log("-----End of Result------\n");
+    // TODO: merge the two results -> let crgrep merge it for me
+    console.log(crgrepJsonObj);
+    res.end(esObj);
   }
-
   crgrep.search(query,ascendOrder,outputSize, distance, done);
 }
 
 // elastic search
-function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave, crgrepObj) {
+function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave) {
   outputSize = (outputSize != -1 ? outputSize : 10);
   operator = "or";
   if (isMustHave == "true")
@@ -84,15 +79,15 @@ function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave
           "must": {
             "match": { 
               "content": {
-                "query":   "安娜",
-                "operator": "and"
+                "query":   query,
+                "operator": operator
               }
             }
           },
           "should": {
             "match_phrase": { 
               "content": {
-                "query": "安娜",
+                "query": query,
                 "slop":  1000000,
                 "boost": 5
               }
@@ -109,17 +104,9 @@ function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave
     for (var i = 0, len = arr.length; i < len; i++) {
       esObj.push({title: arr[i]['_source'].title.replace('@title:', '').replace('\n',''),score: arr[i]['_score']});
     }
-    var randomObj = {};
-    esObj = JSON.stringify(esObj);
-    if (Math.random() >= 0.5){ // random bool
-      randomObj['1'] = crgrepObj;
-      randomObj['2'] = esObj;
-    }else {
-      randomObj['1'] = esObj;
-      randomObj['2'] = crgrepObj;
-    }
-
-    res.end(JSON.stringify(randomObj));
+    var esObjJSON = JSON.stringify(esObj);
+    searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObjJSON, res);
+    // res.end(esObjJSON);
   });
 }
 
@@ -146,6 +133,7 @@ var gracefulShutdown = function() {
 }
 
 process.on('uncaughtException', function (err) {
+  console.log(err);
   console.log('Error happened, please check if your elasticsearch is running.\nTerminating process');
   crgrep.freeData();
   gracefulShutdown();

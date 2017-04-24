@@ -1,0 +1,56 @@
+.logo{
+   /*color:red;
+   margin-top:200px;*/
+   font-size: 6.6em;
+   /*margin: 25px;*/
+   font-family: 'Londrina Solid', cursive;
+   margin-top: 10%;
+
+}
+.settings {
+	margin-left: 15px !important;
+}
+
+.progress {
+	margin-top: 10%;
+}
+
+body {
+	background-image: url("../image/swirl_pattern.png");
+	background-repeat: repeat;
+}
+/* 385  340   */
+.video640 {width: 100%; height: 578px}
+
+
+@media screen and (max-width: 767px) {
+	.logo{
+	   /*color:red;
+	   margin-top:200px;*/
+	   font-size: 4.2em;
+	   /*margin: 25px;*/
+	   font-family: 'Londrina Solid', cursive;
+	    margin-top: 5%;
+	}
+	h5 {
+		font-size: 1em;
+	}
+	.video640 {width: 100%; height: 360px}
+}
+@media screen and (max-width: 480px) {
+	.logo{
+	   /*color:red;
+	   margin-top:200px;*/
+	   font-size: 3em;
+	   /*margin: 25px;*/
+	   font-family: 'Londrina Solid', cursive;
+	   margin-top: 0px;
+	}
+	h5 {
+		font-size: 0.8em;
+	}
+	.settings {
+		margin-left: 3px !important;
+	}
+	.video640 {width: 100%; height: 250px}
+}

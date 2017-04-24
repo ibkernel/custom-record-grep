@@ -40,11 +40,13 @@
             cache: false,
             data: commands,
             success: function(data){
+              console.log(data);
               // var data = JSON.parse(data);
               var info = data.slice(0, 1);
+              var src = data.slice(1,2)[0]['src'];
               
-              console.log(data);
-              this.setState({data:data.slice(1),info: info});
+              console.log("src: ", src);
+              this.setState({data:data.slice(2),info: info});
               //console.log(data);
               $(".Info").removeClass( "hide" );
               $(".progress").addClass( "hide" );

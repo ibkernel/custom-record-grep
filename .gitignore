@@ -13,3 +13,4 @@ loop.sh
 crgrep
 core
 *.swp
+.ycm_extra_conf.py

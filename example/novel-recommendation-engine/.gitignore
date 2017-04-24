@@ -1,0 +1,23 @@
+# sftp
+sftp-config.json
+
+# vim swp file
+*.swp
+
+# npm modules
+node_modules/
+
+# tmp files
+.DS_Store/
+
+# node-gyp files
+build/
+
+# log files
+*.log
+
+# elasticsearch
+elasticsearch/
+
+# virtualenv
+.virtualenv/
