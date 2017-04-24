@@ -4,7 +4,7 @@ CLD_LIB_CFLAGS=-DCLD_WINDOWS -Ithird_party/cld -L. -lcld -lstdc++
 
 TCLAP_CLFAGS=-Ithird_party/
 
-CRGREP_CLFLAGS=-std=c++11 -O3 -g -Wall
+CRGREP_CLFLAGS=-std=c++11 -O3 -Wall
 
 CLD_CFLAGS=-fPIC -Ithird_party/cld -O2 -DCLD_WINDOWS
 LDFLAGS=-L.
@@ -53,7 +53,7 @@ format:
 	# ./a.out -f ../../downloadedData/ -f  ../../formattedData/
 
 debug:
-	g++ $(CRGREP_CLFLAGS) $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
+	g++ -g $(CRGREP_CLFLAGS) $(TCLAP_CLFAGS) $(CRGREP_SOURCES) $(CLD_LIB_CFLAGS)
 	gdb ./a.out
 
 
