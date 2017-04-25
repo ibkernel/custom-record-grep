@@ -22,31 +22,36 @@ NAN_METHOD(Search) {
   bool isAscend = (a == 1) ? true : false;
   int outputSize = info[2]->NumberValue();
   unsigned int distance = info[3]->Int32Value();
-  std::vector <std::string> vectorDataPath;
+  std::vector <std::string> vectorBookName;
+  std::vector <double> vectorBookScore;
   Nan::Utf8String pathToDir(info[5]);
-  Nan::Utf8String top30booksFromES(info[6]);
-  std::string top30(*top30booksFromES);
+  Nan::Utf8String topNbooksFromES(info[6]);
+  Nan::Utf8String topNscoresFromES(info[7]);
+  std::string topResults(*topNbooksFromES);
   std::string dirPath(*pathToDir);
+  std::string topResultsScores(*topNscoresFromES);
   if (dirPath.empty()){
     std::cout << "missing dir path argument" << std::endl;
     exit(1);
   }
 
-  if (top30.empty()){
-    vectorDataPath.push_back(dirPath);
-  }
-  else {
-    stringstream ss(top30);
-    while( ss.good() )
+  if (!topResults.empty()){
+    stringstream ss(topResults), sscore(topResultsScores);
+    while( ss.good() && sscore.good())
     {
-        std::string novel_name;
+        std::string novel_name, novel_score;
         getline( ss, novel_name, ',' );
-        vectorDataPath.push_back( dirPath + novel_name + ".txt");
+        getline( sscore, novel_score, ',' );
+        if (!novel_score.empty() &&  !novel_name.empty()){
+          double score  = std::stod(novel_score);
+          vectorBookName.push_back(novel_name);
+          vectorBookScore.push_back(score);
+        }
     }
   }
 
 	Callback *callback = new Callback(info[4].As<Function>());
-	AsyncQueueWorker(new SearchWorker(callback, str, records, isAscend, outputSize, distance, vectorDataPath));
+	AsyncQueueWorker(new SearchWorker(callback, str, records, isAscend, outputSize, distance, vectorBookName, dirPath, vectorBookScore));
 }
 
 

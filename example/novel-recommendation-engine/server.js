@@ -53,28 +53,30 @@ function searchCrgrepAsync(query, ascendOrder, outputSize, distance, esObj, res)
       console.log("error");
       exit(1);
     }
-    var crgrepJsonObj = JSON.stringify(result);
+    var mergedJsonObj = JSON.stringify(result);
     // TODO: merge the two results -> let crgrep merge it for me
-//    console.log(esObj);
-//    console.log(crgrepJsonObj);
-    res.end(JSON.stringify(esObj));
+    console.log(esObj);
+    console.log(mergedJsonObj);
+    res.end(mergedJsonObj);
   }
-  // TODO:  把load_data加進search_worker.cc當中，搜尋完也就delete object
   // concat book_name with ',' as delimeter and pass to crgrep.
   var book_names = "";
+  var book_scores = "";
   var es_res = esObj.slice(2);
   var i = 0;
   es_res.forEach(function(entry) {
-      if (i < 51)
+      if (i < 51){
           book_names += entry['title'] + ',';
+          book_scores += entry['score'] + ',';
+      }
       i += 1;
   });
-  crgrep.search(query,ascendOrder,outputSize, distance, done, "../../../formattedData/", book_names);
+  crgrep.search(query,ascendOrder,outputSize, distance, done, "../../../formattedData/", book_names, book_scores);
 }
 
 // elastic search
 function searchElastic(query, ascendOrder, outputSize, distance, res, isMustHave) {
-  outputSize = (outputSize != -1 ? outputSize : 10);
+  outputSize = (outputSize != -1 ? outputSize : 50);
   operator = "or";
   if (isMustHave == "true")
     operator = "and";
