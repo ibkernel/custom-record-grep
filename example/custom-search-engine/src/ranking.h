@@ -2,8 +2,8 @@
 #define CRGREP_RANKING_H_
 #include <unordered_map>
 
-const int chapterTagWeight = 3,  titleTagWeight = 10, paragraphTagWeight = 4, sentenseTagWeight = 5;
-const int idWeight = 0, titleWeight = 300000, contentWeight = 3;
+const int chapterTagWeight = 3,  titleTagWeight = 48, paragraphTagWeight = 4, sentenseTagWeight = 5;
+const int idWeight = 0, titleWeight = 5937, contentWeight = 3;
 
 struct rankTreeNode {
   int *lowerBoundLocationOfChildTags;

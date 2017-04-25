@@ -99,16 +99,20 @@ Crgrep will look through every directory and file on the first level, files will
 
 Go check out my [blog](https://cwayne.github.io/2017/03/23/crgrep/ "blog") for implementation details and the lesson I learned on the journey.
 
+## Demo
+
+I have integrated crgrep with elasticsearch and used as the search-engine of my novel search-engine website(novel sources are scraped from qidian.com, thus all books are written in chinese). This is the [link](http://findmynovel.csie.io) and feel free to send me any feedback.
+
+
 ## Credit
 
 Thanks to:
 
 - [tclap](http://tclap.sourceforge.net/ "clap") for giving me a simple solution for cmd argument parsing
-- [cld](https://github.com/mzsanford/cld 'CLD') for delivering a robust language detection library
+- [cld](https://github.com/mzsanford/cld "CLD") for delivering a robust language detection library"
 
 ## TODO
 
-- Add load data restriction argument
 - More search algorithm !
 
 ## Roadmap
