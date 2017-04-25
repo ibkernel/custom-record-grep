@@ -10,7 +10,7 @@
 
 
 Result::Result(int size): outputSize(size){
-  outputSize = (size == -1 ? INT_MAX : 10);
+  outputSize = (size == -1 ? INT_MAX : size);
 };
 
 Result::~Result() {
