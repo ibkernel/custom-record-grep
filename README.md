@@ -1,4 +1,4 @@
-# CRGREP: A ranking search tool based on contextual relationship analysis
+# Record Grep: A ranking search tool based on contextual relationship analysis
 
 Since the invention of www, data have grown so immensely that even one night of crawling, the amount of data would be tremendous and hard to classify. As a curious programmer who want to search huge data, determining the priority of the search result has become an important and challenging task. This project provides a simple lightweight tool to help us search keywords with ranking priority by proximity matching.
 
@@ -26,7 +26,7 @@ Data must follow the format bellow.
 
 **Data must not contain other newline '/n' inside, or it will treat it as another record**
 
-When crgrep is loading the data, it will search the corresponding indexing file alongside (same file name, but with the extension 'tags'). If no indexing file is found, the default scoring mechanism will be used.
+When the tool is loading the data, it will search the corresponding indexing file alongside (same file name, but with the extension 'tags'). If no indexing file is found, the default scoring mechanism will be used.
 
 ### An example of a preprocessed index file
 
@@ -43,11 +43,11 @@ s_3 177 1281
 
 **If there are more than one record in a single file, the indexing file is consider corresponding to the first record only, the rest remains default**
 
-Although, crgrep works only if the input data were all well formatted, **crgrep can took care all of the preprocessing stuff for us**. All crgrep need is just some arguments, [see instruction below](#preprocess-data).
+Although, the grep tool works only if the input data were all well formatted, **the tool can took care all of the preprocessing stuff for us**. All the tool need is just some arguments, [see instruction below](#preprocess-data).
 
 ## Usage
 
-### Compile crgrep:
+### Compile the tool:
 
 *Read the makefile for compiler details*
 
